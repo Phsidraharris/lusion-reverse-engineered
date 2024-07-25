@@ -10,6 +10,7 @@ let camera;
 let scene;
 
 function init() {
+    window.addEventListener('scroll', onScroll);
     window.addEventListener('resize', onWindowResized);
 
     const canvas = document.getElementById("canvas");
@@ -23,8 +24,14 @@ function init() {
     stats = new Stats();
     document.body.appendChild(stats.dom);
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.z = 75;
+    // camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    // camera.position.z = 75;
+
+    const aspect = window.innerWidth / window.innerHeight;
+    const frustumSize = 75;
+    camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 1000);
+    camera.position.z = 100;
+    // scene.add(camera);
 
     scene = new THREE.Scene();
 
@@ -34,7 +41,7 @@ function init() {
         scene.environment = texture;
     });
 
-    torusMaterial = new THREE.MeshStandardMaterial({
+    const torusMaterial = new THREE.MeshStandardMaterial({
         roughness: 0.1,
         metalness: 0
     });
@@ -43,7 +50,6 @@ function init() {
     torus.receiveShadow = true;
     torus.castShadow = true;
     scene.add(torus);
-
 
     const loader = new FontLoader();
     loader.load('assets/optimer_regular.typeface.json', function (response) {
@@ -74,13 +80,12 @@ function onWindowResized() {
     camera.updateProjectionMatrix();
 }
 
-function animate() {
-    // const card = document.getElementById("card");
-    // if (card) {
-    //     card.style.transform = `skew(${targetVelocity * 100}deg)`;
-    // }
-    // targetVelocity = Math.max(0, targetVelocity - 0.005);
+function onScroll() {
+    const scrollProgress = window.scrollY / (document.body.clientHeight);
+    camera.position.y = -scrollProgress * 200;
+}
 
+function animate() {
     renderer.render(scene, camera);
     stats.update();
 }
