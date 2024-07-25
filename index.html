@@ -5,9 +5,25 @@
     <meta charset="utf-8">
     <title>Threee</title>
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
-            height: 2000px;
+            scrollbar-width: none;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        ::-webkit-scrollbar-button {
+            display: none;
+        }
+
+        body {
+            -ms-overflow-style: none;
         }
 
         #canvas {
@@ -42,22 +58,44 @@
         article.blue {
             background-color: #9ebbe7;
         }
+
+        #scrollbar {
+            position: fixed;
+            height: 120px;
+            width: 4px;
+            background-color: #0000001a;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 3px;
+        }
+
+        #scrollbar-handle {
+            background-color: #00000077;
+            position: absolute;
+            width: 100%;
+            height: 10px;
+        }
     </style>
 </head>
 
 <body>
+
     <article class="red">1</article>
-    <article class="blue">2</article>
+    <article class="blue" id="article-2">2</article>
     <article class="red">3</article>
     <article class="blue">4</article>
     <article class="red">5</article>
+    <div id="scrollbar">
+        <div id="scrollbar-handle"></div>
+    </div>
     <!--
     <canvas id="canvas"></canvas>
     <div id="card"></div>
     <script type="module" src="/main.js" defer></script>
     -->
 
-    <script type="module" src="./paging.js" defer></script>
+    <script type="module" src="./paging.js"></script>
 </body>
 
 </html>
