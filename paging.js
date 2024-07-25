@@ -9,7 +9,8 @@ let prevTimestep = 0;
 
 const scrollbar = document.getElementById("scrollbar");
 const scrollbarHandle = document.getElementById("scrollbar-handle");
-const section2 = document.getElementById("section-2");
+const h1Topline = document.getElementById("h1-topline");
+const h1Tagline = document.getElementById("h1-tagline");
 
 function isElementOnScreen(element) {
     let observer;
@@ -17,7 +18,7 @@ function isElementOnScreen(element) {
     const observerOptions = {
         root: null, // Use the viewport as the root
         rootMargin: '0px',
-        threshold: 0.1 // Trigger as soon as even one pixel is visible
+        threshold: 0 // Trigger as soon as even one pixel is visible
     };
 
     return new Promise((resolve) => {
@@ -36,15 +37,17 @@ function isElementOnScreen(element) {
     });
 }
 
-// Usage example:
+// Detect whether the animated h1 elements are in view, if so, add "animate" class
 function onScroll() {
-    isElementOnScreen(section2).then(isOnScreen => {
+    function isElementOnScreenCallback(element, isOnScreen) {
         if (isOnScreen) {
-            console.log('Element is on the screen');
+            element.classList.add("animate");
         } else {
-            console.log('Element is not on the screen');
+            element.classList.remove("animate");
         }
-    });
+    }
+    isElementOnScreen(h1Topline).then(isOnScreen => isElementOnScreenCallback(h1Topline, isOnScreen));
+    isElementOnScreen(h1Tagline).then(isOnScreen => isElementOnScreenCallback(h1Tagline, isOnScreen));
 }
 
 function onWheel(e) {
