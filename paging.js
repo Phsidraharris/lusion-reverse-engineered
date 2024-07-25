@@ -11,16 +11,27 @@ function onWheel(e) {
 
 function update(timestep) {
     const dt = timestep - prevTimestep;
-    const timeSinceLastScroll = Date.now() - lastScrollTime;
 
-    if (timeSinceLastScroll > lastScrollCooldown) {
-        const currentPageIndex = Math.round(window.scrollY / window.innerHeight);
-        const currentPageY = currentPageIndex * window.innerHeight;
-
-        window.scroll({ top: currentPageY, behavior: 'smooth' });
-    }
+    updatePageSnapping();
 
     prevTimestep = timestep;
 
     window.requestAnimationFrame(update);
+}
+
+function updatePageSnapping() {
+    const pageDistanceThreshold = 0.3;
+    const timeSinceLastScroll = Date.now() - lastScrollTime;
+
+    if (timeSinceLastScroll > lastScrollCooldown) {
+        const pageHeight = window.innerHeight;
+        const currentPageIndex = Math.round(window.scrollY / pageHeight);
+        const targetPageY = currentPageIndex * pageHeight;
+
+        // Distance to target as a percentage of page height
+        const distanceToTarget = Math.abs((targetPageY - window.scrollY) / pageHeight);
+        if (distanceToTarget < pageDistanceThreshold) {
+            window.scroll({ top: targetPageY, behavior: 'smooth' });
+        }
+    }
 }
