@@ -11,7 +11,7 @@
         }
 
         :root {
-            --h1-font-size: 3rem;
+            --h1-font-size: 4rem;
         }
 
 
@@ -83,20 +83,28 @@
             background-color: violet;
             margin: 0;
             width: 100%;
-        }
+            white-space: nowrap;
 
-        .animated-h1-container h1 {
-            font-size: var(--h1-font-size);
-        }
+            h1 {
+                font-size: var(--h1-font-size);
+                background-color: red;
+                display: inline-block;
+                visibility: hidden;
+            }
 
-        .animate-topline {
-            display: inline-block;
-            animation: animate-topline 2s forwards;
-        }
+            #h1-topline {
+                &.animate {
+                    visibility: visible;
+                    animation: animate-topline 2s forwards;
+                }
+            }
 
-        .animate-tagline {
-            display: inline-block;
-            animation: animate-tagline 2s forwards;
+            #h1-tagline {
+                &.animate {
+                    visibility: visible;
+                    animation: animate-tagline 2s forwards;
+                }
+            }
         }
 
         @keyframes animate-topline {
@@ -137,10 +145,10 @@
     <section class="red">1</section>
     <section class="blue" id="section-2">
         <div class="animated-h1-container">
-            <h1 class="animate-topline">BEYOND VISIONS</h1>
+            <h1 id="h1-topline">BEYOND VISIONS</h1>
         </div>
         <div class="animated-h1-container">
-            <h1 class="animate-tagline">SOMETHING GOES HERE</h1>
+            <h1 id="h1-tagline">SOMETHING GOES HERE</h1>
         </div>
     </section>
     <section class="red">3</section>
