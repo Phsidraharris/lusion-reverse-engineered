@@ -57,38 +57,7 @@
     <script type="module" src="/main.js" defer></script>
     -->
 
-    <script defer>
-        window.addEventListener('scroll', onScroll);
-
-        const lastScrollCooldown = 200;
-        let lastScrollTime = 0;
-
-        function onScroll(e) {
-            const currentPageIndex = window.scrollY / window.innerHeight;
-
-            lastScrollTime = Date.now();
-        }
-
-        let prevTimestep = 0;
-        function step(timestep) {
-            const dt = timestep - prevTimestep;
-            const timeSinceLastScroll = Date.now() - lastScrollTime;
-
-            if (timeSinceLastScroll > lastScrollCooldown) {
-                const currentPageIndex = Math.round(window.scrollY / window.innerHeight);
-                const currentPageY = currentPageIndex * window.innerHeight;
-
-                window.scrollTo(0, currentPageY);
-            }
-
-            prevTimestep = timestep;
-
-
-            window.requestAnimationFrame(step);
-        }
-
-        requestAnimationFrame(step)
-    </script>
+    <script type="module" src="./paging.js" defer></script>
 </body>
 
 </html>

@@ -93,7 +93,6 @@ function onScroll(e) {
 
     targetVelocity = THREE.MathUtils.inverseLerp(0, 10, velocity);
 
-
     prevScrollTop = currentScrollTop;
     prevTimestamp = currentTimestamp;
 }
