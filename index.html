@@ -52,14 +52,6 @@
             font: 20px Arial, sans-serif;
         }
 
-        section.red {
-            background-color: #e79e9e;
-        }
-
-        section.blue {
-            background-color: #9ebbe7;
-        }
-
         #scrollbar {
             position: fixed;
             height: 120px;
@@ -68,7 +60,7 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            border-radius: 3px;
+            border-radius: 8px;
         }
 
         #scrollbar-handle {
@@ -76,18 +68,17 @@
             position: absolute;
             width: 100%;
             height: 10px;
+            border-radius: 8px;
         }
 
         .animated-h1-container {
             overflow: hidden;
-            background-color: violet;
             margin: 0;
             width: 100%;
             white-space: nowrap;
 
             h1 {
                 font-size: var(--h1-font-size);
-                background-color: red;
                 display: inline-block;
                 visibility: hidden;
             }
@@ -141,7 +132,8 @@
 </head>
 
 <body>
-
+    <canvas id="canvas"></canvas>
+    <h1 style="background-color: transparent;">sdfsdf</h1>
     <section class="red">1</section>
     <section class="blue" id="section-2">
         <div class="animated-h1-container">
@@ -157,13 +149,8 @@
     <div id="scrollbar">
         <div id="scrollbar-handle"></div>
     </div>
-    <!--
-    <canvas id="canvas"></canvas>
-    <div id="card"></div>
-    <script type="module" src="/main.js" defer></script>
-    -->
-
-    <script type="module" src="./paging.js"></script>
+    <script type="module" src="src/paging.js"></script>
+    <script type="module" src="src/scene3d.js"></script>
 </body>
 
 </html>
