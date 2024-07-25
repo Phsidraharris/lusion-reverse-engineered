@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Threee</title>
+    <style>
+        body {
+            margin: 0;
+            height: 2000px;
+        }
+
+        #canvas {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #card {
+            display: none;
+            position: fixed;
+            top: 200px;
+            left: 20px;
+            height: 100px;
+            width: 100px;
+            background-color: red;
+        }
+
+        article {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font: 20px Arial, sans-serif;
+        }
+
+        article.red {
+            background-color: #e79e9e;
+        }
+
+        article.blue {
+            background-color: #9ebbe7;
+        }
+    </style>
+</head>
+
+<body>
+    <article class="red">1</article>
+    <article class="blue">2</article>
+    <article class="red">3</article>
+    <article class="blue">4</article>
+    <article class="red">5</article>
+    <!--
+    <canvas id="canvas"></canvas>
+    <div id="card"></div>
+    <script type="module" src="/main.js" defer></script>
+    -->
+
+    <script defer>
+        window.addEventListener('scroll', onScroll);
+
+        const lastScrollCooldown = 200;
+        let lastScrollTime = 0;
+
+        function onScroll(e) {
+            const currentPageIndex = window.scrollY / window.innerHeight;
+
+            lastScrollTime = Date.now();
+        }
+
+        let prevTimestep = 0;
+        function step(timestep) {
+            const dt = timestep - prevTimestep;
+            const timeSinceLastScroll = Date.now() - lastScrollTime;
+
+            if (timeSinceLastScroll > lastScrollCooldown) {
+                const currentPageIndex = Math.round(window.scrollY / window.innerHeight);
+                const currentPageY = currentPageIndex * window.innerHeight;
+
+                window.scrollTo(0, currentPageY);
+            }
+
+            prevTimestep = timestep;
+
+
+            window.requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step)
+    </script>
+</body>
+
+</html>
