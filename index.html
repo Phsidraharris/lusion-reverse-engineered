@@ -5,6 +5,16 @@
     <meta charset="utf-8">
     <title>Threee</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --h1-font-size: 3rem;
+        }
+
+
         html {
             scroll-behavior: smooth;
         }
@@ -32,30 +42,21 @@
             height: 100vh;
         }
 
-        #card {
-            display: none;
-            position: fixed;
-            top: 200px;
-            left: 20px;
-            height: 100px;
-            width: 100px;
-            background-color: red;
-        }
-
-        article {
+        section {
             width: 100vw;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             font: 20px Arial, sans-serif;
         }
 
-        article.red {
+        section.red {
             background-color: #e79e9e;
         }
 
-        article.blue {
+        section.blue {
             background-color: #9ebbe7;
         }
 
@@ -76,16 +77,75 @@
             width: 100%;
             height: 10px;
         }
+
+        .animated-h1-container {
+            overflow: hidden;
+            background-color: violet;
+            margin: 0;
+            width: 100%;
+        }
+
+        .animated-h1-container h1 {
+            font-size: var(--h1-font-size);
+        }
+
+        .animate-topline {
+            display: inline-block;
+            animation: animate-topline 2s forwards;
+        }
+
+        .animate-tagline {
+            display: inline-block;
+            animation: animate-tagline 2s forwards;
+        }
+
+        @keyframes animate-topline {
+            0% {
+                transform: translateY(var(--h1-font-size));
+            }
+
+            40% {
+                transform: translateY(0);
+                transform: translateX(0);
+                margin-left: 0;
+            }
+
+            100% {
+                transform: translateX(-50%);
+                margin-left: 50%;
+            }
+        }
+
+        @keyframes animate-tagline {
+            0% {
+                transform: translateY(calc(-1 * var(--h1-font-size)));
+            }
+
+            20% {
+                transform: translateY(calc(-1 * var(--h1-font-size)));
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <article class="red">1</article>
-    <article class="blue" id="article-2">2</article>
-    <article class="red">3</article>
-    <article class="blue">4</article>
-    <article class="red">5</article>
+    <section class="red">1</section>
+    <section class="blue" id="section-2">
+        <div class="animated-h1-container">
+            <h1 class="animate-topline">BEYOND VISIONS</h1>
+        </div>
+        <div class="animated-h1-container">
+            <h1 class="animate-tagline">SOMETHING GOES HERE</h1>
+        </div>
+    </section>
+    <section class="red">3</section>
+    <section class="blue">4</section>
+    <section class="red">5</section>
     <div id="scrollbar">
         <div id="scrollbar-handle"></div>
     </div>

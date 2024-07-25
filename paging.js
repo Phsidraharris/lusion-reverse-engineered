@@ -1,4 +1,5 @@
 window.addEventListener('wheel', onWheel);
+window.addEventListener('scroll', onScroll);
 window.requestAnimationFrame(update)
 
 const pageDistanceThreshold = 0.3;      // As a percentage of page height
@@ -8,14 +9,51 @@ let prevTimestep = 0;
 
 const scrollbar = document.getElementById("scrollbar");
 const scrollbarHandle = document.getElementById("scrollbar-handle");
-const article2 = document.getElementById("article-2");
+const section2 = document.getElementById("section-2");
+
+function isElementOnScreen(element) {
+    let observer;
+
+    const observerOptions = {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px',
+        threshold: 0.1 // Trigger as soon as even one pixel is visible
+    };
+
+    return new Promise((resolve) => {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    resolve(true);
+                    observer.disconnect();
+                } else {
+                    resolve(false);
+                }
+            });
+        }, observerOptions);
+
+        observer.observe(element);
+    });
+}
+
+// Usage example:
+function onScroll() {
+    isElementOnScreen(section2).then(isOnScreen => {
+        if (isOnScreen) {
+            console.log('Element is on the screen');
+        } else {
+            console.log('Element is not on the screen');
+        }
+    });
+}
 
 function onWheel(e) {
     lastScrollTime = Date.now();
 }
 
 function update(timestep) {
-    const dt = timestep - prevTimestep;
+    // Time delta between frames in seconds
+    const dt = (timestep - prevTimestep) / 1000;
 
     updatePageSnapping(dt);
     updateScrollbar();
@@ -38,7 +76,7 @@ function updatePageSnapping(dt) {
 
         if (distanceToTarget < pageDistanceThreshold) {
             const targetScrollDelta = targetScrollY - window.scrollY;
-            window.scrollBy(0, Math.round(targetScrollDelta * 0.1 + 0.5));
+            window.scrollBy(0, targetScrollDelta);
         }
     }
 }
