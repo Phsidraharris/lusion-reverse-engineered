@@ -19,65 +19,105 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
     stats = new Stats();
     document.body.appendChild(stats.dom);
 
-    // camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-    // camera.position.z = 75;
-
+    const frustum = frustumFromWindowWidth();
     const aspect = window.innerWidth / window.innerHeight;
-    const frustumSize = 75;
-    camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 1000);
+    camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 0.1, 1000);
     camera.position.z = 100;
-    // scene.add(camera);
 
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(0.1, 0.1, 0.1, 1);
 
     new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', function (texture) {
         texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.background = texture;
+        // scene.background = texture;
         scene.environment = texture;
     });
 
-    const torusMaterial = new THREE.MeshStandardMaterial({
+    const material = new THREE.MeshStandardMaterial({
         roughness: 0.1,
-        metalness: 0
+        metalness: 0,
+        map: createVideoTexture(),
     });
 
-    const torus = new THREE.Mesh(new THREE.TorusKnotGeometry(8, 3, 128, 16), torusMaterial);
-    torus.receiveShadow = true;
-    torus.castShadow = true;
-    scene.add(torus);
+    // const torus = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.3, 128, 16), material);
+    // torus.receiveShadow = true;
+    // torus.castShadow = true;
+    // scene.add(torus);
+
+    const cubeScale = 2;
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(16 * cubeScale, 9 * cubeScale, 1, 4, 4, 4), material);
+    scene.add(cube);
+
+    createVideoTexture();
+}
+
+function add3dText(text) {
+    const textMat = new THREE.MeshStandardMaterial({
+        roughness: 0.1,
+        metalness: 1
+    });
 
     const loader = new FontLoader();
     loader.load('assets/optimer_regular.typeface.json', function (response) {
 
         const font = response;
 
-        const textGeo = new TextGeometry("text", {
+        const textGeo = new TextGeometry(text, {
             font: font,
-            size: 20,
+            size: 16,
             depth: 4,
             curveSegments: 16,
-
             bevelThickness: 1,
             bevelSize: 2,
             bevelEnabled: true
         });
 
-        const textMesh = new THREE.Mesh(textGeo, torusMaterial);
+        const textMesh = new THREE.Mesh(textGeo, textMat);
         scene.add(textMesh);
 
         textGeo.computeBoundingBox();
     });
 }
 
+function createVideoTexture() {
+    const video = document.createElement('video');
+    video.src = 'assets/pexels-milky-way-glowing-at-night-857136.mp4';
+    video.loop = true;
+    video.muted = true;
+    video.play();
+
+    const texture = new THREE.VideoTexture(video);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    return texture;
+}
+
+function frustumFromWindowWidth() {
+    // Pick an arbitrary width and frustum. Every other window width will be based off this
+    const calibrationWidth = 1280;
+    const calibrationFrustum = 75;
+
+    const scale = calibrationWidth / window.innerWidth;
+    return calibrationFrustum * scale;
+}
+
 function onWindowResized() {
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+
+    const frustum = frustumFromWindowWidth();
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.left = - frustum * aspect / 2;
+    camera.right = frustum * aspect / 2;
+    camera.top = frustum / 2;
+    camera.bottom = - frustum / 2;
     camera.updateProjectionMatrix();
+    
+    console.log("New frustum: ", frustum);
 }
 
 function onScroll() {
