@@ -160,7 +160,6 @@ function onWindowResized() {
 function onScroll() {
     const scrollProgress = window.scrollY / (document.body.clientHeight);
     camera.position.y = -scrollProgress * 100;
-
 }
 
 function animate() {

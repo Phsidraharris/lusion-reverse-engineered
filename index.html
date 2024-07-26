@@ -8,20 +8,21 @@
         * {
             margin: 0;
             padding: 0;
+            color: white;
         }
-
+        
         :root {
             --h1-font-size: 4rem;
         }
-
-
+        
         html {
             scroll-behavior: smooth;
         }
-
+        
         body {
             margin: 0;
             scrollbar-width: none;
+            background-color: antiquewhite;
         }
 
         ::-webkit-scrollbar {
@@ -40,6 +41,7 @@
             position: fixed;
             width: 100vw;
             height: 100vh;
+            z-index: -1;
         }
 
         section {
@@ -130,27 +132,37 @@
             }
         }
     </style>
+    <script type="module" src="src/paging.js"></script>
+    <script type="module" src="src/scene3d.js"></script>
 </head>
 
 <body>
     <canvas id="canvas"></canvas>
-    <section class="red">1</section>
-    <section class="blue" id="section-2">
-        <div class="animated-h1-container">
-            <h1 id="h1-topline">BEYOND VISIONS</h1>
-        </div>
-        <div class="animated-h1-container">
-            <h1 id="h1-tagline">SOMETHING GOES HERE</h1>
-        </div>
-    </section>
-    <section class="red">3</section>
-    <section class="blue">4</section>
-    <section class="red">5</section>
+    <div>
+        <section class="red">
+            <h1>1</h1>
+        </section>
+        <section>
+            <div class="animated-h1-container">
+                <h1 id="h1-topline">BEYOND VISIONS</h1>
+            </div>
+            <div class="animated-h1-container">
+                <h1 id="h1-tagline">SOMETHING GOES HERE</h1>
+            </div>
+        </section>
+        <section>
+            <h1>3</h1>
+        </section>
+        <section>
+            <h1>4</h1>
+        </section>
+        <section>
+            <h1>5</h1>
+        </section>
+    </div>
     <div id="scrollbar">
         <div id="scrollbar-handle"></div>
     </div>
-    <script type="module" src="src/paging.js"></script>
-    <script type="module" src="src/scene3d.js"></script>
 </body>
 
 </html>
