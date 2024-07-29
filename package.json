@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "three": "^0.166.1",
-    "three.modifiers": "^2.5.7"
+    "three": "^0.166.1"
   },
   "devDependencies": {
     "vite": "^5.3.4"

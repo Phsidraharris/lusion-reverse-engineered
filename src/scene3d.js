@@ -1,26 +1,27 @@
 import * as THREE from 'three';
 
-import { Bend, ModConstant, ModifierStack } from "three.modifiers";
 import Stats from 'three/addons/libs/stats.module.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
-import { MathUtils } from 'three/src/math/MathUtils.js';
+import { LetterSpline } from './letterSpline';
 
 let renderer;
 let stats;
 let camera;
 let scene;
-let modifier;
-
-const bendModifier = new Bend(0, 0.3, 1);
-bendModifier.constraint = ModConstant.LEFT;
+let videoMesh;
 
 const clock = new THREE.Clock(true);
 
 function init() {
     window.addEventListener('scroll', onScroll);
     window.addEventListener('resize', onWindowResized);
+
+    const debugSlider = document.getElementById("debug-slider");
+    debugSlider.addEventListener('input', (e) => {
+        console.log(debugSlider.value);
+        videoMesh.scale.setScalar(1 + (debugSlider.value * 6));
+    });
 
     const canvas = document.getElementById("canvas");
 
@@ -52,45 +53,15 @@ function init() {
         map: createVideoTexture(),
     });
 
-    const cube = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.1, 4, 4, 4), material);
-    cube.position.x -= 2;
-    scene.add(cube);
+    videoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9, 16, 16), material);
+    scene.add(videoMesh);
+
+    const letterSpline = new LetterSpline();
+    scene.add(letterSpline);
 
     const light = new THREE.DirectionalLight(0xffffff, 4);
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
-
-    const loader = new GLTFLoader();
-    loader.load(
-        'assets/video-plane.glb',
-        function (gltf) {
-            console.log("scene", gltf.scene);
-
-            gltf.scene.traverse((node) => {
-                if (node.isMesh) {
-                    node.material = material;
-
-                    if (modifier === undefined) {
-                        modifier = new ModifierStack(node);
-                    }
-                    else {
-                        throw "Modifier already defined";
-                    }
-
-                    modifier.addModifier(bendModifier);
-                }
-                console.log(node)
-            });
-
-            scene.add(gltf.scene);
-        },
-        function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-        function (error) {
-            console.error("Error", error);
-        }
-    );
 }
 
 function add3dText(text) {
@@ -167,9 +138,6 @@ function animate() {
 
     renderer.render(scene, camera);
     stats.update();
-
-    bendModifier.force = Math.sin(clock.getElapsedTime());
-    modifier && modifier.apply();
 }
 
 init();

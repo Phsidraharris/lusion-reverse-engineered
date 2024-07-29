@@ -10,15 +10,15 @@
             padding: 0;
             color: white;
         }
-        
+
         :root {
             --h1-font-size: 4rem;
         }
-        
+
         html {
             scroll-behavior: smooth;
         }
-        
+
         body {
             margin: 0;
             scrollbar-width: none;
@@ -101,6 +101,12 @@
             }
         }
 
+        #debug-slider {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
         @keyframes animate-topline {
             0% {
                 transform: translateY(var(--h1-font-size));
@@ -138,6 +144,7 @@
 
 <body>
     <canvas id="canvas"></canvas>
+    <input id="debug-slider" type="range" min=0 max=1 step=0.01 value=0 />
     <div>
         <section class="red">
             <h1>1</h1>
