@@ -59,7 +59,7 @@ export default class AnimatedLine extends THREE.Group {
         this.lineMat = new LineMaterial({
 
             color: 0xffffff,
-            linewidth: 5, // in world units with size attenuation, pixels otherwise
+            linewidth: this.lineWidth, // in world units with size attenuation, pixels otherwise
             vertexColors: true,
 
             dashed: false,
