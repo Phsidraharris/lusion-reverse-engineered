@@ -4,6 +4,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
 import { LetterSpline } from './letterSpline';
+import { AnimatedTube } from './animatedTube';
 
 const SCROLL_SCALE = 0.015;
 
@@ -12,8 +13,7 @@ let stats;
 let camera;
 let scene;
 let videoMesh;
-
-
+let animatedTube;
 const clock = new THREE.Clock(true);
 
 function init() {
@@ -24,6 +24,7 @@ function init() {
     debugSlider.addEventListener('input', (e) => {
         console.log(debugSlider.value);
         videoMesh.scale.setScalar(1 + (debugSlider.value * 6));
+        animatedTube.setValue(debugSlider.value);
     });
 
     const canvas = document.getElementById("canvas");
@@ -59,12 +60,17 @@ function init() {
     videoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9, 16, 16), material);
     scene.add(videoMesh);
 
-    const letterSpline = new LetterSpline();
-    scene.add(letterSpline);
+    // const letterSpline = new LetterSpline();
+    // scene.add(letterSpline);
 
-    const light = new THREE.DirectionalLight(0xffffff, 4);
+    const light = new THREE.DirectionalLight(0xffffff, 0.4);
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
+
+    animatedTube = new AnimatedTube();
+    scene.add(animatedTube);
+
+    scene.scale.setScalar(0.2);
 }
 
 function add3dText(text) {
