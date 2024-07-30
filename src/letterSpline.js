@@ -3,12 +3,9 @@
 // console.log(points)
 
 import * as THREE from "three";
-import { GeometryUtils, LineGeometry, LineMaterial } from "three/examples/jsm/Addons.js";
-import { Line2 } from 'three/addons/lines/Line2.js';
-import NurbsVertices from "../assets/nurbs_vertices.json";
-import { NURBSCurve } from "three/examples/jsm/Addons.js";
+import NurbsVertices from "../assets/nurbs-points.json";
 
-const curvePts = NurbsVertices[0].points.map(p => new THREE.Vector3(p.co[0], p.co[1], p.co[2]))
+const curvePts = NurbsVertices[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z))
 
 export class LetterSpline extends THREE.Group {
     constructor() {

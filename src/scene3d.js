@@ -5,6 +5,7 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
 import { LetterSpline } from './letterSpline';
 import { AnimatedTube } from './animatedTube';
+import { NURBSTube } from './nurbsTube';
 
 const SCROLL_SCALE = 0.015;
 
@@ -13,7 +14,7 @@ let stats;
 let camera;
 let scene;
 let videoMesh;
-let animatedTube;
+let nurbsTube;
 const clock = new THREE.Clock(true);
 
 function init() {
@@ -24,7 +25,7 @@ function init() {
     debugSlider.addEventListener('input', (e) => {
         console.log(debugSlider.value);
         videoMesh.scale.setScalar(1 + (debugSlider.value * 6));
-        animatedTube.setValue(debugSlider.value);
+        nurbsTube.setValue(debugSlider.value);
     });
 
     const canvas = document.getElementById("canvas");
@@ -67,8 +68,8 @@ function init() {
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
 
-    animatedTube = new AnimatedTube();
-    scene.add(animatedTube);
+    nurbsTube = new NURBSTube();
+    scene.add(nurbsTube);
 
     scene.scale.setScalar(0.2);
 }
@@ -138,7 +139,6 @@ function onWindowResized() {
 }
 
 function onScroll() {
-    console.log(window.scrollY)
     camera.position.y = -window.scrollY * SCROLL_SCALE;
 }
 

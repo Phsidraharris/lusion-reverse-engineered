@@ -36,7 +36,7 @@ export class AnimatedTube extends THREE.Group {
         ];
 
         curvePts.forEach(p => { p.z += 50; });
-
+        
         let curve = new THREE.CatmullRomCurve3(
             curvePts
         );
