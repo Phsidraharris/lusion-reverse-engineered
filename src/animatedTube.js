@@ -16,6 +16,13 @@ export class AnimatedTube extends THREE.Group {
 
     mesh = null;
 
+    setRadius(value) {
+        this.radius = value;
+        this.remove(this.mesh);
+        this.mesh = this.createTubeMesh();
+        this.add(this.mesh);
+    }
+
     constructor() {
         super();
 
@@ -27,9 +34,7 @@ export class AnimatedTube extends THREE.Group {
             this.uniforms.stretchRatio.value = value;
         });
         folder.add(this, 'radius', 0, 1).onChange(value => {
-            this.remove(this.mesh);
-            this.mesh = this.createTubeMesh();
-            this.add(this.mesh);
+            this.setRadius(value);
         });
     }
 
@@ -114,7 +119,6 @@ export class AnimatedTube extends THREE.Group {
         transformed += cpos;
       `
                     );
-                console.log(shader.vertexShader);
             }
         });
 
