@@ -71,14 +71,14 @@ export class AnimatedTube extends THREE.Group {
         let csegs = 500;
         let rsegs = 12;
         let r = 1;
-        let g = mergeGeometries([
+        let tubeGeometry = mergeGeometries([
             new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, 0, Math.PI * 0.5).translate(0, 0.5, 0),
             new THREE.CylinderGeometry(r, r, 1, rsegs, csegs, true),
             new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
         ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
 
-        let m = new THREE.MeshLambertMaterial({
-            color: 0xface8d,
+        let tubeMaterial = new THREE.MeshLambertMaterial({
+            color: "blue",
             onBeforeCompile: shader => {
                 shader.uniforms.curveTexture = this.uniforms.curveTexture;
                 shader.uniforms.stretchRatio = this.uniforms.stretchRatio;
@@ -121,7 +121,7 @@ export class AnimatedTube extends THREE.Group {
         objectNormal = normalize(rot * objectNormal);
       `).replace(
                         `#include <begin_vertex>`,
-                        `#include <begin_vertex>
+                        `#include <begin_vertex>    
         
         transformed = rot * pos;
         transformed += cpos;
@@ -130,7 +130,7 @@ export class AnimatedTube extends THREE.Group {
                 console.log(shader.vertexShader);
             }
         });
-        let mesh = new THREE.Mesh(g.clone(), m);
+        let mesh = new THREE.Mesh(tubeGeometry.clone(), tubeMaterial);
         mesh.frustumCulled = false;
         this.add(mesh);
 
