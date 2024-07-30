@@ -5,11 +5,14 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
 import { LetterSpline } from './letterSpline';
 
+const SCROLL_SCALE = 0.015;
+
 let renderer;
 let stats;
 let camera;
 let scene;
 let videoMesh;
+
 
 const clock = new THREE.Clock(true);
 
@@ -129,8 +132,8 @@ function onWindowResized() {
 }
 
 function onScroll() {
-    const scrollProgress = window.scrollY / (document.body.clientHeight);
-    camera.position.y = -scrollProgress * 100;
+    console.log(window.scrollY)
+    camera.position.y = -window.scrollY * SCROLL_SCALE;
 }
 
 function animate() {
