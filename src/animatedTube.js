@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { debugGui } from "./debugGui";
+import nurbsJson from "../assets/nurbs-points.json";
 
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
@@ -7,19 +9,20 @@ export class AnimatedTube extends THREE.Group {
         curveTexture: { value: null },
         stretchRatio: { value: 0 }
     }
-    
+
+    drawStartPercent = 0;
+    drawEndPercent = 0;
+
     constructor() {
         super();
-        const scene = this;
 
-        let mainHolder = new THREE.Group();
-        mainHolder.rotation.x = -Math.PI * 0.5;
-        mainHolder.rotation.y = -Math.PI * 0.5;
-        scene.add(mainHolder);
+        const folder = debugGui.addFolder("AnimatedTube");
+        folder.add(this, 'drawStartPercent', 0, 1).onChange(value => {
+            this.uniforms.stretchRatio.value = value;
+        });
+        folder.add(this, 'drawEndPercent', 0, 1).onChange(value => {
 
-        let grid = new THREE.GridHelper(200, 10);
-        grid.position.y = 0.1;
-        mainHolder.add(grid);
+        });
 
         let curvePts = [
             new THREE.Vector3(0, 0, 0),
@@ -35,8 +38,12 @@ export class AnimatedTube extends THREE.Group {
             new THREE.Vector3(0, 0, -100)
         ];
 
-        curvePts.forEach(p => { p.z += 50; });
-        
+        curvePts = nurbsJson[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z));
+        curvePts.forEach(p => {
+            // p.z += 50;
+            // p.divideScalar(4);
+        });
+
         let curve = new THREE.CatmullRomCurve3(
             curvePts
         );
@@ -44,7 +51,7 @@ export class AnimatedTube extends THREE.Group {
             new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(500)),
             new THREE.LineBasicMaterial({ color: "red" })
         )
-        mainHolder.add(lineCurve);
+        this.add(lineCurve);
 
         // datatexture
         let data = [];
@@ -68,7 +75,7 @@ export class AnimatedTube extends THREE.Group {
             new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, 0, Math.PI * 0.5).translate(0, 0.5, 0),
             new THREE.CylinderGeometry(r, r, 1, rsegs, csegs, true),
             new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
-        ]).rotateX(-Math.PI * 0.5);
+        ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
 
         let m = new THREE.MeshLambertMaterial({
             color: 0xface8d,
@@ -112,25 +119,20 @@ export class AnimatedTube extends THREE.Group {
         mat3 rot = calcLookAtMatrix(vec3(0), -ctan, 0.);
         
         objectNormal = normalize(rot * objectNormal);
-      
-      `
-                ).replace(
-                    `#include <begin_vertex>`,
-                    `#include <begin_vertex>
+      `).replace(
+                        `#include <begin_vertex>`,
+                        `#include <begin_vertex>
         
         transformed = rot * pos;
         transformed += cpos;
       `
-                );
+                    );
                 console.log(shader.vertexShader);
             }
         });
-        let o = new THREE.Mesh(g.clone(), m);
-        o.frustumCulled = false;
-        mainHolder.add(o);
-    }
+        let mesh = new THREE.Mesh(g.clone(), m);
+        mesh.frustumCulled = false;
+        this.add(mesh);
 
-    setValue = (value) => {
-        this.uniforms.stretchRatio.value = value;
     }
 }

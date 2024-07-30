@@ -3,9 +3,11 @@ import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { NURBSTube } from './nurbsTube';
-import Text3D from './text3d';
+import { AnimatedTube } from './animatedTube';
+import { OrbitControls } from 'three/examples/jsm/Addons.js';
 
 const SCROLL_SCALE = 0.015;
+const ENABLE_CONTROL = true;
 
 let renderer;
 let stats;
@@ -13,18 +15,13 @@ let camera;
 let scene;
 let videoMesh;
 let nurbsTube;
+let controls;
+
 const clock = new THREE.Clock(true);
 
 function init() {
     window.addEventListener('scroll', onScroll);
     window.addEventListener('resize', onWindowResized);
-
-    const debugSlider = document.getElementById("debug-slider");
-    debugSlider.addEventListener('input', (e) => {
-        console.log(debugSlider.value);
-        videoMesh.scale.setScalar(1 + (debugSlider.value * 6));
-        nurbsTube.setValue(debugSlider.value);
-    });
 
     const canvas = document.getElementById("canvas");
 
@@ -40,7 +37,9 @@ function init() {
     const frustum = frustumFromWindowWidth();
     const aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 0.1, 1000);
-    camera.position.z = 10;
+    camera.position.z = 100;
+
+    controls = new OrbitControls(camera, canvas);
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0.1, 0.1, 0.1, 1);
@@ -65,6 +64,9 @@ function init() {
 
     nurbsTube = new NURBSTube();
     scene.add(nurbsTube);
+
+    const animatedTube = new AnimatedTube();
+    scene.add(animatedTube)
 }
 
 function createVideoTexture() {
@@ -112,6 +114,7 @@ function animate() {
 
     renderer.render(scene, camera);
     stats.update();
+    controls.update();
 }
 
 init();
