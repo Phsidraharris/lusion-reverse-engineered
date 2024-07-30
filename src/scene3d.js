@@ -5,6 +5,7 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { AnimatedTube } from './animatedTube';
 import { debugGui } from './debugGui';
+import AnimatedLine from './animatedLine';
 
 const SCROLL_SCALE = 0.015;
 
@@ -36,8 +37,9 @@ function init() {
     camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 0.1, 1000);
     camera.position.z = 100;
 
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0.1, 0.1, 0.1, 1);
+    scene.background = new THREE.Color(bgColor);
 
     new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', function (texture) {
         texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -60,6 +62,9 @@ function init() {
     // nurbsTube = new NURBSTube();
     // nurbsTube.position.z -= 5;
     // scene.add(nurbsTube);
+
+    const animatedLine = new AnimatedLine();
+    scene.add(animatedLine);
 
     const animatedTube = new AnimatedTube();
     scene.add(animatedTube);

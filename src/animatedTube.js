@@ -72,56 +72,57 @@ export class AnimatedTube extends THREE.Group {
         let tubeMaterial = new THREE.MeshLambertMaterial({
             color: "blue",
             onBeforeCompile: shader => {
+                console.log(shader.fragmentShader)
+
                 shader.uniforms.curveTexture = this.uniforms.curveTexture;
                 shader.uniforms.stretchRatio = this.uniforms.stretchRatio;
                 shader.vertexShader = `
-      uniform sampler2D curveTexture;
-      uniform float stretchRatio;
-      
-      // https://github.com/glslify/glsl-look-at
-      mat3 calcLookAtMatrix(vec3 origin, vec3 target, float roll) {
-        vec3 rr = vec3(sin(roll), cos(roll), 0.0);
-        vec3 ww = normalize(target - origin);
-        vec3 uu = normalize(cross(ww, rr));
-        vec3 vv = normalize(cross(uu, ww));
+uniform sampler2D curveTexture;
+uniform float stretchRatio;
 
-        return -mat3(uu, vv, ww);
-      }
-      ${shader.vertexShader}
-    `.replace(
+// https://github.com/glslify/glsl-look-at
+mat3 calcLookAtMatrix(vec3 origin, vec3 target, float roll) {
+    vec3 rr = vec3(sin(roll), cos(roll), 0.0);
+    vec3 ww = normalize(target - origin);
+    vec3 uu = normalize(cross(ww, rr));
+    vec3 vv = normalize(cross(uu, ww));
+
+    return -mat3(uu, vv, ww);
+}
+${shader.vertexShader}
+`.replace(
                     `#include <beginnormal_vertex>`,
                     `#include <beginnormal_vertex>
-      
-        vec3 pos = position;
-        
-        vec3 cpos = vec3(0.);
-        vec3 ctan = vec3(0.);
-        
-        float a = clamp(pos.z + 0.5, 0., 1.) * stretchRatio;
-        if(pos.z < -0.5){
-          cpos = vec3(texture(curveTexture, vec2(0., 0.25)));
-          ctan = vec3(texture(curveTexture, vec2(0., 0.75)));
-          pos.z += 0.5;
-        } else if(pos.z >= -0.5){
-          cpos = vec3(texture(curveTexture, vec2(a, 0.25)));
-          ctan = vec3(texture(curveTexture, vec2(a, 0.75)));
-          pos.z = (pos.z > 0.5) ? (pos.z - 0.5) : 0.;
-        }
-        
-        mat3 rot = calcLookAtMatrix(vec3(0), -ctan, 0.);
-        
-        objectNormal = normalize(rot * objectNormal);
-      `).replace(
+
+    vec3 pos = position;
+    
+    vec3 cpos = vec3(0.);
+    vec3 ctan = vec3(0.);
+    
+    float a = clamp(pos.z + 0.5, 0., 1.) * stretchRatio;
+    if(pos.z < -0.5){
+    cpos = vec3(texture(curveTexture, vec2(0., 0.25)));
+    ctan = vec3(texture(curveTexture, vec2(0., 0.75)));
+    pos.z += 0.5;
+    } else if(pos.z >= -0.5){
+    cpos = vec3(texture(curveTexture, vec2(a, 0.25)));
+    ctan = vec3(texture(curveTexture, vec2(a, 0.75)));
+    pos.z = (pos.z > 0.5) ? (pos.z - 0.5) : 0.;
+    }
+    
+    // mat3 rot = calcLookAtMatrix(vec3(0), -ctan, 0.);
+    
+    // objectNormal = normalize(rot * objectNormal);
+`).replace(
                         `#include <begin_vertex>`,
                         `#include <begin_vertex>    
-        
-        transformed = rot * pos;
-        transformed += cpos;
-      `
+
+    transformed =  pos;
+    transformed += cpos;
+`
                     );
             }
         });
-
         const mesh = new THREE.Mesh(tubeGeometry.clone(), tubeMaterial);
         mesh.frustumCulled = false;
 
