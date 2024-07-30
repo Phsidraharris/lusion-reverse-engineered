@@ -10,7 +10,7 @@ export default class AnimatedLine extends THREE.Group {
     /** @type Line2 */
     line = null;
 
-    testEnd = 10;
+    lineProgress = 1;
 
     constructor() {
         super();
@@ -19,7 +19,7 @@ export default class AnimatedLine extends THREE.Group {
 
         const folder = debugGui.addFolder("AnimatedLine");
         folder.add(this, "lineWidth", 1, 100).onChange(v => this.lineMat.linewidth = v);
-        folder.add(this, "testEnd", 0, 30, 1).onChange(v => {
+        folder.add(this, "lineProgress", 0.01, 1).onChange(v => {
             this.createLine();
         });
     }
@@ -32,10 +32,12 @@ export default class AnimatedLine extends THREE.Group {
         const positions = [];
         const colors = [];
 
-        const points = nurbsJson[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z, p.weight));
-        const spline = createNurbsCurve(points);
+        const nurbsPoints = nurbsJson[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z, p.weight));
+        const nurbsCurvePoints = createNurbsCurve(nurbsPoints).getSpacedPoints(100);
+        const nurbsCurvePointsCut = nurbsCurvePoints.slice(0, Math.floor(this.lineProgress * nurbsCurvePoints.length));
+        const spline = createNurbsCurve(nurbsCurvePointsCut);
 
-        const divisions = Math.round(12 * points.length);
+        const divisions = Math.round(12 * nurbsCurvePoints.length);
         const point = new THREE.Vector3();
         const color = new THREE.Color();
 

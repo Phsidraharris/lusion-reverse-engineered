@@ -72,8 +72,6 @@ export class AnimatedTube extends THREE.Group {
         let tubeMaterial = new THREE.MeshLambertMaterial({
             color: "blue",
             onBeforeCompile: shader => {
-                console.log(shader.fragmentShader)
-
                 shader.uniforms.curveTexture = this.uniforms.curveTexture;
                 shader.uniforms.stretchRatio = this.uniforms.stretchRatio;
                 shader.vertexShader = `
