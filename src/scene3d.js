@@ -2,19 +2,17 @@ import * as THREE from 'three';
 
 import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import { NURBSTube } from './nurbsTube';
-import { AnimatedTube } from './animatedTube';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import { AnimatedTube } from './animatedTube';
+import { debugGui } from './debugGui';
 
 const SCROLL_SCALE = 0.015;
-const ENABLE_CONTROL = true;
 
 let renderer;
 let stats;
 let camera;
 let scene;
 let videoMesh;
-let nurbsTube;
 let controls;
 
 const clock = new THREE.Clock(true);
@@ -29,7 +27,6 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);
-    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
     stats = new Stats();
     document.body.appendChild(stats.dom);
@@ -38,8 +35,6 @@ function init() {
     const aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 0.1, 1000);
     camera.position.z = 100;
-
-    controls = new OrbitControls(camera, canvas);
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0.1, 0.1, 0.1, 1);
@@ -62,11 +57,25 @@ function init() {
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
 
-    nurbsTube = new NURBSTube();
-    scene.add(nurbsTube);
+    // nurbsTube = new NURBSTube();
+    // nurbsTube.position.z -= 5;
+    // scene.add(nurbsTube);
 
     const animatedTube = new AnimatedTube();
-    scene.add(animatedTube)
+    scene.add(animatedTube);
+
+    const debug = {
+        cameraControls: false,
+    };
+    const folder = debugGui.addFolder("Scene");
+    folder.add(debug, 'cameraControls').onChange(v => {
+        if (v) {
+            controls = new OrbitControls(camera, canvas);
+        }
+        else {
+            controls = undefined;
+        }
+    })
 }
 
 function createVideoTexture() {
@@ -114,7 +123,10 @@ function animate() {
 
     renderer.render(scene, camera);
     stats.update();
-    controls.update();
+
+    if (controls) {
+        controls.update();
+    }
 }
 
 init();

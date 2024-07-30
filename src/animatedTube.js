@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { debugGui } from "./debugGui";
 import nurbsJson from "../assets/nurbs-points.json";
+import { NURBSCurve } from "three/examples/jsm/Addons.js";
 
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
@@ -11,44 +12,32 @@ export class AnimatedTube extends THREE.Group {
     }
 
     drawStartPercent = 0;
-    drawEndPercent = 0;
+    radius = 0.1;
+
+    mesh = null;
 
     constructor() {
         super();
+
+        this.mesh = this.createTubeMesh();
+        this.add(this.mesh);
 
         const folder = debugGui.addFolder("AnimatedTube");
         folder.add(this, 'drawStartPercent', 0, 1).onChange(value => {
             this.uniforms.stretchRatio.value = value;
         });
-        folder.add(this, 'drawEndPercent', 0, 1).onChange(value => {
-
+        folder.add(this, 'radius', 0, 1).onChange(value => {
+            this.remove(this.mesh);
+            this.mesh = this.createTubeMesh();
+            this.add(this.mesh);
         });
+    }
 
-        let curvePts = [
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, -10),
-            new THREE.Vector3(-2, 0, -20),
-            new THREE.Vector3(30, 0, -30),
-            new THREE.Vector3(0, 0, -40),
-            new THREE.Vector3(5, 0, -50),
-            new THREE.Vector3(7, 0, -60),
-            new THREE.Vector3(5, 0, -70),
-            new THREE.Vector3(0, 0, -80),
-            new THREE.Vector3(0, 0, -90),
-            new THREE.Vector3(0, 0, -100)
-        ];
+    createTubeMesh() {
+        const curve = this.createNurbsCurve(4);
 
-        curvePts = nurbsJson[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z));
-        curvePts.forEach(p => {
-            // p.z += 50;
-            // p.divideScalar(4);
-        });
-
-        let curve = new THREE.CatmullRomCurve3(
-            curvePts
-        );
         let lineCurve = new THREE.Line(
-            new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(500)),
+            new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
             new THREE.LineBasicMaterial({ color: "red" })
         )
         this.add(lineCurve);
@@ -66,15 +55,13 @@ export class AnimatedTube extends THREE.Group {
         let dataTexture = new THREE.DataTexture(new Float32Array(data), texSize, 2, THREE.RGBAFormat, THREE.FloatType);
         dataTexture.needsUpdate = true;
         this.uniforms.curveTexture.value = dataTexture;
-        //////////////
 
-        let csegs = 500;
-        let rsegs = 12;
-        let r = 1;
+        let cylinderSegments = 1000;
+        let radialSegments = 100;
         let tubeGeometry = mergeGeometries([
-            new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, 0, Math.PI * 0.5).translate(0, 0.5, 0),
-            new THREE.CylinderGeometry(r, r, 1, rsegs, csegs, true),
-            new THREE.SphereGeometry(r, rsegs, rsegs * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
+            new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, 0, Math.PI * 0.5).translate(0, 0.5, 0),
+            new THREE.CylinderGeometry(this.radius, this.radius, 1, radialSegments, cylinderSegments, true),
+            new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
         ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
 
         let tubeMaterial = new THREE.MeshLambertMaterial({
@@ -130,9 +117,27 @@ export class AnimatedTube extends THREE.Group {
                 console.log(shader.vertexShader);
             }
         });
-        let mesh = new THREE.Mesh(tubeGeometry.clone(), tubeMaterial);
-        mesh.frustumCulled = false;
-        this.add(mesh);
 
+        const mesh = new THREE.Mesh(tubeGeometry.clone(), tubeMaterial);
+        mesh.frustumCulled = false;
+
+        return mesh;
+    }
+
+    createNurbsCurve(nurbsDegree = 3) {
+        const nurbsPoints = nurbsJson[0].points.reverse().map((p) => new THREE.Vector4(p.x, p.y, p.z, p.weight));
+        const nurbsKnots = [];
+
+        for (let i = 0; i <= nurbsDegree; i++) {
+            nurbsKnots.push(0);
+        }
+
+        for (let i = 0, j = nurbsPoints.length; i < j; i++) {
+            const knot = (i + 1) / (j - nurbsDegree);
+            nurbsKnots.push(THREE.MathUtils.clamp(knot, 0, 1));
+        }
+
+        const nurbsCurve = new NURBSCurve(nurbsDegree, nurbsKnots, nurbsPoints);
+        return nurbsCurve;
     }
 }
