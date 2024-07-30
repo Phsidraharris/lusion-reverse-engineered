@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { AnimatedTube } from './animatedTube';
 import { debugGui } from './debugGui';
 import AnimatedLine from './animatedLine';
+import { VideoPanel } from './videoPanel';
 
 const SCROLL_SCALE = 0.015;
 
@@ -68,6 +69,9 @@ function init() {
 
     const animatedTube = new AnimatedTube();
     scene.add(animatedTube);
+
+    const videoPanel = new VideoPanel();
+    scene.add(videoPanel);
 
     const debug = {
         cameraControls: false,
