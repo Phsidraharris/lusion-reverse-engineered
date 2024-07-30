@@ -2,10 +2,8 @@ import * as THREE from 'three';
 
 import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
-import { LetterSpline } from './letterSpline';
-import { AnimatedTube } from './animatedTube';
 import { NURBSTube } from './nurbsTube';
+import Text3D from './text3d';
 
 const SCROLL_SCALE = 0.015;
 
@@ -61,45 +59,12 @@ function init() {
     videoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9, 16, 16), material);
     scene.add(videoMesh);
 
-    // const letterSpline = new LetterSpline();
-    // scene.add(letterSpline);
-
     const light = new THREE.DirectionalLight(0xffffff, 0.4);
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
 
     nurbsTube = new NURBSTube();
     scene.add(nurbsTube);
-
-    scene.scale.setScalar(0.2);
-}
-
-function add3dText(text) {
-    const textMat = new THREE.MeshStandardMaterial({
-        roughness: 0.1,
-        metalness: 1
-    });
-
-    const loader = new FontLoader();
-    loader.load('assets/optimer_regular.typeface.json', function (response) {
-
-        const font = response;
-
-        const textGeo = new TextGeometry(text, {
-            font: font,
-            size: 16,
-            depth: 4,
-            curveSegments: 16,
-            bevelThickness: 1,
-            bevelSize: 2,
-            bevelEnabled: true
-        });
-
-        const textMesh = new THREE.Mesh(textGeo, textMat);
-        scene.add(textMesh);
-
-        textGeo.computeBoundingBox();
-    });
 }
 
 function createVideoTexture() {
