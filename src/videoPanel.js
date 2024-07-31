@@ -1,31 +1,61 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { debugGui } from "./debugGui";
 
 export class VideoPanel extends THREE.Group {
+    mixer = null;
+    action = null;
+    animPlaybackPercent = 0;
+    animClip;
+    animDuration;
+    animFrameCount;
+    animFPS;
+
     constructor() {
         super();
 
+        this.initDebug();
+
         const loader = new GLTFLoader();
-        let mixer, action;
-
-        const group = this;
-
+        const material = new THREE.MeshStandardMaterial({
+            roughness: 0.7,
+            metalness: 0.2,
+        });
         loader.load('../assets/panel-anim-new.glb', (gltf) => {
-            group.add(gltf.scene);
-            console.log(gltf)
+            const mesh = gltf.scene.children[0];
+            mesh.material = material;
+
+            this.add(gltf.scene);
 
             // Set up the animation mixer
-            mixer = new THREE.AnimationMixer(gltf.scene);
+            this.mixer = new THREE.AnimationMixer(gltf.scene);
 
-            // Get the first animation and create an action
-            const clip = gltf.animations[0]; // Assuming there's at least one animation
-            action = mixer.clipAction(clip);
 
-            // Play the animation action
-            action.play();
+            this.animClip = gltf.animations[1];
+            this.action = this.mixer.clipAction(this.animClip);
+            this.action.play();
+
+            this.animDuration = this.animClip.duration;
+            this.animFrameCount = this.animClip.tracks[0].times.length;
+            this.animFPS = Math.round(this.animFrameCount / this.animDuration);
         }, undefined, (error) => {
             console.error(error);
         });
     }
 
+    initDebug() {
+        const folder = debugGui.addFolder("VideoPanel");
+        folder.add(this, "animPlaybackPercent", 0, 1).onChange(v => this.playAnimation(v));
+    }
+
+    playAnimation(percent) {
+        if (this.action) {
+            const time = Math.min(percent * this.animDuration, this.animDuration);
+            this.mixer.setTime(time);
+        }
+    }
+
+    update(dt) {
+        // this.mixer && this.mixer.update(dt);
+    }
 }

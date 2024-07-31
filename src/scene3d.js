@@ -15,6 +15,7 @@ let stats;
 let camera;
 let scene;
 let videoMesh;
+let videoPanel;
 let controls;
 
 const clock = new THREE.Clock(true);
@@ -53,8 +54,8 @@ function init() {
         map: createVideoTexture(),
     });
 
-    videoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9, 16, 16), material);
-    scene.add(videoMesh);
+    // videoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9, 16, 16), material);
+    // scene.add(videoMesh);
 
     const light = new THREE.DirectionalLight(0xffffff, 0.4);
     light.position.set(1, 1, 1).normalize();
@@ -70,7 +71,7 @@ function init() {
     const animatedTube = new AnimatedTube();
     scene.add(animatedTube);
 
-    const videoPanel = new VideoPanel();
+    videoPanel = new VideoPanel();
     scene.add(videoPanel);
 
     const debug = {
@@ -133,9 +134,8 @@ function animate() {
     renderer.render(scene, camera);
     stats.update();
 
-    if (controls) {
-        controls.update();
-    }
+    videoPanel && videoPanel.update(clock.getDelta());
+    controls && controls.update();
 }
 
 init();
