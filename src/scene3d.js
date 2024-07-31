@@ -7,6 +7,7 @@ import { AnimatedTube } from './animatedTube';
 import { debugGui } from './debugGui';
 import AnimatedLine from './animatedLine';
 import { VideoPanel } from './videoPanel';
+import PhysicsSandbox from './physicsSandbox';
 
 const SCROLL_SCALE = 0.015;
 
@@ -65,14 +66,20 @@ function init() {
     // nurbsTube.position.z -= 5;
     // scene.add(nurbsTube);
 
+    videoPanel = new VideoPanel();
+    videoPanel.position.y = -10
+    scene.add(videoPanel);
+
     const animatedLine = new AnimatedLine();
+    animatedLine.position.y = -20;
     scene.add(animatedLine);
 
     const animatedTube = new AnimatedTube();
+    animatedTube.position.y = -30;
     scene.add(animatedTube);
 
-    videoPanel = new VideoPanel();
-    scene.add(videoPanel);
+    const physicsSandbox = new PhysicsSandbox();
+    scene.add(physicsSandbox);
 
     const debug = {
         cameraControls: false,
