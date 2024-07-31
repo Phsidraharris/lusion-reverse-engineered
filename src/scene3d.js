@@ -18,6 +18,7 @@ let scene;
 let videoMesh;
 let videoPanel;
 let controls;
+let physicsSandbox;
 
 const clock = new THREE.Clock(true);
 
@@ -78,7 +79,7 @@ function init() {
     animatedTube.position.y = -30;
     scene.add(animatedTube);
 
-    const physicsSandbox = new PhysicsSandbox();
+    physicsSandbox = new PhysicsSandbox();
     scene.add(physicsSandbox);
 
     const debug = {
@@ -137,12 +138,14 @@ function onScroll() {
 
 function animate() {
     const t = clock.getElapsedTime() % 1;
+    const dt = clock.getDelta();
 
     renderer.render(scene, camera);
     stats.update();
 
-    videoPanel && videoPanel.update(clock.getDelta());
+    videoPanel && videoPanel.update(dt);
     controls && controls.update();
+    physicsSandbox && physicsSandbox.update(dt);
 }
 
 init();
