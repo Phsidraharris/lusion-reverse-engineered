@@ -1,16 +1,53 @@
 import * as THREE from "three";
-import { RapierPhysics } from 'three/addons/physics/RapierPhysics.js';
+import { phy, math } from 'phy-engine';
+import { radians } from "three/examples/jsm/nodes/Nodes.js";
 
 export default class PhysicsSandbox extends THREE.Group {
-    /** @type RapierPhysics */
-    physics;
     boxes;
     positionReuse;
+    physicsBoxes = [];
 
-    constructor() {
+    constructor(scene, renderer) {
         super();
 
         this.init();
+
+        phy.init({
+            type: 'PHYSX',
+            worker: true,
+            compact: true,
+            scene: scene,
+            renderer: renderer,
+            callback: this.physicsReady,
+        })
+    }
+
+    physicsReady = () => {
+        // config physics setting with null gravity
+        phy.set({ substep: 2, gravity: [0, -1, 0], fps: 60 })
+
+        const material = new THREE.MeshStandardMaterial({
+            color: "blue"
+        });
+
+        const planet = new THREE.Mesh(new THREE.SphereGeometry(2), material);
+
+        phy.add({
+            type: 'mesh',
+            name: 'planet',
+            shape: planet.geometry,
+            material: material,
+            friction: 0.2,
+            density: 1,
+            radius: 2
+        });
+
+        const plane = phy.add({ type: 'plane', size: [300, 1, 300], material: 'shadow', visible: true, pos: [0, -6, 0] });
+
+        for (let i = 0; i < 10; i++) {
+            const box = phy.add({ type: 'box', size: [1, 1, 1], pos: [-5 + i * 2, 0, 0], density: 1, material: material, radius: 0.1 });
+            this.physicsBoxes.push(box);
+        }
     }
 
     getRandomPosition(radius) {
@@ -22,7 +59,6 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     async init() {
-        this.physics = await RapierPhysics();
         const material = new THREE.MeshStandardMaterial({
             color: "blue"
         });
@@ -51,16 +87,15 @@ export default class PhysicsSandbox extends THREE.Group {
         floor.receiveShadow = true;
         floor.userData.physics = { mass: 0 };
         this.add(floor);
-
-        this.physics.addScene(this);
     }
 
     update(dt) {
-        if (!this.physics || !this.boxes) {
+
+        if (this.physicsBoxes.length === 0) {
             return;
         }
 
-        const index = Math.floor(Math.random() * this.boxes.count);
-        this.physics.setMeshPosition(this.boxes, this.getRandomPosition(3), index);
+        const b = this.physicsBoxes[0];
+        phy.change([{ name: b.name, force: [0, 1, 0] }]);
     }
 }

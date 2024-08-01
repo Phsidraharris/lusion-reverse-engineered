@@ -79,7 +79,7 @@ function init() {
     animatedTube.position.y = -30;
     scene.add(animatedTube);
 
-    physicsSandbox = new PhysicsSandbox();
+    physicsSandbox = new PhysicsSandbox(scene, renderer);
     scene.add(physicsSandbox);
 
     const debug = {
