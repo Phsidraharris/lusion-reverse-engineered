@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import RAPIER from "@dimforge/rapier3d";
 
-const OBJECT_COUNT = 10;
+const OBJECT_COUNT = 100;
 
 export default class PhysicsSandbox extends THREE.Group {
     boxes;
@@ -11,6 +11,7 @@ export default class PhysicsSandbox extends THREE.Group {
     /** @type RAPIER.World */
     world = null;
 
+    /** @type Map<THREE.Mesh, RAPIER.RigidBody */
     meshBodyLookup = new Map();
 
     mouseBall;
@@ -23,12 +24,13 @@ export default class PhysicsSandbox extends THREE.Group {
         this.world = new RAPIER.World({ x: 0, y: 0, z: 0 });
 
         for (let i = 0; i < OBJECT_COUNT; i++) {
-            const ball = this.createBall();
+            const ball = this.createBall(0.2, this.getRandomPosition(5));
             this.add(ball.mesh);
             this.addToWorld(ball.mesh, ball.rigidbody);
         }
 
-        this.mouseBall = this.createBall();
+        this.mouseBall = this.createBall(2, { x: 0, y: 0, z: 0 }, true);
+        this.mouseBall.mesh.add(new THREE.PointLight(new THREE.Color(1, 1, 1), 100));
         this.add(this.mouseBall.mesh);
 
         this.camera = camera;
@@ -36,17 +38,17 @@ export default class PhysicsSandbox extends THREE.Group {
         window.addEventListener('mousemove', this.onMouseMove, false);
     }
 
-    createBall() {
-        const ballRadius = 0.5;
-        const ballMass = 1;
-        const ballRestitution = 0.6;    // 0 = no bounce, 1 = full bounce
+    createBall(ballRadius, ballPosition, isKinematic = false, ballMass = 1, ballRestitution = 0.1) {
+        const { x, y, z } = ballPosition;
 
         const shape = RAPIER.ColliderDesc.ball(ballRadius);
         shape.setMass(ballMass);
         shape.setRestitution(ballRestitution);
 
-        const rigidbodyDesc = RAPIER.RigidBodyDesc.dynamic();
-        rigidbodyDesc.setTranslation(0, 0, 0);
+        const rigidbodyDesc = isKinematic
+            ? RAPIER.RigidBodyDesc.kinematicPositionBased()
+            : RAPIER.RigidBodyDesc.dynamic();
+        rigidbodyDesc.setTranslation(x, y, z);
 
         const rigidbody = this.world.createRigidBody(rigidbodyDesc);
         this.world.createCollider(shape, rigidbody);
@@ -56,7 +58,8 @@ export default class PhysicsSandbox extends THREE.Group {
         });
 
         const mesh = new THREE.Mesh(new THREE.SphereGeometry(ballRadius), material);
-
+        mesh.position.set(x, y, z);
+        mesh.receiveShadow = true;
         return { rigidbody, mesh };
     }
 
@@ -70,14 +73,20 @@ export default class PhysicsSandbox extends THREE.Group {
 
     onMouseMove = (event) => {
         let vector = new THREE.Vector3();
+        const normalizedZ = THREE.MathUtils.inverseLerp(this.camera.near, this.camera.far, this.camera.position.z);
+
         vector.set(
             (event.clientX / window.innerWidth) * 2 - 1,
             - (event.clientY / window.innerHeight) * 2 + 1,
+            0.989   // more negative, closer to camera, higher = further.
         );
         vector.unproject(this.camera);
+        let { x, y, z } = vector;
+        // z = 1;
+        this.mouseBall.rigidbody.setTranslation({ x, y, z });
+        this.mouseBall.mesh.position.set(x, y, z);
 
-        this.mouseBall.rigidbody.setTranslation({ x: vector.z, y: vector.y, z: 0 });
-        this.mouseBall.mesh.position.set(vector.x, vector.y, 10);
+        console.log(x, y, z)
     }
 
     async init() {
@@ -121,9 +130,15 @@ export default class PhysicsSandbox extends THREE.Group {
             this.world.step();
         }
 
+        const center = new THREE.Vector3(0, 0, 0);
         this.meshBodyLookup.forEach((rigidbody, mesh) => {
+            const dirToCenter = center.clone().sub(mesh.position).multiplyScalar(0.9);
+            rigidbody.resetForces(true);
+            rigidbody.addForce(dirToCenter);
+
             mesh.position.copy(rigidbody.translation());
             mesh.quaternion.copy(rigidbody.rotation());
+
         });
     }
 }
