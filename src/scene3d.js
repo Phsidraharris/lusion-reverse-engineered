@@ -50,6 +50,7 @@ function init() {
     new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', function (texture) {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         scene.environment = texture;
+        scene.backgroundIntensity = 0;
     });
 
     const material = new THREE.MeshStandardMaterial({
