@@ -24,7 +24,7 @@ export default class PhysicsSandbox extends THREE.Group {
 
     physicsReady = () => {
         // config physics setting with null gravity
-        phy.set({ substep: 2, gravity: [0, -1, 0], fps: 60 })
+        phy.set({ substep: 2, gravity: [0, 0, 0], fps: 60 })
 
         const material = new THREE.MeshStandardMaterial({
             color: "blue"
@@ -95,7 +95,9 @@ export default class PhysicsSandbox extends THREE.Group {
             return;
         }
 
-        const b = this.physicsBoxes[0];
-        phy.change([{ name: b.name, force: [0, 1, 0] }]);
+        console.log(this.physicsBoxes)
+
+        const changes = this.physicsBoxes.map(box => ({ name: box.name, force: [-box.position.x, -box.position.y, -box.position.z] }));
+        phy.change(changes);
     }
 }
