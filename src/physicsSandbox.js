@@ -7,6 +7,7 @@ const DAMPING = 0.6
 const ATTRACTION_FORCE = 3.5;
 const MOUSE_FORCE_COEF = 10;
 const MOUSE_LIGHT_INTENSITY = 40;
+const STENCIL_REF = 1;
 
 export default class PhysicsSandbox extends THREE.Group {
     boxes;
@@ -29,10 +30,28 @@ export default class PhysicsSandbox extends THREE.Group {
 
         this.camera = camera;
 
+        this.initViewMask();
         this.initObjects();
         this.initDebug();
 
         window.addEventListener('mousemove', this.onMouseMove, false);
+    }
+
+    initViewMask() {
+        const stencilMat = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(0.02, 0.02, 0.02),
+            depthWrite: false,
+            stencilWrite: true,
+            stencilRef: STENCIL_REF,
+            stencilFunc: THREE.AlwaysStencilFunc,
+            stencilZPass: THREE.ReplaceStencilOp
+        });
+        const planeScale = 1.2;
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(16 * planeScale, 6 * planeScale), stencilMat);
+        plane.position.z = this.camera.position.z - 0.1;
+        plane.renderOrder = 1;
+        this.add(plane);
+
     }
 
     initObjects() {
@@ -68,15 +87,19 @@ export default class PhysicsSandbox extends THREE.Group {
         this.world.createCollider(shape, rigidbody);
 
         const material = new THREE.MeshStandardMaterial({
-            color: "blue",
-            roughness: 0.6,
-            metalness: 0.01
+            color: 0xE91E63,
+            metalness: 0,
+            roughness: 0.22,
+            stencilWrite: true,
+            stencilRef: STENCIL_REF,
+            stencilFunc: THREE.EqualStencilFunc,
         });
 
         const mesh = new THREE.Mesh(new THREE.SphereGeometry(ballRadius), material);
         mesh.position.set(x, y, z);
         mesh.receiveShadow = true;
         mesh.castShadow = true;
+        mesh.renderOrder = 2;
         return { rigidbody, mesh };
     }
 

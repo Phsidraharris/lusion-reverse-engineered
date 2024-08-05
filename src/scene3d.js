@@ -28,7 +28,7 @@ function init() {
 
     const canvas = document.getElementById("canvas");
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);
