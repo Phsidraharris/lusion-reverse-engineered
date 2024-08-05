@@ -38,7 +38,7 @@ function init() {
 
     const frustum = frustumFromWindowWidth();
     const aspect = window.innerWidth / window.innerHeight;
-    camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 2, 100);
+    camera = new THREE.OrthographicCamera(frustum * aspect / - 2, frustum * aspect / 2, frustum / 2, frustum / - 2, 0, 100);
     camera.position.z = 10;
     // camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
     // camera.position.z = 15;

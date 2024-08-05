@@ -1,9 +1,12 @@
 import * as THREE from "three";
-import RAPIER from "@dimforge/rapier3d";
+import RAPIER, { Ray } from "@dimforge/rapier3d";
 import { debugGui } from "./debugGui";
 
-const OBJECT_COUNT = 100;
-const DAMPING = 0.6;
+const OBJECT_COUNT = 30;
+const DAMPING = 0.6
+const ATTRACTION_FORCE = 3.5;
+const MOUSE_FORCE_COEF = 10;
+const MOUSE_LIGHT_INTENSITY = 40;
 
 export default class PhysicsSandbox extends THREE.Group {
     boxes;
@@ -14,10 +17,12 @@ export default class PhysicsSandbox extends THREE.Group {
     world = null;
     /** @type Map<THREE.Mesh, RAPIER.RigidBody */
     meshBodyLookup = new Map();
+    /** @type {{ mesh: THREE.Mesh, rigidbody: RAPIER.RigidBody }} */
     mouseBall;
     camera;
     attractionPos = new THREE.Vector3(0, 0, 0);
     world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+    lastMousePos = new THREE.Vector3();
 
     constructor(camera) {
         super();
@@ -38,7 +43,7 @@ export default class PhysicsSandbox extends THREE.Group {
         }
 
         this.mouseBall = this.createBall(0.6, { x: 0, y: 0, z: 0 }, true);
-        this.mouseBall.mesh.add(new THREE.PointLight(new THREE.Color(1, 1, 1), 500));
+        this.mouseBall.mesh.add(new THREE.PointLight(new THREE.Color(1, 1, 1), MOUSE_LIGHT_INTENSITY));
         this.add(this.mouseBall.mesh);
     }
 
@@ -46,7 +51,7 @@ export default class PhysicsSandbox extends THREE.Group {
         const folder = debugGui.addFolder("Physics sandbox");
     }
 
-    createBall(ballRadius, ballPosition, isKinematic = false, ballRestitution = 0.5) {
+    createBall(ballRadius, ballPosition, isKinematic = false, ballRestitution = 0.3) {
         const { x, y, z } = ballPosition;
 
         const rigidbodyDesc = isKinematic
@@ -84,8 +89,6 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     onMouseMove = (event) => {
-        this.camera.updateMatrixWorld();
-
         const normalisedX = (event.clientX / window.innerWidth) * 2 - 1;
         const normalisedY = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -95,6 +98,21 @@ export default class PhysicsSandbox extends THREE.Group {
 
         this.mouseBall.rigidbody.setTranslation({ x, y, z });
         this.mouseBall.mesh.position.set(x, y, z);
+
+        const mouseDelta = this.mouseBall.mesh.position.clone().sub(this.lastMousePos);
+
+        this.lastMousePos.copy(this.mouseBall.mesh.position);
+
+        const ray = new Ray(this.camera.position, this.lastMousePos.clone().sub(this.camera.position));
+        const hit = this.world.castRay(ray, 50, true);
+
+        if (hit) {
+            this.meshBodyLookup.forEach((rigidbody, mesh) => {
+                if (rigidbody === hit.collider.parent()) {
+                    rigidbody.applyImpulseAtPoint(mouseDelta.multiplyScalar(MOUSE_FORCE_COEF), this.lastMousePos, true);
+                }
+            });
+        }
     }
 
     async init() {
@@ -138,13 +156,12 @@ export default class PhysicsSandbox extends THREE.Group {
         }
 
         this.meshBodyLookup.forEach((rigidbody, mesh) => {
-            const dirToCenter = this.attractionPos.clone().sub(mesh.position).multiplyScalar(1.5);
+            const dirToCenter = this.attractionPos.clone().sub(mesh.position).setLength(ATTRACTION_FORCE);
             rigidbody.resetForces(true);
             rigidbody.addForce(dirToCenter);
 
             mesh.position.copy(rigidbody.translation());
             mesh.quaternion.copy(rigidbody.rotation());
-
         });
     }
 }
