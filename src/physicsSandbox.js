@@ -1,53 +1,63 @@
 import * as THREE from "three";
-import { phy, math } from 'phy-engine';
-import { radians } from "three/examples/jsm/nodes/Nodes.js";
+import RAPIER from "@dimforge/rapier3d";
+
+const OBJECT_COUNT = 10;
 
 export default class PhysicsSandbox extends THREE.Group {
     boxes;
     positionReuse;
     physicsBoxes = [];
 
-    constructor(scene, renderer) {
+    /** @type RAPIER.World */
+    world = null;
+
+    meshBodyLookup = new Map();
+
+    mouseBall;
+
+    camera;
+
+    constructor(camera) {
         super();
 
-        this.init();
+        this.world = new RAPIER.World({ x: 0, y: 0, z: 0 });
 
-        phy.init({
-            type: 'PHYSX',
-            worker: true,
-            compact: true,
-            scene: scene,
-            renderer: renderer,
-            callback: this.physicsReady,
-        })
+        for (let i = 0; i < OBJECT_COUNT; i++) {
+            const ball = this.createBall();
+            this.add(ball.mesh);
+            this.addToWorld(ball.mesh, ball.rigidbody);
+        }
+
+        this.mouseBall = this.createBall();
+        this.add(this.mouseBall.mesh);
+
+        this.camera = camera;
+
+        window.addEventListener('mousemove', this.onMouseMove, false);
     }
 
-    physicsReady = () => {
-        // config physics setting with null gravity
-        phy.set({ substep: 2, gravity: [0, 0, 0], fps: 60 })
+    createBall() {
+        const ballRadius = 0.5;
+        const ballMass = 1;
+        const ballRestitution = 0.6;    // 0 = no bounce, 1 = full bounce
+
+        const shape = RAPIER.ColliderDesc.ball(ballRadius);
+        shape.setMass(ballMass);
+        shape.setRestitution(ballRestitution);
+
+        const rigidbodyDesc = RAPIER.RigidBodyDesc.dynamic();
+        rigidbodyDesc.setTranslation(0, 0, 0);
+
+        const rigidbody = this.world.createRigidBody(rigidbodyDesc);
+        this.world.createCollider(shape, rigidbody);
 
         const material = new THREE.MeshStandardMaterial({
             color: "blue"
         });
 
-        const planet = new THREE.Mesh(new THREE.SphereGeometry(2), material);
+        const mesh = new THREE.Mesh(new THREE.SphereGeometry(ballRadius), material);
 
-        phy.add({
-            type: 'mesh',
-            name: 'planet',
-            shape: planet.geometry,
-            material: material,
-            friction: 0.2,
-            density: 1,
-            radius: 2
-        });
-
-        const plane = phy.add({ type: 'plane', size: [300, 1, 300], material: 'shadow', visible: true, pos: [0, -6, 0] });
-
-        for (let i = 0; i < 10; i++) {
-            const box = phy.add({ type: 'box', size: [1, 1, 1], pos: [-5 + i * 2, 0, 0], density: 1, material: material, radius: 0.1 });
-            this.physicsBoxes.push(box);
-        }
+        return { rigidbody, mesh };
     }
 
     getRandomPosition(radius) {
@@ -56,6 +66,18 @@ export default class PhysicsSandbox extends THREE.Group {
         }
 
         return this.positionReuse.randomDirection().multiplyScalar(radius);
+    }
+
+    onMouseMove = (event) => {
+        let vector = new THREE.Vector3();
+        vector.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            - (event.clientY / window.innerHeight) * 2 + 1,
+        );
+        vector.unproject(this.camera);
+
+        this.mouseBall.rigidbody.setTranslation({ x: vector.z, y: vector.y, z: 0 });
+        this.mouseBall.mesh.position.set(vector.x, vector.y, 10);
     }
 
     async init() {
@@ -89,15 +111,19 @@ export default class PhysicsSandbox extends THREE.Group {
         this.add(floor);
     }
 
-    update(dt) {
+    addToWorld(mesh, rigidbody) {
+        this.meshBodyLookup.set(mesh, rigidbody);
+    }
 
-        if (this.physicsBoxes.length === 0) {
-            return;
+    update(dt) {
+        if (this.world) {
+            this.world.timestep = dt;
+            this.world.step();
         }
 
-        console.log(this.physicsBoxes)
-
-        const changes = this.physicsBoxes.map(box => ({ name: box.name, force: [-box.position.x, -box.position.y, -box.position.z] }));
-        phy.change(changes);
+        this.meshBodyLookup.forEach((rigidbody, mesh) => {
+            mesh.position.copy(rigidbody.translation());
+            mesh.quaternion.copy(rigidbody.rotation());
+        });
     }
 }
