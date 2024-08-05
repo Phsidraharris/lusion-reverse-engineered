@@ -134,8 +134,6 @@ export default class PhysicsSandbox extends THREE.Group {
 
     update(dt) {
         if (this.world) {
-            const dtClamped = Math.min(dt, 1);  // prevents massive step when browser is background-ed
-            this.world.timestep = dtClamped;
             this.world.step();
         }
 
