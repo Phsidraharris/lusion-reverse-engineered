@@ -1,5 +1,6 @@
-import * as THREE from "three";
 import RAPIER, { Ray } from "@dimforge/rapier3d";
+import * as THREE from "three";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
 
 const OBJECT_COUNT = 30;
@@ -37,7 +38,7 @@ export default class PhysicsSandbox extends THREE.Group {
         window.addEventListener('mousemove', this.onMouseMove, false);
     }
 
-    initViewMask() {
+    initViewMask = () => {
         const stencilMat = new THREE.MeshBasicMaterial({
             color: new THREE.Color(0.02, 0.02, 0.02),
             depthWrite: false,
@@ -46,12 +47,14 @@ export default class PhysicsSandbox extends THREE.Group {
             stencilFunc: THREE.AlwaysStencilFunc,
             stencilZPass: THREE.ReplaceStencilOp
         });
-        const planeScale = 1.2;
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(16 * planeScale, 6 * planeScale), stencilMat);
-        plane.position.z = this.camera.position.z - 0.1;
-        plane.renderOrder = 1;
-        this.add(plane);
-
+        const loader = new GLTFLoader();
+        loader.load('../assets/physics-mask.glb', (gltf) => {
+            const mesh = gltf.scene.children[0];
+            mesh.material = stencilMat;
+            mesh.renderOrder = 1;
+            mesh.position.y -= 1;
+            this.add(mesh);
+        });
     }
 
     initObjects() {
