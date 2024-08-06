@@ -21,7 +21,7 @@ export class VideoPanel extends THREE.Group {
             roughness: 0.7,
             metalness: 0.2,
         });
-        loader.load('../assets/panel-anim-new.glb', (gltf) => {
+        loader.load('../assets/panel-anim-bones.glb', (gltf) => {
             const mesh = gltf.scene.children[0];
             mesh.material = material;
 
@@ -30,14 +30,16 @@ export class VideoPanel extends THREE.Group {
             // Set up the animation mixer
             this.mixer = new THREE.AnimationMixer(gltf.scene);
 
-
-            this.animClip = gltf.animations[1];
+            
+            this.animClip = gltf.animations[0];
             this.action = this.mixer.clipAction(this.animClip);
             this.action.play();
 
             this.animDuration = this.animClip.duration;
             this.animFrameCount = this.animClip.tracks[0].times.length;
-            this.animFPS = Math.round(this.animFrameCount / this.animDuration);
+            this.animFPS = Math.floor(this.animFrameCount / this.animDuration);
+
+            console.log("anim fps", this.animFPS)
         }, undefined, (error) => {
             console.error(error);
         });
