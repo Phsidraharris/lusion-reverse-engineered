@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { debugGui } from "./debugGui";
-import nurbsJson from "../assets/nurbs-points.json";
+import nurbsJson from "../assets/nurbs-canxerian.json";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
@@ -128,7 +128,7 @@ ${shader.vertexShader}
     }
 
     createNurbsCurve(nurbsDegree = 3) {
-        const nurbsPoints = nurbsJson[0].points.reverse().map((p) => new THREE.Vector4(p.x, p.y, p.z, p.weight));
+        const nurbsPoints = nurbsJson[0].points.map((p) => new THREE.Vector4(p.x, p.y, p.z, p.weight));
         const nurbsKnots = [];
 
         for (let i = 0; i <= nurbsDegree; i++) {

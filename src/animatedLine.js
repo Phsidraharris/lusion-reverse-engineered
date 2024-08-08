@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GeometryUtils, Line2, LineGeometry, LineMaterial } from "three/examples/jsm/Addons.js";
 import { debugGui } from "./debugGui";
-import nurbsJson from "../assets/nurbs-points.json";
+import nurbsJson from "../assets/nurbs-canxerian.json";
 import { createNurbsCurve } from "./nurbsUtils";
 
 export default class AnimatedLine extends THREE.Group {
