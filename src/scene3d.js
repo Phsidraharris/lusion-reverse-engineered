@@ -15,7 +15,6 @@ let renderer;
 let stats;
 let camera;
 let scene;
-let videoMesh;
 let videoPanel;
 let controls;
 let physicsSandbox;
@@ -70,13 +69,12 @@ function init() {
     // nurbsTube.position.z -= 5;
     // scene.add(nurbsTube);
 
-    videoPanel = new VideoPanel();
-    videoPanel.position.y = -10
+    videoPanel = new VideoPanel(camera);
     scene.add(videoPanel);
 
-    const animatedLine = new AnimatedLine();
-    animatedLine.position.y = -20;
-    scene.add(animatedLine);
+    // const animatedLine = new AnimatedLine();
+    // animatedLine.position.y = -20;
+    // scene.add(animatedLine);
 
     const animatedTube = new AnimatedTube(camera);
     scene.add(animatedTube);

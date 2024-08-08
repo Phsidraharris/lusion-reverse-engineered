@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
+import { pageToWorldCoords } from "./utils";
 
 export class VideoPanel extends THREE.Group {
     mixer = null;
@@ -11,7 +12,7 @@ export class VideoPanel extends THREE.Group {
     animFrameCount;
     animFPS;
 
-    constructor() {
+    constructor(camera) {
         super();
 
         this.initDebug();
@@ -30,7 +31,6 @@ export class VideoPanel extends THREE.Group {
             // Set up the animation mixer
             this.mixer = new THREE.AnimationMixer(gltf.scene);
 
-            
             this.animClip = gltf.animations[0];
             this.action = this.mixer.clipAction(this.animClip);
             this.action.play();
@@ -43,6 +43,10 @@ export class VideoPanel extends THREE.Group {
         }, undefined, (error) => {
             console.error(error);
         });
+
+        const halfPage = window.innerHeight * 0.5;
+        const pageY = window.innerHeight * 2 + halfPage;
+        this.position.copy(pageToWorldCoords(200, pageY, camera));
     }
 
     initDebug() {
