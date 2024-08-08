@@ -3,6 +3,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { debugGui } from "./debugGui";
 import nurbsJson from "../assets/nurbs-canxerian.json";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
+import { pageToWorldCoords } from "./utils";
 
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
@@ -13,18 +14,16 @@ export class AnimatedTube extends THREE.Group {
 
     drawStartPercent = 0;
     radius = 0.1;
-
+    /** @type THREE.Mesh */
     mesh = null;
 
-    setRadius(value) {
-        this.radius = value;
-        this.remove(this.mesh);
-        this.mesh = this.createTubeMesh();
-        this.add(this.mesh);
-    }
+    /** @type THREE.Camera */
+    camera = null;
 
-    constructor() {
+    constructor(camera) {
         super();
+
+        this.camera = camera;
 
         this.mesh = this.createTubeMesh();
         this.add(this.mesh);
@@ -37,6 +36,10 @@ export class AnimatedTube extends THREE.Group {
             this.setRadius(value);
         });
 
+        this.initScrollHandler();
+    }
+
+    initScrollHandler = () => {
         const page2Start = window.innerHeight * 2;
         const page2End = page2Start + window.innerHeight;
         window.addEventListener("scroll", (e) => {
@@ -44,6 +47,22 @@ export class AnimatedTube extends THREE.Group {
 
             this.uniforms.stretchRatio.value = v;
         });
+
+        for (let i = 0; i < 10; i++) {
+            const y = pageToWorldCoords(window.innerWidth / 2, (window.innerHeight / 2) + (i * window.innerHeight), this.camera)
+
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9));
+            mesh.position.y = y.y;
+
+            this.add(mesh)
+        }
+    }
+
+    setRadius(value) {
+        this.radius = value;
+        this.remove(this.mesh);
+        this.mesh = this.createTubeMesh();
+        this.add(this.mesh);
     }
 
     createTubeMesh() {

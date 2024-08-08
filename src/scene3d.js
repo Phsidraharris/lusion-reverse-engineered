@@ -9,7 +9,7 @@ import AnimatedLine from './animatedLine';
 import { VideoPanel } from './videoPanel';
 import PhysicsSandbox from './physicsSandbox';
 
-const SCROLL_SCALE = 0.015;
+const SCROLL_SCALE = 0.029;
 
 let renderer;
 let stats;
@@ -78,8 +78,7 @@ function init() {
     animatedLine.position.y = -20;
     scene.add(animatedLine);
 
-    const animatedTube = new AnimatedTube();
-    animatedTube.position.y = -30;
+    const animatedTube = new AnimatedTube(camera);
     scene.add(animatedTube);
 
     physicsSandbox = new PhysicsSandbox(camera);
