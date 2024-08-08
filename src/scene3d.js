@@ -9,7 +9,7 @@ import AnimatedLine from './animatedLine';
 import { VideoPanel } from './videoPanel';
 import PhysicsSandbox from './physicsSandbox';
 
-const SCROLL_SCALE = 0.029;
+const SCROLL_SCALE = 0.0285;
 
 let renderer;
 let stats;

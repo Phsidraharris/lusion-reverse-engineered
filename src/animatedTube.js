@@ -13,7 +13,7 @@ export class AnimatedTube extends THREE.Group {
     }
 
     drawStartPercent = 0;
-    radius = 0.1;
+    radius = 0.6;
     /** @type THREE.Mesh */
     mesh = null;
 
@@ -40,22 +40,15 @@ export class AnimatedTube extends THREE.Group {
     }
 
     initScrollHandler = () => {
-        const page2Start = window.innerHeight * 2;
-        const page2End = page2Start + window.innerHeight;
+        const page2Start = window.innerHeight * 1 - (window.innerHeight * 0.5);
+        const page2End = page2Start + window.innerHeight * 0.6;
         window.addEventListener("scroll", (e) => {
             const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(page2Start, page2End, window.scrollY), 0, 1);
 
             this.uniforms.stretchRatio.value = v;
         });
 
-        for (let i = 0; i < 10; i++) {
-            const y = pageToWorldCoords(window.innerWidth / 2, (window.innerHeight / 2) + (i * window.innerHeight), this.camera)
-
-            const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9));
-            mesh.position.y = y.y;
-
-            this.add(mesh)
-        }
+        this.position.copy(pageToWorldCoords(100, (1 * window.innerHeight), this.camera));
     }
 
     setRadius(value) {
