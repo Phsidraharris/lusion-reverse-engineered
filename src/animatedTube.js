@@ -36,6 +36,14 @@ export class AnimatedTube extends THREE.Group {
         folder.add(this, 'radius', 0, 1).onChange(value => {
             this.setRadius(value);
         });
+
+        const page2Start = window.innerHeight * 2;
+        const page2End = page2Start + window.innerHeight;
+        window.addEventListener("scroll", (e) => {
+            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(page2Start, page2End, window.scrollY), 0, 1);
+
+            this.uniforms.stretchRatio.value = v;
+        });
     }
 
     createTubeMesh() {
