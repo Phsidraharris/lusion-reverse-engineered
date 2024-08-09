@@ -3,25 +3,22 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
 import { pageToWorldCoords } from "./utils";
 
+const TINT_COLOUR_START = new THREE.Color("#5b1473");
+const TINT_COLOUR_END = new THREE.Color("#ffffff");
+
 export class VideoPanel extends THREE.Group {
     mixer = null;
     action = null;
     animPlaybackPercent = 0;
     animClip;
     animDuration;
-    animFrameCount;
-    animFPS;
 
     constructor(camera) {
         super();
 
         this.initDebug();
 
-        const loader = new GLTFLoader();
-
-        const colourStart = new THREE.Color("#9ba2cf");
-        const colourEnd = new THREE.Color("#ffffff");
-        const colour = colourStart.clone();
+        const colour = TINT_COLOUR_START.clone();
 
         const material = new THREE.MeshBasicMaterial({
             roughness: 0.1,
@@ -31,7 +28,7 @@ export class VideoPanel extends THREE.Group {
             color: colour
         });
 
-        loader.load('../assets/panel-anim-bones.glb', (gltf) => {
+        new GLTFLoader().load('../assets/panel-anim-bones.glb', (gltf) => {
             const mesh = gltf.scene.children[0].children[0];
             mesh.material = material;
             this.add(gltf.scene);
@@ -44,15 +41,11 @@ export class VideoPanel extends THREE.Group {
             this.action.play();
 
             this.animDuration = this.animClip.duration;
-            this.animFrameCount = this.animClip.tracks[0].times.length;
-            this.animFPS = Math.floor(this.animFrameCount / this.animDuration);
-
-            console.log("anim fps", this.animFPS)
         }, undefined, (error) => {
             console.error(error);
         });
 
-        const initialY = pageToWorldCoords(0, window.innerHeight * 2, camera).y;
+        const initialY = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
         const targetY = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
         this.position.y = initialY;
         this.scale.setScalar(3);
@@ -61,7 +54,7 @@ export class VideoPanel extends THREE.Group {
             const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
             const yPos = THREE.MathUtils.lerp(initialY, targetY, animPercent);
 
-            material.color = colour.lerpColors(colourStart, colourEnd, animPercent);
+            material.color = colour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, animPercent);
 
             this.playAnimation(animPercent);
             this.position.y = yPos;
