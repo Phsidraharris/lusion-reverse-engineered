@@ -5,6 +5,8 @@ import nurbsJson from "../assets/nurbs-canxerian.json";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 import { pageToWorldCoords } from "./utils";
 
+const DEBUG_NURB_LINE = false;
+
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
     uniforms = {
@@ -20,10 +22,16 @@ export class AnimatedTube extends THREE.Group {
     /** @type THREE.Camera */
     camera = null;
 
+    startPosPageY;
+    endPosPageY;
+
     constructor(camera) {
         super();
 
         this.camera = camera;
+
+        this.startPosPageY = window.innerHeight * 1 - (window.innerHeight * 0.5);
+        this.endPosPageY = this.startPosPageY + window.innerHeight;
 
         this.mesh = this.createTubeMesh();
         this.add(this.mesh);
@@ -40,11 +48,8 @@ export class AnimatedTube extends THREE.Group {
     }
 
     initScrollHandler = () => {
-        const page2Start = window.innerHeight * 1 - (window.innerHeight * 0.5);
-        const page2End = page2Start + window.innerHeight * 0.6;
         window.addEventListener("scroll", (e) => {
-            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(page2Start, page2End, window.scrollY), 0, 1);
-
+            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.startPosPageY, this.endPosPageY, window.scrollY), 0, 1);
             this.uniforms.stretchRatio.value = v;
         });
 
@@ -61,11 +66,13 @@ export class AnimatedTube extends THREE.Group {
     createTubeMesh() {
         const curve = this.createNurbsCurve(4);
 
-        let lineCurve = new THREE.Line(
-            new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
-            new THREE.LineBasicMaterial({ color: "red" })
-        )
-        this.add(lineCurve);
+        if (DEBUG_NURB_LINE) {
+            let lineCurve = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints(curve.getSpacedPoints(50)),
+                new THREE.LineBasicMaterial({ color: "red" })
+            )
+            this.add(lineCurve);
+        }
 
         // datatexture
         let data = [];
@@ -89,8 +96,8 @@ export class AnimatedTube extends THREE.Group {
             new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
         ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
 
-        let tubeMaterial = new THREE.MeshLambertMaterial({
-            color: "blue",
+        let tubeMaterial = new THREE.MeshStandardMaterial({
+            color: "#6289de",
             onBeforeCompile: shader => {
                 shader.uniforms.curveTexture = this.uniforms.curveTexture;
                 shader.uniforms.stretchRatio = this.uniforms.stretchRatio;

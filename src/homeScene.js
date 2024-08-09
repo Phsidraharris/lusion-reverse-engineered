@@ -3,6 +3,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import PhysicsSandbox from "./physicsSandbox";
 import { updateCameraIntrisics } from "./utils";
+import { AnimatedTube } from "./animatedTube";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -11,6 +12,7 @@ class HomeScene {
     scene;
     stats = new Stats();
     physicsSandbox;
+    animatedTube;
 
     constructor() {
         this.initThree();
@@ -42,7 +44,7 @@ class HomeScene {
         new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;
-            this.scene.backgroundIntensity = 0;
+            // this.scene.backgroundIntensity = 0;
         });
     }
 
@@ -50,8 +52,8 @@ class HomeScene {
         this.physicsSandbox = new PhysicsSandbox(this.camera);
         this.scene.add(this.physicsSandbox);
 
-        const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1));
-        this.scene.add(box)
+        this.animatedTube = new AnimatedTube(this.camera);
+        this.scene.add(this.animatedTube)
     }
 
     onScroll = () => {
