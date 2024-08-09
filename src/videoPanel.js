@@ -18,14 +18,22 @@ export class VideoPanel extends THREE.Group {
         this.initDebug();
 
         const loader = new GLTFLoader();
-        const material = new THREE.MeshStandardMaterial({
-            roughness: 0.7,
-            metalness: 0.2,
-        });
-        loader.load('../assets/panel-anim-bones.glb', (gltf) => {
-            const mesh = gltf.scene.children[0];
-            mesh.material = material;
 
+        const colourStart = new THREE.Color("#9ba2cf");
+        const colourEnd = new THREE.Color("#ffffff");
+        const colour = colourStart.clone();
+
+        const material = new THREE.MeshBasicMaterial({
+            roughness: 0.1,
+            metalness: 0,
+            map: this.createVideoTexture(),
+            side: THREE.FrontSide,
+            color: colour
+        });
+
+        loader.load('../assets/panel-anim-bones.glb', (gltf) => {
+            const mesh = gltf.scene.children[0].children[0];
+            mesh.material = material;
             this.add(gltf.scene);
 
             // Set up the animation mixer
@@ -50,10 +58,13 @@ export class VideoPanel extends THREE.Group {
         this.scale.setScalar(3);
 
         window.addEventListener("scroll", (e) => {
-            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 2, window.scrollY), 0, 0.99);
-            const y = THREE.MathUtils.lerp(initialY, targetY, v);
-            this.playAnimation(v);
-            this.position.y = y;
+            const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
+            const yPos = THREE.MathUtils.lerp(initialY, targetY, animPercent);
+
+            material.color = colour.lerpColors(colourStart, colourEnd, animPercent);
+
+            this.playAnimation(animPercent);
+            this.position.y = yPos;
         });
     }
 
@@ -69,7 +80,41 @@ export class VideoPanel extends THREE.Group {
         }
     }
 
+    createVideoTexture() {
+        const video = document.createElement('video');
+        video.src = 'assets/pexels-2519660-uhd_3840_2160_24fps.mp4';
+        video.loop = true;
+        video.muted = true;
+        video.play();
+
+        const texture = new THREE.VideoTexture(video);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.flipY = false;
+
+        return texture;
+    }
+
     update(dt) {
         // this.mixer && this.mixer.update(dt);
     }
 }
+
+const vertexShader = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+`;
+
+// Fragment Shader
+const fragmentShader = `
+    uniform float time;
+    uniform vec2 resolution;
+    void main()	{
+        float x = mod(time + gl_FragCoord.x, 20.) < 10. ? 1. : 0.;
+        float y = mod(time + gl_FragCoord.y, 20.) < 10. ? 1. : 0.;
+        gl_FragColor = vec4(vec3(min(x, y)), 1.);
+    }
+`;
