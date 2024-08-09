@@ -52,6 +52,25 @@
             justify-content: center;
             align-items: center;
             font: 20px Arial, sans-serif;
+
+            &#project-tiles-section {
+                .project-tiles-grid {
+                    display: grid;
+                    grid-template-columns: 16rem 16rem;
+                    gap: 6rem;
+
+                    .project-tile {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: rgba(21, 21, 21, 0.03);
+                        border-radius: 6px;
+                        padding: 1rem;
+                        height: 9rem;
+                        cursor: pointer;
+                    }
+                }
+            }
         }
 
         #scrollbar {
@@ -160,7 +179,13 @@
         <section>
             <h1>3</h1>
         </section>
-        <section>
+        <section id="project-tiles-section">
+            <div class="project-tiles-grid">
+                <div class="project-tile" id="tile-1">project tile 1</div>
+                <div class="project-tile" id="tile-2">project tile 2</div>
+                <div class="project-tile" id="tile-3">project tile 3</div>
+                <div class="project-tile" id="tile-4">project tile 4</div>
+            </div>
             <h1>4</h1>
         </section>
         <section>

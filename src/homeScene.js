@@ -5,6 +5,7 @@ import PhysicsSandbox from "./physicsSandbox";
 import { updateCameraIntrisics } from "./utils";
 import { AnimatedTube } from "./animatedTube";
 import { VideoPanel } from "./videoPanel";
+import ProjectTiles from "./projectTiles";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -15,6 +16,7 @@ class HomeScene {
     physicsSandbox;
     animatedTube;
     videoPanel;
+    projectTiles;
 
     constructor() {
         this.initThree();
@@ -39,6 +41,7 @@ class HomeScene {
         this.camera.far = 1000;
         this.camera.position.z = 10;
         updateCameraIntrisics(this.camera, this.frustumSize);
+        this.onScroll();
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(window.getComputedStyle(document.body).backgroundColor);
@@ -59,6 +62,9 @@ class HomeScene {
 
         this.videoPanel = new VideoPanel(this.camera);
         this.scene.add(this.videoPanel);
+
+        this.projectTiles = new ProjectTiles(this.camera);
+        this.scene.add(this.projectTiles);
     }
 
     onScroll = () => {
