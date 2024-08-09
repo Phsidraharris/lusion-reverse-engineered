@@ -12,25 +12,27 @@ export class VideoPanel extends THREE.Group {
     animPlaybackPercent = 0;
     animClip;
     animDuration;
+    pagePositionStartAnim;
+    pagePositionEndAnim;
+    material;
+    tintColour = TINT_COLOUR_START.clone();
 
     constructor(camera) {
         super();
 
         this.initDebug();
 
-        const colour = TINT_COLOUR_START.clone();
-
-        const material = new THREE.MeshBasicMaterial({
+        this.material = new THREE.MeshBasicMaterial({
             roughness: 0.1,
             metalness: 0,
             map: this.createVideoTexture(),
             side: THREE.FrontSide,
-            color: colour
+            color: this.tintColour
         });
 
         new GLTFLoader().load('../assets/panel-anim-bones.glb', (gltf) => {
             const mesh = gltf.scene.children[0].children[0];
-            mesh.material = material;
+            mesh.material = this.material;
             this.add(gltf.scene);
 
             // Set up the animation mixer
@@ -41,24 +43,18 @@ export class VideoPanel extends THREE.Group {
             this.action.play();
 
             this.animDuration = this.animClip.duration;
+            this.onScroll();    // trigger scroll in case user refreshes mid scroll
+
         }, undefined, (error) => {
             console.error(error);
         });
 
-        const initialY = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
-        const targetY = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
-        this.position.y = initialY;
+        this.pagePositionStartAnim = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
+        this.pagePositionEndAnim = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
+        this.position.y = this.pagePositionStartAnim;
         this.scale.setScalar(3);
 
-        window.addEventListener("scroll", (e) => {
-            const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
-            const yPos = THREE.MathUtils.lerp(initialY, targetY, animPercent);
-
-            material.color = colour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, animPercent);
-
-            this.playAnimation(animPercent);
-            this.position.y = yPos;
-        });
+        window.addEventListener("scroll", this.onScroll);
     }
 
     initDebug() {
@@ -85,6 +81,15 @@ export class VideoPanel extends THREE.Group {
         texture.flipY = false;
 
         return texture;
+    }
+
+    onScroll = () => {
+        const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
+        const yPos = THREE.MathUtils.lerp(this.pagePositionStartAnim, this.pagePositionEndAnim, animPercent);
+        this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, animPercent);
+
+        this.playAnimation(animPercent);
+        this.position.y = yPos;
     }
 
     update(dt) {
