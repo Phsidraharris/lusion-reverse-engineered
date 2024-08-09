@@ -9,6 +9,7 @@ const ATTRACTION_FORCE = 3.5;
 const MOUSE_FORCE_COEF = 10;
 const MOUSE_LIGHT_INTENSITY = 40;
 const STENCIL_REF = 1;
+const BALL_SIZE = 0.07;
 
 export default class PhysicsSandbox extends THREE.Group {
     boxes;
@@ -47,12 +48,11 @@ export default class PhysicsSandbox extends THREE.Group {
             stencilFunc: THREE.AlwaysStencilFunc,
             stencilZPass: THREE.ReplaceStencilOp
         });
-        const loader = new GLTFLoader();
-        loader.load('../assets/physics-mask.glb', (gltf) => {
+        new GLTFLoader().load('../assets/physics-sandbox-mask.glb', (gltf) => {
             const mesh = gltf.scene.children[0];
             mesh.material = stencilMat;
             mesh.renderOrder = 1;
-            mesh.position.y -= 1;
+            mesh.scale.set(5, 5, 5);
             this.add(mesh);
         });
     }

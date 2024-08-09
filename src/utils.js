@@ -9,3 +9,14 @@ export function pageToWorldCoords(pageX, pageY, camera) {
 
     return screenPos;
 }
+
+export function updateCameraIntrisics(cameraRef, frustum) {
+    const aspect = window.innerWidth / window.innerHeight;
+    const horizontal = frustum * aspect / 2;
+    const vertical = frustum / 2;
+    cameraRef.left = -horizontal;
+    cameraRef.right = horizontal;
+    cameraRef.top = vertical;
+    cameraRef.bottom = -vertical;
+    cameraRef.updateProjectionMatrix();
+}

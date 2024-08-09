@@ -5,9 +5,8 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { AnimatedTube } from './animatedTube';
 import { debugGui } from './debugGui';
-import AnimatedLine from './animatedLine';
-import { VideoPanel } from './videoPanel';
 import PhysicsSandbox from './physicsSandbox';
+import { VideoPanel } from './videoPanel';
 
 const SCROLL_SCALE = 0.0285;
 
