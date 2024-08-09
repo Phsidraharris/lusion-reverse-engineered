@@ -30,7 +30,7 @@ export class AnimatedTube extends THREE.Group {
 
         this.camera = camera;
 
-        this.startPosPageY = window.innerHeight * 1 - (window.innerHeight * 0.5);
+        this.startPosPageY = window.innerHeight * 0.2;
         this.endPosPageY = this.startPosPageY + window.innerHeight;
 
         this.mesh = this.createTubeMesh();
@@ -53,7 +53,7 @@ export class AnimatedTube extends THREE.Group {
             this.uniforms.stretchRatio.value = v;
         });
 
-        this.position.copy(pageToWorldCoords(100, (1 * window.innerHeight), this.camera));
+        this.position.copy(pageToWorldCoords(100, (window.innerHeight * 0.8), this.camera));
     }
 
     setRadius(value) {

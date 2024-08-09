@@ -44,9 +44,17 @@ export class VideoPanel extends THREE.Group {
             console.error(error);
         });
 
-        const halfPage = window.innerHeight * 0.5;
-        const pageY = window.innerHeight * 2 + halfPage;
-        this.position.copy(pageToWorldCoords(200, pageY, camera));
+        const initialY = pageToWorldCoords(0, window.innerHeight * 2, camera).y;
+        const targetY = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
+        this.position.y = initialY;
+        this.scale.setScalar(3);
+
+        window.addEventListener("scroll", (e) => {
+            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 2, window.scrollY), 0, 0.99);
+            const y = THREE.MathUtils.lerp(initialY, targetY, v);
+            this.playAnimation(v);
+            this.position.y = y;
+        });
     }
 
     initDebug() {
