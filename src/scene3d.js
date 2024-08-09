@@ -64,10 +64,6 @@ function init() {
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
 
-    // nurbsTube = new NURBSTube();
-    // nurbsTube.position.z -= 5;
-    // scene.add(nurbsTube);
-
     videoPanel = new VideoPanel(camera);
     scene.add(videoPanel);
 
