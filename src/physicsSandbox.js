@@ -1,7 +1,5 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { debugGui } from "./debugGui";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6
@@ -9,12 +7,9 @@ const ATTRACTION_FORCE = 3.5;
 const MOUSE_FORCE_COEF = 10;
 const MOUSE_LIGHT_INTENSITY = 40;
 const STENCIL_REF = 1;
-const BALL_SIZE = 0.07;
 
 export default class PhysicsSandbox extends THREE.Group {
-    boxes;
     positionReuse;
-    physicsBoxes = [];
 
     /** @type RAPIER.World */
     world = null;
@@ -23,6 +18,7 @@ export default class PhysicsSandbox extends THREE.Group {
     /** @type {{ mesh: THREE.Mesh, rigidbody: RAPIER.RigidBody }} */
     mouseBall;
     camera;
+    physicsMaskMesh;
     attractionPos = new THREE.Vector3(0, 0, 0);
     world = new RAPIER.World({ x: 0, y: 0, z: 0 });
     lastMousePos = new THREE.Vector3();
@@ -34,9 +30,9 @@ export default class PhysicsSandbox extends THREE.Group {
 
         this.initViewMask();
         this.initObjects();
-        this.initDebug();
 
         window.addEventListener('mousemove', this.onMouseMove, false);
+        window.addEventListener('resize', this.onWindowResized);
     }
 
     initViewMask = () => {
@@ -48,13 +44,27 @@ export default class PhysicsSandbox extends THREE.Group {
             stencilFunc: THREE.AlwaysStencilFunc,
             stencilZPass: THREE.ReplaceStencilOp
         });
-        new GLTFLoader().load('../assets/physics-sandbox-mask.glb', (gltf) => {
-            const mesh = gltf.scene.children[0];
-            mesh.material = stencilMat;
-            mesh.renderOrder = 1;
-            mesh.scale.set(5, 5, 5);
-            this.add(mesh);
-        });
+
+        const width = Math.abs(this.camera.left * 1.8);
+        const height = Math.abs(this.camera.top);
+        const x = width / 2;
+        const y = height / 2;
+
+        const shape = new THREE.Shape();
+        const radius = 0.1;
+        shape.moveTo(-x + radius, y);
+        shape.lineTo(x - radius, y);
+        shape.quadraticCurveTo(x, y, x, y - radius);
+        shape.lineTo(x, -y + radius);
+        shape.quadraticCurveTo(x, -y, x - radius, -y);
+        shape.lineTo(-x + radius, -y);
+        shape.quadraticCurveTo(-x, -y, -x, -y + radius);
+        shape.lineTo(-x, y - radius);
+        shape.quadraticCurveTo(-x, y, -x + radius, y);
+
+        const geometry = new THREE.ShapeGeometry(shape);
+        this.physicsMaskMesh = new THREE.Mesh(geometry, stencilMat);
+        this.add(this.physicsMaskMesh);
     }
 
     initObjects() {
@@ -67,10 +77,6 @@ export default class PhysicsSandbox extends THREE.Group {
         this.mouseBall = this.createBall(0.6, { x: 0, y: 0, z: 0 }, true);
         this.mouseBall.mesh.add(new THREE.PointLight(new THREE.Color(1, 1, 1), MOUSE_LIGHT_INTENSITY));
         this.add(this.mouseBall.mesh);
-    }
-
-    initDebug() {
-        const folder = debugGui.addFolder("Physics sandbox");
     }
 
     createBall(ballRadius, ballPosition, isKinematic = false, ballRestitution = 0.3) {
@@ -141,39 +147,13 @@ export default class PhysicsSandbox extends THREE.Group {
         }
     }
 
-    async init() {
-        const material = new THREE.MeshStandardMaterial({
-            color: "blue"
-        });
-
-        const geometryBox = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        this.boxes = new THREE.InstancedMesh(geometryBox, material, 200);
-        this.boxes.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
-        this.boxes.castShadow = true;
-        this.boxes.receiveShadow = true;
-        this.boxes.userData.physics = { mass: 1 };
-
-        const matrix = new THREE.Matrix4();
-        const color = new THREE.Color();
-        for (let i = 0; i < this.boxes.count; i++) {
-            matrix.setPosition(this.getRandomPosition(3));
-            this.boxes.setMatrixAt(i, matrix);
-            this.boxes.setColorAt(i, color.setHex(0xffffff * Math.random()));
-        }
-        this.add(this.boxes);
-
-        const floor = new THREE.Mesh(
-            new THREE.BoxGeometry(10, 5, 10),
-            new THREE.ShadowMaterial({ color: 0x444444 })
-        );
-        floor.position.y = -10;
-        floor.receiveShadow = true;
-        floor.userData.physics = { mass: 0 };
-        this.add(floor);
-    }
-
     addToWorld(mesh, rigidbody) {
         this.meshBodyLookup.set(mesh, rigidbody);
+    }
+
+    onWindowResized = () => {
+        this.remove(this.physicsMaskMesh);
+        this.initViewMask();
     }
 
     update(dt) {

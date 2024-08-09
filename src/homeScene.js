@@ -49,6 +49,9 @@ class HomeScene {
     initScene = () => {
         this.physicsSandbox = new PhysicsSandbox(this.camera);
         this.scene.add(this.physicsSandbox);
+
+        const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1));
+        this.scene.add(box)
     }
 
     onScroll = () => {
