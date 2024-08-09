@@ -1,5 +1,6 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d";
 import * as THREE from "three";
+import { pageToWorldCoords } from "./utils";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6
@@ -121,12 +122,8 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     onMouseMove = (event) => {
-        const normalisedX = (event.clientX / window.innerWidth) * 2 - 1;
-        const normalisedY = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        const x = normalisedX * 10;
-        const y = normalisedY * 10;
-        const z = 0;
+        const worldCords = pageToWorldCoords(event.x, event.y, this.camera);
+        const { x, y, z } = worldCords;
 
         this.mouseBall.rigidbody.setTranslation({ x, y, z });
         this.mouseBall.mesh.position.set(x, y, z);
