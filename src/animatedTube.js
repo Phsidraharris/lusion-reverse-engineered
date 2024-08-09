@@ -9,6 +9,8 @@ const DEBUG_NURB_LINE = false;
 
 // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
+    clock = new THREE.Clock();
+
     uniforms = {
         curveTexture: { value: null },
         stretchRatio: { value: 0 }
@@ -24,6 +26,8 @@ export class AnimatedTube extends THREE.Group {
 
     startPosPageY;
     endPosPageY;
+
+    targetDrawPercent = 0;
 
     constructor(camera) {
         super();
@@ -50,7 +54,7 @@ export class AnimatedTube extends THREE.Group {
     initScrollHandler = () => {
         window.addEventListener("scroll", (e) => {
             const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.startPosPageY, this.endPosPageY, window.scrollY), 0, 1);
-            this.uniforms.stretchRatio.value = v;
+            this.targetDrawPercent = v;
         });
 
         this.position.copy(pageToWorldCoords(100, (window.innerHeight * 0.8), this.camera));
@@ -169,5 +173,11 @@ ${shader.vertexShader}
 
         const nurbsCurve = new NURBSCurve(nurbsDegree, nurbsKnots, nurbsPoints);
         return nurbsCurve;
+    }
+
+    update = () => {
+        const dt = this.clock.getDelta();
+
+        this.uniforms.stretchRatio.value = THREE.MathUtils.lerp(this.uniforms.stretchRatio.value, this.targetDrawPercent, dt * 10);
     }
 }
