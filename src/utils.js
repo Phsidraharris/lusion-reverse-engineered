@@ -25,3 +25,21 @@ export function updateCameraIntrisics(cameraRef, frustum) {
     cameraRef.bottom = -vertical;
     cameraRef.updateProjectionMatrix();
 }
+
+export function createBevelledPlane(width, height, radius) {
+    const x = width / 2;
+    const y = height / 2;
+
+    const shape = new THREE.Shape();
+    shape.moveTo(-x + radius, y);
+    shape.lineTo(x - radius, y);
+    shape.quadraticCurveTo(x, y, x, y - radius);
+    shape.lineTo(x, -y + radius);
+    shape.quadraticCurveTo(x, -y, x - radius, -y);
+    shape.lineTo(-x + radius, -y);
+    shape.quadraticCurveTo(-x, -y, -x, -y + radius);
+    shape.lineTo(-x, y - radius);
+    shape.quadraticCurveTo(-x, y, -x + radius, y);
+
+    return new THREE.ShapeGeometry(shape);
+}
