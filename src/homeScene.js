@@ -80,6 +80,7 @@ class HomeScene {
     animate = () => {
         this.animatedTube && this.animatedTube.update();
         this.physicsSandbox && this.physicsSandbox.update();
+        this.projectTiles && this.projectTiles.update(this.renderer);
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
     }
