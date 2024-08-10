@@ -42,6 +42,8 @@ p {
 }
 
 section {
+    display: flex;
+    flex-direction: column;
     box-sizing: border-box;
     padding: 0 4vw;
     width: 100vw;
@@ -71,25 +73,25 @@ section {
                 flex: 10;
             }
         }
+    }
 
-        &#project-tiles-section {
-            .project-tiles-grid {
-                width: 90%;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-auto-rows: 300px;
-                gap: 3rem;
+    &#project-tiles-section {
+        .project-tiles-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: 300px;
+            gap: 3rem;
 
-                .project-tile {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: rgba(21, 21, 21, 0.03);
-                    border-radius: 6px;
-                    padding: 1rem;
-                    /* height: 12rem; */
-                    cursor: pointer;
-                }
+            .project-tile {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba(21, 21, 21, 0.03);
+                border-radius: 6px;
+                padding: 1rem;
+                /* height: 12rem; */
+                cursor: pointer;
             }
         }
     }
@@ -149,7 +151,7 @@ a.button {
     white-space: nowrap;
     text-decoration: none;
     transition: background-color 0.2s;
-    color:white;
+    color: white;
 
     &:hover {
         background-color: #0016ec;
