@@ -55,10 +55,10 @@ export default class ProjectTiles extends THREE.Group {
         this.renderTarget = new THREE.WebGLRenderTarget(512, 512 / (16 / 9));
 
         this.portalCamera = new THREE.PerspectiveCamera();
-        this.portalCamera.position.z = -10;
+        this.portalCamera.position.z = -3;
 
         this.portalScene = new THREE.Scene();
-        this.portalScene.background = new THREE.Color("blue");
+        this.portalScene.background = new THREE.Color("#222222");
 
         const light = new THREE.DirectionalLight("white", 2);
         light.position.set(0, 1, 0);
@@ -68,13 +68,17 @@ export default class ProjectTiles extends THREE.Group {
         this.portalMaterial = new THREE.MeshStandardMaterial({ map: this.renderTarget.texture });
 
         const boxMat = new THREE.MeshStandardMaterial();
-        const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), boxMat);
-        box.rotateY(Math.PI * 0.25);
-        box.rotateX(Math.PI * 0.25);
 
-        this.portalScene.add(box);
+        for (let i = 0; i < 3; i++) {
+            const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), boxMat);
+            portalBox.position.random();
+            portalBox.position.z = Math.random() * 18;
+            portalBox.rotateY(Math.PI * 0.25);
+            portalBox.rotateX(Math.PI * 0.25);
 
-        this.portalCamera.lookAt(box.position);
+            this.portalScene.add(portalBox);
+            this.portalCamera.lookAt(0, 0, 0);
+        }
     }
 
     initDebug() {
@@ -93,9 +97,17 @@ export default class ProjectTiles extends THREE.Group {
         const rect = e.target.getBoundingClientRect();
         const xAbs = e.clientX - rect.left; //x position within the element.
         const yAbs = e.clientY - rect.top;  //y position within the element.
-        
-        const x = xAbs / rect.width;
-        const y = yAbs / rect.height;
+
+        let x = xAbs / rect.width;
+        let y = yAbs / rect.height;
+
+        x = (x - 0.5) * 2;
+        y = (y - 0.5) * 2;
+
+        const movementDamping = 1;
+        this.portalCamera.position.x = x * movementDamping;
+        this.portalCamera.position.y = y * movementDamping;
+        this.portalCamera.lookAt(0, 0, 0);
     }
 
     /**
