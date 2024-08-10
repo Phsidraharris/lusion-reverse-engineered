@@ -1,5 +1,7 @@
 import * as THREE from "three";
-import { createBevelledPlane } from "./utils";
+import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pagePixelsToWorldUnit, pageToWorldCoords } from "./utils";
+
+const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
 export default class ProjectTiles extends THREE.Group {
     constructor(camera) {
@@ -7,12 +9,11 @@ export default class ProjectTiles extends THREE.Group {
 
         const mat = new THREE.MeshStandardMaterial({ color: "red" });
 
-        const width = Math.abs(camera.left * 0.8);
-        const aspect = 16 / 9;
-        const tile1 = new THREE.Mesh(createBevelledPlane(width, width / aspect, 1), mat);
-
-
-        this.position.y = camera.bottom;
-        this.add(tile1);
+        ELEMENT_IDS.forEach(element => {
+            const tile1WorldRect = elementToWorldRect(element, camera);
+            const tile1 = new THREE.Mesh(createBevelledPlane(tile1WorldRect.width, tile1WorldRect.height, 0.2), mat);
+            tile1.position.copy(tile1WorldRect.position);
+            this.add(tile1);
+        });
     }
 }

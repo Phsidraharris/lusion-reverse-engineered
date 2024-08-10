@@ -44,7 +44,6 @@ export class VideoPanel extends THREE.Group {
 
             this.animDuration = this.animClip.duration;
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
-
         }, undefined, (error) => {
             console.error(error);
         });
