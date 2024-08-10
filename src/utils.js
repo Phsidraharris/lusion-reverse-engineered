@@ -53,7 +53,33 @@ export function createBevelledPlane(width, height, radius) {
     shape.lineTo(-x, y - radius);
     shape.quadraticCurveTo(-x, y, -x + radius, y);
 
-    return new THREE.ShapeGeometry(shape);
+    const geometry = new THREE.ShapeGeometry(shape);
+    geometry.computeBoundingBox();
+
+    const bbox = geometry.boundingBox;
+    const minX = bbox.min.x;
+    const maxX = bbox.max.x;
+    const minY = bbox.min.y;
+    const maxY = bbox.max.y;
+
+    const rangeX = maxX - minX;
+    const rangeY = maxY - minY;
+
+    // Create UVs
+    geometry.attributes.uv = new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 2), 2);
+
+    for (let i = 0; i < geometry.attributes.position.count; i++) {
+        const x = geometry.attributes.position.getX(i);
+        const y = geometry.attributes.position.getY(i);
+
+        // Normalize x and y to range [0, 1]
+        const u = (x - minX) / rangeX;
+        const v = (y - minY) / rangeY;
+
+        geometry.attributes.uv.setXY(i, u, v);
+    }
+    
+    return geometry;
 }
 
 /**
