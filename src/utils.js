@@ -35,6 +35,7 @@ export function updateCameraIntrisics(cameraRef, frustum) {
     cameraRef.right = horizontal;
     cameraRef.top = vertical;
     cameraRef.bottom = -vertical;
+    cameraRef.updateMatrixWorld();
     cameraRef.updateProjectionMatrix();
 }
 
@@ -78,7 +79,7 @@ export function createBevelledPlane(width, height, radius) {
 
         geometry.attributes.uv.setXY(i, u, v);
     }
-    
+
     return geometry;
 }
 

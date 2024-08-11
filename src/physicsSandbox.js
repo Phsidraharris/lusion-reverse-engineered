@@ -1,6 +1,6 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { createBevelledPlane, pageToWorldCoords } from "./utils";
+import { createBevelledPlane, elementToWorldRect, pageToWorldCoords } from "./utils";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6
@@ -37,6 +37,8 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     initViewMask = () => {
+        const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
+
         const stencilMat = new THREE.MeshBasicMaterial({
             color: new THREE.Color(0.02, 0.02, 0.02),
             depthWrite: false,
@@ -46,12 +48,15 @@ export default class PhysicsSandbox extends THREE.Group {
             stencilZPass: THREE.ReplaceStencilOp
         });
 
-        const width = Math.abs(this.camera.left * 1.8);
-        const height = Math.abs(this.camera.top);
+        const width = Math.abs(divWorldRect.width);
+        const height = Math.abs(divWorldRect.height);
         const geometry = createBevelledPlane(width, height, 0.1);
-        
+
         this.physicsMaskMesh = new THREE.Mesh(geometry, stencilMat);
+        this.physicsMaskMesh.position.copy(divWorldRect.position);
         this.add(this.physicsMaskMesh);
+
+        this.attractionPos.copy(divWorldRect.position);
     }
 
     initObjects() {
@@ -109,6 +114,7 @@ export default class PhysicsSandbox extends THREE.Group {
 
     onMouseMove = (event) => {
         const worldCords = pageToWorldCoords(event.x, event.y, this.camera);
+
         const { x, y, z } = worldCords;
 
         this.mouseBall.rigidbody.setTranslation({ x, y, z });

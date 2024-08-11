@@ -75,6 +75,12 @@ section {
         }
     }
 
+    #physics-sandbox-div {
+        width: 100%;
+        flex: 1;
+        margin-bottom: 30px;
+    }
+
     &#project-tiles-section {
         .project-tiles-grid {
             width: 100%;

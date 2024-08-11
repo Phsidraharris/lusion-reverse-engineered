@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import PhysicsSandbox from "./physicsSandbox";
-import { updateCameraIntrisics } from "./utils";
 import { AnimatedTube } from "./animatedTube";
-import { VideoPanel } from "./videoPanel";
+import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
+import { updateCameraIntrisics } from "./utils";
+import { VideoPanel } from "./videoPanel";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport

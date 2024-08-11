@@ -43,6 +43,8 @@ export default class ProjectTiles extends THREE.Group {
             document.getElementById(elementId).addEventListener("mousemove", e => this.onMouseMove(e));
 
             const tile1WorldRect = elementToWorldRect(elementId, camera);
+
+            console.log("tile", tile1WorldRect.position)
             const tile1 = new THREE.Mesh(createBevelledPlane(tile1WorldRect.width, tile1WorldRect.height, 0.2), this.portalMaterial);
             tile1.position.copy(tile1WorldRect.position);
             this.add(tile1);
