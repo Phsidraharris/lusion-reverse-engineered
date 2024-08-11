@@ -104,9 +104,6 @@ export class AnimatedTube extends THREE.Group {
             new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
         ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
 
-        tubeGeometry.computeBoundingBox();
-        console.log(tubeGeometry)
-
         let tubeMaterial = new THREE.MeshStandardMaterial({
             color: "#6289de",
             onBeforeCompile: shader => {
