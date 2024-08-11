@@ -12,8 +12,8 @@ export class VideoPanel extends THREE.Group {
     animPlaybackPercent = 0;
     animClip;
     animDuration;
-    pagePositionStartAnim;
-    pagePositionEndAnim;
+    worldPosAtAnimStart;
+    worldPosAtAnimEnd;
     material;
     tintColour = TINT_COLOUR_START.clone();
 
@@ -35,6 +35,7 @@ export class VideoPanel extends THREE.Group {
             mesh.material = this.material;
             this.add(gltf.scene);
 
+
             // Set up the animation mixer
             this.mixer = new THREE.AnimationMixer(gltf.scene);
 
@@ -44,14 +45,22 @@ export class VideoPanel extends THREE.Group {
 
             this.animDuration = this.animClip.duration;
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
+
+
+            this.box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+            this.add(this.box)
+            this.box.position.copy(mesh.position);
         }, undefined, (error) => {
             console.error(error);
         });
 
-        this.pagePositionStartAnim = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
-        this.pagePositionEndAnim = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
-        this.position.y = this.pagePositionStartAnim;
+        this.worldPosAtAnimStart = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
+        this.worldPosAtAnimEnd = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
+        this.position.y = this.worldPosAtAnimStart;
         this.scale.setScalar(3);
+
+        
+        
 
         window.addEventListener("scroll", this.onScroll);
     }
@@ -84,11 +93,12 @@ export class VideoPanel extends THREE.Group {
 
     onScroll = () => {
         const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
-        const yPos = THREE.MathUtils.lerp(this.pagePositionStartAnim, this.pagePositionEndAnim, animPercent);
+        const yPos = THREE.MathUtils.lerp(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, animPercent);
         this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, animPercent);
 
         this.playAnimation(animPercent);
         this.position.y = yPos;
+        console.log(this.position)
     }
 
     update(dt) {
