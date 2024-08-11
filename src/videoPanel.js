@@ -21,6 +21,9 @@ export class VideoPanel extends THREE.Group {
     worldPosAtAnimStart;    // t = 0
     worldPosAtAnimEnd;      // t = 1
 
+    prevScrollY = 0;
+    scrollDelta = 1;    // 1 down, -1 up
+
     material;
     tintColour = TINT_COLOUR_START.clone();
 
@@ -52,11 +55,6 @@ export class VideoPanel extends THREE.Group {
 
             this.animDuration = this.animClip.duration;
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
-
-
-            this.box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-            this.add(this.box)
-            this.box.position.copy(mesh.position);
         }, undefined, (error) => {
             console.error(error);
         });
@@ -95,17 +93,33 @@ export class VideoPanel extends THREE.Group {
         return texture;
     }
 
-    onScroll = () => {
-        const animPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(window.innerHeight * 1.2, window.innerHeight * 1.9, window.scrollY), 0, 0.99);
-        const yPos = THREE.MathUtils.lerp(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, animPercent);
-        this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, animPercent);
+    onScroll = (e) => {
+        this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
+        const yPos = THREE.MathUtils.lerp(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, this.animPlaybackPercent);
+        this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
 
-        this.playAnimation(animPercent);
+        this.playAnimation(this.animPlaybackPercent);
         this.position.y = yPos;
+
+        this.scrollDelta = (window.scrollY - this.prevScrollY);
+
+        this.prevScrollY = window.scrollY;
     }
 
     update(dt) {
         // this.mixer && this.mixer.update(dt);
+        if (this.animPlaybackPercent > 0.3 && this.animPlaybackPercent < 0.99) {
+            let target = window.scrollY;
+            if (this.scrollDelta >= 1) {
+                target = this.scrollYAnimEnd;
+            }
+            else if (this.scrollDelta <= 1) {
+                target = this.scrollYAnimStart;
+            }
+
+            const scrollY = THREE.MathUtils.lerp(window.scrollY, target, dt * 3);
+            window.scrollTo({ top: scrollY, behavior: "instant" })
+        }
     }
 }
 

@@ -7,8 +7,6 @@ import { debugGui } from "./debugGui";
 const DEBUG_NURB_LINE = false;
 
 export class AnimatedTube extends THREE.Group {
-    clock = new THREE.Clock();
-
     uniforms = {
         curveTexture: { value: null },
         stretchRatio: { value: 0 }
@@ -179,9 +177,7 @@ ${shader.vertexShader}
         return nurbsCurve;
     }
 
-    update = () => {
-        const dt = this.clock.getDelta();
-
+    update = (dt) => {
         this.uniforms.stretchRatio.value = THREE.MathUtils.lerp(this.uniforms.stretchRatio.value, this.targetDrawPercent, dt * 10);
     }
 }

@@ -17,6 +17,7 @@ class HomeScene {
     animatedTube;
     videoPanel;
     projectTiles;
+    clock = new THREE.Clock();
 
     constructor() {
         this.initThree();
@@ -78,8 +79,11 @@ class HomeScene {
     }
 
     animate = () => {
-        this.animatedTube && this.animatedTube.update();
-        this.physicsSandbox && this.physicsSandbox.update();
+        const dt = this.clock.getDelta();
+
+        this.physicsSandbox && this.physicsSandbox.update(dt);
+        this.animatedTube && this.animatedTube.update(dt);
+        this.videoPanel && this.videoPanel.update(dt);
         this.projectTiles && this.projectTiles.update(this.renderer);
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
