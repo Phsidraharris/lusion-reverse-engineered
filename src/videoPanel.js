@@ -12,8 +12,15 @@ export class VideoPanel extends THREE.Group {
     animPlaybackPercent = 0;
     animClip;
     animDuration;
-    worldPosAtAnimStart;
-    worldPosAtAnimEnd;
+
+    // The scroll positions used to calculate t, a percentage used to play the panel animation
+    scrollYAnimStart = window.innerHeight * 1.2;
+    scrollYAnimEnd = window.innerHeight * 1.9;
+
+    // Positions at t
+    worldPosAtAnimStart;    // t = 0
+    worldPosAtAnimEnd;      // t = 1
+
     material;
     tintColour = TINT_COLOUR_START.clone();
 
@@ -59,9 +66,6 @@ export class VideoPanel extends THREE.Group {
         this.position.y = this.worldPosAtAnimStart;
         this.scale.setScalar(3);
 
-        
-        
-
         window.addEventListener("scroll", this.onScroll);
     }
 
@@ -98,7 +102,6 @@ export class VideoPanel extends THREE.Group {
 
         this.playAnimation(animPercent);
         this.position.y = yPos;
-        console.log(this.position)
     }
 
     update(dt) {
