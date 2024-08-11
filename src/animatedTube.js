@@ -1,13 +1,11 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { debugGui } from "./debugGui";
-import nurbsJson from "../assets/nurbs-canxerian.json";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
-import { pageToWorldCoords } from "./utils";
+import nurbsJson from "../assets/nurbs-canxerian.json";
+import { debugGui } from "./debugGui";
 
 const DEBUG_NURB_LINE = false;
 
-// Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
 export class AnimatedTube extends THREE.Group {
     clock = new THREE.Clock();
 
@@ -17,7 +15,7 @@ export class AnimatedTube extends THREE.Group {
     }
 
     drawStartPercent = 0;
-    radius = 0.6;
+    radius = 0.11;
     /** @type THREE.Mesh */
     mesh = null;
 
@@ -34,7 +32,7 @@ export class AnimatedTube extends THREE.Group {
 
         this.camera = camera;
 
-        this.startPosPageY = window.innerHeight * 0.2;
+        this.startPosPageY = window.innerHeight * 0.6;
         this.endPosPageY = this.startPosPageY + window.innerHeight;
 
         this.mesh = this.createTubeMesh();
@@ -48,16 +46,21 @@ export class AnimatedTube extends THREE.Group {
             this.setRadius(value);
         });
 
-        this.initScrollHandler();
+        window.addEventListener("scroll", e => this.onScroll());
+        window.addEventListener("resize", e => this.onResize());
+        this.onScroll();
+        this.onResize();
+
     }
 
-    initScrollHandler = () => {
-        window.addEventListener("scroll", (e) => {
-            const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.startPosPageY, this.endPosPageY, window.scrollY), 0, 1);
-            this.targetDrawPercent = v;
-        });
+    onScroll(e) {
+        const v = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.startPosPageY, this.endPosPageY, window.scrollY), 0, 1);
+        this.targetDrawPercent = v;
+    }
 
-        this.position.copy(pageToWorldCoords(100, (window.innerHeight * 0.8), this.camera));
+    onResize(e) {
+        this.mesh.position.x = this.camera.left;
+        this.mesh.position.y = this.camera.bottom * 1.5;
     }
 
     setRadius(value) {
@@ -67,6 +70,7 @@ export class AnimatedTube extends THREE.Group {
         this.add(this.mesh);
     }
 
+    // Adapted from https://codepen.io/prisoner849/pen/bGQNEwm
     createTubeMesh() {
         const curve = this.createNurbsCurve(4);
 
@@ -99,6 +103,9 @@ export class AnimatedTube extends THREE.Group {
             new THREE.CylinderGeometry(this.radius, this.radius, 1, radialSegments, cylinderSegments, true),
             new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5).translate(0, -0.5, 0)
         ]).rotateZ(-Math.PI * 0.5).rotateY(Math.PI * 0.5);
+
+        tubeGeometry.computeBoundingBox();
+        console.log(tubeGeometry)
 
         let tubeMaterial = new THREE.MeshStandardMaterial({
             color: "#6289de",
