@@ -7,8 +7,11 @@ const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 const vertexShader = `
     uniform float v;
     varying vec3 vNormal;
+    varying vec2 vUv;
+
     void main() {
         vNormal = normalize(normalMatrix * normal);
+        vUv = uv;
 
         // Calculate the taper factor based on the position along the y-axis
         float taperFactor = 1.0 - 0.5 * (position.y / v);
@@ -24,8 +27,13 @@ const vertexShader = `
 
 const fragmentShader = `
     varying vec3 vNormal;
+
+    uniform sampler2D map;
+    varying vec2 vUv;
+
     void main() {
-        gl_FragColor = vec4(vNormal * 0.5 + 0.5, 1.0);
+        vec4 textureColor = texture2D(map, vUv);
+        gl_FragColor = textureColor;
     }
 `;
 
@@ -33,7 +41,8 @@ const shaderMaterial = new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader,
     uniforms: {
-        v: { value: 1.0 }
+        v: { value: 1.0 },
+        map: { value: null }
     }
 });
 
@@ -76,6 +85,8 @@ export default class ProjectTiles extends THREE.Group {
         this.portalScene.add(light);
 
         this.portalMaterial = new THREE.MeshStandardMaterial({ map: this.renderTarget.texture });
+
+        shaderMaterial.uniforms.map.value = this.renderTarget.texture;
 
         const boxMat = new THREE.MeshStandardMaterial();
 
