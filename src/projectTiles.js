@@ -1,25 +1,23 @@
 import * as THREE from "three";
-import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pagePixelsToWorldUnit, pageToWorldCoords } from "./utils";
 import { debugGui } from "./debugGui";
+import { createBevelledPlane, elementToWorldRect } from "./utils";
 
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
 const vertexShader = `
-    uniform float v;
+    uniform float taperAmount;
     varying vec2 vUv;
+    varying float vYPos;
 
     void main() {    
-        // Calculate the taper factor based on the position along the y-axis
-        float taperFactor = 1.0 - 0.5 * (position.y / v);
-        
         // Apply taper factor to the x and z coordinates
         vec3 newPosition = position;
-        newPosition.x *= taperFactor;
-        newPosition.z *= taperFactor;
+        newPosition.x *= 1.0 - mix(0.0,uv.y, taperAmount);
         
         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
     
         vUv = uv;
+        vYPos = uv.y;
     }
 `;
 
@@ -37,7 +35,7 @@ const shaderMaterial = new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader,
     uniforms: {
-        v: { value: 1.0 },
+        taperAmount: { value: 0 },
         map: { value: null }
     }
 });
@@ -60,6 +58,7 @@ export default class ProjectTiles extends THREE.Group {
             const tileWorldRect = elementToWorldRect(elementId, camera);
             const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), shaderMaterial);
             mesh.position.copy(tileWorldRect.position);
+
             this.add(mesh);
         });
 
@@ -106,9 +105,7 @@ export default class ProjectTiles extends THREE.Group {
         folder.add(this.portalCamera.rotation, "x", -10, 10);
         folder.add(this.portalCamera.position, "y", -10, 10);
         folder.add(this.portalCamera.position, "z", -10, 10);
-        folder.add(shaderMaterial.uniforms.v, "value", 1, 100)
-
-        console.log(shaderMaterial.uniforms)
+        folder.add(shaderMaterial.uniforms.taperAmount, "value", -1, 1)
     }
 
     onMouseMove = (e) => {
