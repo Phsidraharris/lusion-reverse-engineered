@@ -6,28 +6,24 @@ const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
 const vertexShader = `
     uniform float v;
-    varying vec3 vNormal;
     varying vec2 vUv;
 
-    void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vUv = uv;
-
+    void main() {    
         // Calculate the taper factor based on the position along the y-axis
         float taperFactor = 1.0 - 0.5 * (position.y / v);
-
+        
         // Apply taper factor to the x and z coordinates
         vec3 newPosition = position;
         newPosition.x *= taperFactor;
         newPosition.z *= taperFactor;
-
+        
         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    
+        vUv = uv;
     }
 `;
 
 const fragmentShader = `
-    varying vec3 vNormal;
-
     uniform sampler2D map;
     varying vec2 vUv;
 
