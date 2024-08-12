@@ -41,13 +41,12 @@ export default class ProjectTiles extends THREE.Group {
 
         ELEMENT_IDS.forEach(elementId => {
             document.getElementById(elementId).addEventListener("mousemove", e => this.onMouseMove(e));
+            document.getElementById(elementId).addEventListener("mouseleave", e => this.onMouseLeave(e));
 
-            const tile1WorldRect = elementToWorldRect(elementId, camera);
-
-            console.log("tile", tile1WorldRect.position)
-            const tile1 = new THREE.Mesh(createBevelledPlane(tile1WorldRect.width, tile1WorldRect.height, 0.2), this.portalMaterial);
-            tile1.position.copy(tile1WorldRect.position);
-            this.add(tile1);
+            const tileWorldRect = elementToWorldRect(elementId, camera);
+            const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.portalMaterial);
+            mesh.position.copy(tileWorldRect.position);
+            this.add(mesh);
         });
 
         this.initDebug();
@@ -74,7 +73,7 @@ export default class ProjectTiles extends THREE.Group {
         for (let i = 0; i < 3; i++) {
             const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), boxMat);
             portalBox.position.random();
-            portalBox.position.z = Math.random() * 18;
+            portalBox.position.z = Math.random() * 10;
             portalBox.rotateY(Math.PI * 0.25);
             portalBox.rotateX(Math.PI * 0.25);
 
@@ -94,8 +93,6 @@ export default class ProjectTiles extends THREE.Group {
     }
 
     onMouseMove = (e) => {
-        const elementId = e.target.id;
-
         const rect = e.target.getBoundingClientRect();
         const xAbs = e.clientX - rect.left; //x position within the element.
         const yAbs = e.clientY - rect.top;  //y position within the element.
@@ -109,6 +106,13 @@ export default class ProjectTiles extends THREE.Group {
         const movementDamping = 1;
         this.portalCamera.position.x = x * movementDamping;
         this.portalCamera.position.y = y * movementDamping;
+        this.portalCamera.lookAt(0, 0, 0);
+    }
+
+    onMouseLeave = (e) => {
+        this.portalCamera.position.x = 0;
+        this.portalCamera.position.y = 0;
+        this.portalCamera.position.z = -3;
         this.portalCamera.lookAt(0, 0, 0);
     }
 
