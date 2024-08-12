@@ -1,7 +1,6 @@
 * {
     margin: 0;
     padding: 0;
-    color: rgb(19, 19, 19);
 }
 
 :root {
@@ -134,7 +133,6 @@ section {
         font-size: var(--h1-font-size);
         display: inline-block;
         visibility: hidden;
-        color: white;
     }
 
     #h1-topline {
