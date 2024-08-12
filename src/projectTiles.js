@@ -4,42 +4,6 @@ import { createBevelledPlane, elementToWorldRect } from "./utils";
 
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
-const vertexShader = `
-    uniform float taperAmount;
-    varying vec2 vUv;
-    varying float vYPos;
-
-    void main() {    
-        // Apply taper factor to the x and z coordinates
-        vec3 newPosition = position;
-        newPosition.x *= 1.0 - mix(0.0,uv.y, taperAmount);
-        
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-    
-        vUv = uv;
-        vYPos = uv.y;
-    }
-`;
-
-const fragmentShader = `
-    uniform sampler2D map;
-    varying vec2 vUv;
-
-    void main() {
-        vec4 textureColor = texture2D(map, vUv);
-        gl_FragColor = textureColor;
-    }
-`;
-
-// const shaderMaterial = new THREE.ShaderMaterial({
-//     vertexShader,
-//     fragmentShader,
-//     uniforms: {
-//         taperAmount: { value: 0 },
-//         map: { value: null }
-//     }
-// });
-
 export default class ProjectTiles extends THREE.Group {
     portalMaterial;
     renderTarget;
@@ -54,16 +18,15 @@ export default class ProjectTiles extends THREE.Group {
             shader.uniforms.taperAmount = this.taperAmount;
 
             shader.uniforms.time = { value: 0 };
-            shader.vertexShader = 'uniform float taperAmount;\n' + shader.vertexShader;
+            shader.vertexShader = `uniform float taperAmount; 
+                                  ${shader.vertexShader}`;
             shader.vertexShader = shader.vertexShader.replace(
-                '#include <begin_vertex>',
+                `#include <begin_vertex>`,
                 `#include <begin_vertex>
                 transformed = position;
                 transformed.x *= 1.0 - mix(0.0,uv.y, taperAmount);
                 `
             );
-
-            console.log(shader.vertexShader)
         }
     });
 
@@ -102,9 +65,6 @@ export default class ProjectTiles extends THREE.Group {
         this.portalScene.add(light);
 
         this.portalMaterial = new THREE.MeshStandardMaterial({ map: this.renderTarget.texture });
-
-        // shaderMaterial.uniforms.map.value = this.renderTarget.texture;
-        this.shaderMaterial.map = this.renderTarget.texture;
 
         const boxMat = new THREE.MeshStandardMaterial();
 
@@ -156,7 +116,6 @@ export default class ProjectTiles extends THREE.Group {
     }
 
     /**
-     * 
      * @param {THREE.Renderer} renderer 
      */
     update(renderer) {
