@@ -31,20 +31,42 @@ const fragmentShader = `
     }
 `;
 
-const shaderMaterial = new THREE.ShaderMaterial({
-    vertexShader,
-    fragmentShader,
-    uniforms: {
-        taperAmount: { value: 0 },
-        map: { value: null }
-    }
-});
+// const shaderMaterial = new THREE.ShaderMaterial({
+//     vertexShader,
+//     fragmentShader,
+//     uniforms: {
+//         taperAmount: { value: 0 },
+//         map: { value: null }
+//     }
+// });
 
 export default class ProjectTiles extends THREE.Group {
     portalMaterial;
     renderTarget;
     portalScene;
     portalCamera;
+    taperAmount = {
+        value: 0
+    };
+
+    shaderMaterial = new THREE.MeshStandardMaterial({
+        onBeforeCompile: shader => {
+            shader.uniforms.taperAmount = this.taperAmount;
+
+            shader.uniforms.time = { value: 0 };
+            shader.vertexShader = 'uniform float taperAmount;\n' + shader.vertexShader;
+            shader.vertexShader = shader.vertexShader.replace(
+                '#include <begin_vertex>',
+                `#include <begin_vertex>
+                transformed = position;
+                transformed.x *= 1.0 - mix(0.0,uv.y, taperAmount);
+                `
+            );
+
+            console.log(shader.vertexShader)
+        }
+    });
+
 
     constructor(camera) {
         super();
@@ -56,7 +78,7 @@ export default class ProjectTiles extends THREE.Group {
             document.getElementById(elementId).addEventListener("mouseleave", e => this.onMouseLeave(e));
 
             const tileWorldRect = elementToWorldRect(elementId, camera);
-            const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), shaderMaterial);
+            const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.shaderMaterial);
             mesh.position.copy(tileWorldRect.position);
 
             this.add(mesh);
@@ -81,7 +103,8 @@ export default class ProjectTiles extends THREE.Group {
 
         this.portalMaterial = new THREE.MeshStandardMaterial({ map: this.renderTarget.texture });
 
-        shaderMaterial.uniforms.map.value = this.renderTarget.texture;
+        // shaderMaterial.uniforms.map.value = this.renderTarget.texture;
+        this.shaderMaterial.map = this.renderTarget.texture;
 
         const boxMat = new THREE.MeshStandardMaterial();
 
@@ -105,7 +128,7 @@ export default class ProjectTiles extends THREE.Group {
         folder.add(this.portalCamera.rotation, "x", -10, 10);
         folder.add(this.portalCamera.position, "y", -10, 10);
         folder.add(this.portalCamera.position, "z", -10, 10);
-        folder.add(shaderMaterial.uniforms.taperAmount, "value", -1, 1)
+        folder.add(this.taperAmount, "value", -1, 1)
     }
 
     onMouseMove = (e) => {
