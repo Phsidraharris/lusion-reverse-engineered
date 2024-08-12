@@ -5,28 +5,37 @@ import { debugGui } from "./debugGui";
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
 const vertexShader = `
-    varying vec2 vUv;
+    uniform float v;
+    varying vec3 vNormal;
     void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+
+        // Calculate the taper factor based on the position along the y-axis
+        float taperFactor = 1.0 - 0.5 * (position.y / v);
+
+        // Apply taper factor to the x and z coordinates
+        vec3 newPosition = position;
+        newPosition.x *= taperFactor;
+        newPosition.z *= taperFactor;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
     }
 `;
 
 const fragmentShader = `
-    uniform sampler2D texture;
-    uniform float blurRadius;
-    varying vec2 vUv;
+    varying vec3 vNormal;
     void main() {
-        vec4 sum = vec4(0.0);
-        for (float i = -4.0; i <= 4.0; i++) {
-            for (float j = -4.0; j <= 4.0; j++) {
-                vec2 offset = vec2(i, j) * blurRadius;
-                sum += texture2D(texture, vUv + offset);
-            }
-        }
-        gl_FragColor = sum / 81.0;
+        gl_FragColor = vec4(vNormal * 0.5 + 0.5, 1.0);
     }
 `;
+
+const shaderMaterial = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader,
+    uniforms: {
+        v: { value: 1.0 }
+    }
+});
 
 export default class ProjectTiles extends THREE.Group {
     portalMaterial;
@@ -44,7 +53,7 @@ export default class ProjectTiles extends THREE.Group {
             document.getElementById(elementId).addEventListener("mouseleave", e => this.onMouseLeave(e));
 
             const tileWorldRect = elementToWorldRect(elementId, camera);
-            const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.portalMaterial);
+            const mesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), shaderMaterial);
             mesh.position.copy(tileWorldRect.position);
             this.add(mesh);
         });
@@ -90,6 +99,9 @@ export default class ProjectTiles extends THREE.Group {
         folder.add(this.portalCamera.rotation, "x", -10, 10);
         folder.add(this.portalCamera.position, "y", -10, 10);
         folder.add(this.portalCamera.position, "z", -10, 10);
+        folder.add(shaderMaterial.uniforms.v, "value", 1, 100)
+
+        console.log(shaderMaterial.uniforms)
     }
 
     onMouseMove = (e) => {
