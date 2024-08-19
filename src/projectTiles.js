@@ -13,7 +13,7 @@ export default class ProjectTiles extends THREE.Group {
 
     constructor(camera) {
         super();
-        
+
         this.pageOrthoCamera = camera;
         this.initTiles();
 
@@ -21,9 +21,14 @@ export default class ProjectTiles extends THREE.Group {
     }
 
     initTiles = () => {
+        this.projectTiles.forEach(projectTile => {
+            this.remove(projectTile);
+            projectTile.cleanup();
+        });
+
         ELEMENT_IDS.forEach(elementId => {
             const projectTile = new ProjectTile(elementId, this.pageOrthoCamera);
-            this.add(projectTile.tileMesh);
+            this.add(projectTile);
             this.projectTiles.push(projectTile);
         });
     }

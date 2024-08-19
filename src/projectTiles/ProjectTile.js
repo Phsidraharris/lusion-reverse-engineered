@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils";
 
-export default class ProjectTile {
+export default class ProjectTile extends THREE.Group {
     tileElementId;
     pageOrthoCamera;
     renderTarget = new THREE.WebGLRenderTarget(512, 512 / (16 / 9));
@@ -35,6 +35,8 @@ export default class ProjectTile {
     }
 
     constructor(elementId, orthoCamera) {
+        super();
+
         this.elementId = elementId;
         this.pageOrthoCamera = orthoCamera;
 
@@ -62,8 +64,8 @@ export default class ProjectTile {
 
         this.initTileMesh();
 
-        document.getElementById(elementId).addEventListener("mousemove", e => this.onMouseMove(e));
-        document.getElementById(elementId).addEventListener("mouseleave", e => this.onMouseLeave(e));
+        document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
+        document.getElementById(elementId).addEventListener("mouseleave", this.onMouseLeave);
     }
 
     initTileMesh() {
@@ -71,6 +73,8 @@ export default class ProjectTile {
         this.tileMeshMat.map = this.renderTexture;
         this.tileMesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.tileMeshMat);
         this.tileMesh.position.copy(tileWorldRect.position);
+
+        this.add(this.tileMesh);
     }
 
     onMouseMove = (e) => {
@@ -100,5 +104,13 @@ export default class ProjectTile {
 
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.portalCamera.lookAt(0, 0, 0);
+    }
+
+    cleanup() {
+        this.renderTarget.dispose();
+        this.tileMeshMat.dispose();
+
+        document.getElementById(this.elementId).removeEventListener("mousemove", this.onMouseMove);
+        document.getElementById(this.elementId).removeEventListener("mouseleave", this.onMouseLeave);
     }
 }
