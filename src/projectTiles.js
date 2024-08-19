@@ -24,7 +24,7 @@ export default class ProjectTiles extends THREE.Group {
     /**
      * @param {THREE.Renderer} renderer 
      */
-    update(renderer) {
-        this.projectTiles.forEach(projectTile => projectTile.update(renderer));
+    update(dt, renderer) {
+        this.projectTiles.forEach(projectTile => projectTile.update(dt, renderer));
     }
 }

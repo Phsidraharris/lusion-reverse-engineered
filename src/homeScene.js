@@ -84,7 +84,7 @@ class HomeScene {
         this.physicsSandbox && this.physicsSandbox.update(dt);
         this.animatedTube && this.animatedTube.update(dt);
         this.videoPanel && this.videoPanel.update(dt);
-        this.projectTiles && this.projectTiles.update(this.renderer);
+        this.projectTiles && this.projectTiles.update(dt, this.renderer);
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
     }

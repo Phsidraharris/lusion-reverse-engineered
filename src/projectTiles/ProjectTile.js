@@ -25,6 +25,8 @@ export default class ProjectTile {
             );
         },
     });
+    targetCameraPosition = new THREE.Vector3();
+    targetCameraLookat = new THREE.Vector3();
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -32,6 +34,8 @@ export default class ProjectTile {
 
     constructor(elementId, orthoCamera) {
         this.portalCamera.position.z = -3;
+        this.targetCameraPosition.copy(this.portalCamera.position);
+
         this.portalScene.background = new THREE.Color("#fff");
 
         const light = new THREE.DirectionalLight("white", 2);
@@ -75,22 +79,21 @@ export default class ProjectTile {
         x = (x - 0.5) * 2;
         y = (y - 0.5) * 2;
 
-        const movementDamping = 1;
-        this.portalCamera.position.x = x * movementDamping;
-        this.portalCamera.position.y = y * movementDamping;
-        this.portalCamera.lookAt(0, 0, 0);
+        this.targetCameraPosition.x = x;
+        this.targetCameraPosition.y = y;
+        this.targetCameraPosition.z = -3;
     }
 
     onMouseLeave = (e) => {
-        this.portalCamera.position.x = 0;
-        this.portalCamera.position.y = 0;
-        this.portalCamera.position.z = -3;
-        this.portalCamera.lookAt(0, 0, 0);
+        this.targetCameraPosition.set(0, 0, -3);
     }
 
-    update(renderer) {
+    update(dt, renderer) {
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
+
+        this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
+        this.portalCamera.lookAt(0, 0, 0);
     }
 }
