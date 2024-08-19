@@ -11,7 +11,6 @@ export default class ProjectTile {
     };
     tileMeshMat = new THREE.MeshStandardMaterial({
         onBeforeCompile: shader => {
-            // shader.uniforms.map.value = this.renderTarget.texture;
             shader.uniforms.taperAmount = this.taperAmount;
 
             shader.uniforms.time = { value: 0 };
@@ -95,6 +94,3 @@ export default class ProjectTile {
         renderer.setRenderTarget(null);
     }
 }
-
-// 1. create it. add objects to scene.
-// 2. grab the render texture
