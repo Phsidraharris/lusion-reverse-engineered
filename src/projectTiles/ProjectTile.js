@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils";
 
 const ASPECT = 16 / 9;
+const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
+const CAMERA_LOOKAT = new THREE.Vector3(0, 0.9, 0);
 
 export default class ProjectTile extends THREE.Group {
     tileElementId;
@@ -16,7 +18,7 @@ export default class ProjectTile extends THREE.Group {
     taperAmount = {
         value: 0
     };
-    tileMeshMat = new THREE.MeshStandardMaterial({
+    tileMeshMat = new THREE.MeshBasicMaterial({
         onBeforeCompile: shader => {
             shader.uniforms.taperAmount = this.taperAmount;
 
@@ -32,8 +34,7 @@ export default class ProjectTile extends THREE.Group {
             );
         },
     });
-    targetCameraPosition = new THREE.Vector3();
-    targetCameraLookat = new THREE.Vector3();
+    targetCameraPosition = CAMERA_POS_START.clone();//new THREE.Vector3(CAMERA_POS_START.x, CAMERA_POS_START.y, CAMERA_POS_START.z);
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -45,10 +46,9 @@ export default class ProjectTile extends THREE.Group {
         this.elementId = elementId;
         this.pageOrthoCamera = orthoCamera;
 
-        this.portalCamera.position.z = -3;
-        this.targetCameraPosition.copy(this.portalCamera.position);
+        this.portalCamera.position.copy(this.targetCameraPosition);
 
-        this.portalScene.background = new THREE.Color("#fff");
+        this.portalScene.background = new THREE.Color("#222");
 
         const light = new THREE.DirectionalLight("white", 2);
         light.position.set(0, 1, 0);
@@ -59,12 +59,12 @@ export default class ProjectTile extends THREE.Group {
         for (let i = 0; i < 3; i++) {
             const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), portalObjMat);
             portalBox.position.random();
-            portalBox.position.z = Math.random() * 10;
+            portalBox.position.z = -Math.random() * 10;
             portalBox.rotateY(Math.PI * 0.25);
             portalBox.rotateX(Math.PI * 0.25);
 
             this.portalScene.add(portalBox);
-            this.portalCamera.lookAt(0, 0, 0);
+            this.portalCamera.lookAt(CAMERA_LOOKAT);
         }
 
         this.initTileMesh();
@@ -93,13 +93,13 @@ export default class ProjectTile extends THREE.Group {
         x = (x - 0.5) * 2;
         y = (y - 0.5) * 2;
 
-        this.targetCameraPosition.x = x;
-        this.targetCameraPosition.y = y;
-        this.targetCameraPosition.z = -3;
+        this.targetCameraPosition.x = CAMERA_POS_START.x + x;
+        this.targetCameraPosition.y = CAMERA_POS_START.y + y;
+        this.targetCameraPosition.z = CAMERA_POS_START.z;
     }
 
     onMouseLeave = (e) => {
-        this.targetCameraPosition.set(0, 0, -3);
+        this.targetCameraPosition.copy(CAMERA_POS_START);
     }
 
     update(dt, renderer) {
@@ -108,7 +108,7 @@ export default class ProjectTile extends THREE.Group {
         renderer.setRenderTarget(null);
 
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
-        this.portalCamera.lookAt(0, 0, 0);
+        this.portalCamera.lookAt(CAMERA_LOOKAT);
     }
 
     cleanup() {
