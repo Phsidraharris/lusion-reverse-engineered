@@ -94,9 +94,8 @@ export function getElementPageCoords(elementId, anchor) {
     const rect = element.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    const x = rect.left + window.scrollX + (width * anchor.x);
-    const y = rect.top + window.scrollY + (height * anchor.y);
-
+    const x = rect.left + (width * anchor.x);
+    const y = rect.top + (height * anchor.y);
 
     return { x, y, width, height };
 }
