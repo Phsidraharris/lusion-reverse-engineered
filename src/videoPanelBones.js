@@ -32,6 +32,7 @@ export default class VideoPanelBones extends THREE.Group {
     boneBL;
     boneBR;
 
+    /** @type THREE.CubicBezierCurve3 */
     curveTL;
 
     constructor(camera) {
@@ -77,18 +78,21 @@ export default class VideoPanelBones extends THREE.Group {
 
             this.localRectStart = elementToLocalRectPoints(PANEL_START_ID, parent, camera);
             this.localRectEnd = elementToLocalRectPoints(PANEL_END_ID, parent, camera);
-            
-            // curveTL = new THREE.CubicBezierCurve3(this.worldRectStart.tl,
-            //     this.worldRectStart.tl.clone().addScalar(1),
-            //     this.worldRectEnd.tl.clone().addScalar(-1),
-            //     this.worldRectEnd.tl.clone()
-            // );
 
-            // curveTL = new THREE.CubicBezierCurve3(this.worldRectStart.tl,
-            //     this.worldRectStart.tl.clone().addScalar(1),
-            //     this.worldRectEnd.tl.clone().addScalar(-1),
-            //     this.worldRectEnd.tl.clone()
-            // );
+            this.curveTL = new THREE.CubicBezierCurve3(this.localRectStart.tl,
+                this.localRectStart.tl.clone().add(new THREE.Vector3(10, 0, 0)),
+                this.localRectEnd.tl.clone().add(new THREE.Vector3(-1, 0, 0)),
+                this.localRectEnd.tl.clone()
+            );
+
+            this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
+                this.localRectStart.tr.clone().add(new THREE.Vector3(10, 0, 0)),
+                this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
+                this.localRectEnd.tr.clone()
+            );
+
+            this.addCurve(this.curveTR);
+            this.addCurve(this.curveTL);
 
             this.add(this.panelScene);
 
@@ -108,10 +112,16 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     playAnimation() {
-        this.boneTL.position.lerpVectors(this.localRectStart.tl, this.localRectEnd.tl, this.animPlaybackPercent);
-        this.boneTR.position.lerpVectors(this.localRectStart.tr, this.localRectEnd.tr, this.animPlaybackPercent);
+        // this.boneTL.position.lerpVectors(this.localRectStart.tl, this.localRectEnd.tl, this.animPlaybackPercent);
+        // this.boneTR.position.lerpVectors(this.localRectStart.tr, this.localRectEnd.tr, this.animPlaybackPercent);
         this.boneBL.position.lerpVectors(this.localRectStart.bl, this.localRectEnd.bl, this.animPlaybackPercent);
         this.boneBR.position.lerpVectors(this.localRectStart.br, this.localRectEnd.br, this.animPlaybackPercent);
+
+        const tl = this.curveTL.getPointAt(this.animPlaybackPercent);
+        this.boneTL.position.copy(tl);
+
+        const tr = this.curveTR.getPointAt(this.animPlaybackPercent);
+        this.boneTR.position.copy(tr);
 
         this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
     }
@@ -128,6 +138,15 @@ export default class VideoPanelBones extends THREE.Group {
         texture.flipY = false;
 
         return texture;
+    }
+
+    addCurve = (curve) => {
+        const points = curve.getPoints(50);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        const curveObject = new THREE.Line(geometry, material);
+        this.add(curveObject)
+
     }
 
     onScroll = (e) => {
