@@ -109,3 +109,25 @@ export function elementToWorldRect(elementId, camera, anchor = { x: 0.5, y: 0.5 
 
     return { position, width, height }
 }
+
+export function elementToWorldRectPoints(elementId, camera) {
+    const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
+
+    const tl = worldRect.position;
+
+    const tr = worldRect.position.clone();
+    tr.x += worldRect.width;
+
+    const bl = worldRect.position.clone();
+    bl.y -= worldRect.height;
+
+    const br = worldRect.position.clone();
+    br.x += worldRect.width;
+    br.y -= worldRect.height;
+
+    const center = worldRect.position.clone();
+    center.x += worldRect.width * 0.5;
+    center.y -= worldRect.height * 0.5;
+
+    return { tl, tr, br, bl, center };
+}
