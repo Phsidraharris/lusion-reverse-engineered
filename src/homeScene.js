@@ -21,7 +21,10 @@ class HomeScene {
 
     constructor() {
         this.initThree();
-        this.initScene();
+
+        setTimeout(() => {
+            this.initScene();
+        }, 1);
 
         document.body.appendChild(this.stats.dom);
 
@@ -42,6 +45,7 @@ class HomeScene {
         this.camera.far = 1000;
         this.camera.position.z = 10;
         updateCameraIntrisics(this.camera, this.frustumSize);
+
         this.onScroll();
 
         this.scene = new THREE.Scene();
@@ -50,7 +54,6 @@ class HomeScene {
         new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;
-            // this.scene.backgroundIntensity = 0;
         });
     }
 

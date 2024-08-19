@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils";
 
 export default class ProjectTile {
+    tileElementId;
+    pageOrthoCamera;
     renderTarget = new THREE.WebGLRenderTarget(512, 512 / (16 / 9));
     portalCamera = new THREE.PerspectiveCamera();
     portalScene = new THREE.Scene();
@@ -33,6 +35,9 @@ export default class ProjectTile {
     }
 
     constructor(elementId, orthoCamera) {
+        this.elementId = elementId;
+        this.pageOrthoCamera = orthoCamera;
+
         this.portalCamera.position.z = -3;
         this.targetCameraPosition.copy(this.portalCamera.position);
 
@@ -55,14 +60,14 @@ export default class ProjectTile {
             this.portalCamera.lookAt(0, 0, 0);
         }
 
-        this.initTileMesh(elementId, orthoCamera);
+        this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", e => this.onMouseMove(e));
         document.getElementById(elementId).addEventListener("mouseleave", e => this.onMouseLeave(e));
     }
 
-    initTileMesh(elementId, orthoCamera) {
-        const tileWorldRect = elementToWorldRect(elementId, orthoCamera);
+    initTileMesh() {
+        const tileWorldRect = elementToWorldRect(this.elementId, this.pageOrthoCamera);
         this.tileMeshMat.map = this.renderTexture;
         this.tileMesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.tileMeshMat);
         this.tileMesh.position.copy(tileWorldRect.position);

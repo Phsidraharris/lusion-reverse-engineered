@@ -89,13 +89,13 @@ export function createBevelledPlane(width, height, radius) {
  * @param {{x: number, y: number}} anchor, normalised
  * @returns 
  */
-export function getElementPageCoords(elementId, anchor) {
+export function getElementPageCoords(elementId, anchor = { x: 0.5, y: 0.5 }) {
     const element = document.getElementById(elementId);
     const rect = element.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    const x = rect.left + (width * anchor.x);
-    const y = rect.top + (height * anchor.y);
+    const x = rect.left /*+ window.scrollX*/ + (width * anchor.x);
+    const y = rect.top /*+ window.scrollY*/ + (height * anchor.y);
 
     return { x, y, width, height };
 }

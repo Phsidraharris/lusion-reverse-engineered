@@ -1,6 +1,6 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { createBevelledPlane, elementToWorldRect, pageToWorldCoords } from "./utils";
+import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6
@@ -38,7 +38,6 @@ export default class PhysicsSandbox extends THREE.Group {
 
     initViewMask = () => {
         const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
-
         const stencilMat = new THREE.MeshBasicMaterial({
             color: new THREE.Color(0.02, 0.02, 0.02),
             depthWrite: false,
