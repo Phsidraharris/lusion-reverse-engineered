@@ -30,7 +30,6 @@ export default class ProjectTiles extends THREE.Group {
         }
     });
 
-
     constructor(camera) {
         super();
 
@@ -82,12 +81,6 @@ export default class ProjectTiles extends THREE.Group {
 
     initDebug() {
         const folder = debugGui.addFolder("Project Tiles");
-        folder.add(this.portalCamera.position, "x", -10, 10);
-        folder.add(this.portalCamera.position, "y", -10, 10);
-        folder.add(this.portalCamera.position, "z", -10, 10);
-        folder.add(this.portalCamera.rotation, "x", -10, 10);
-        folder.add(this.portalCamera.position, "y", -10, 10);
-        folder.add(this.portalCamera.position, "z", -10, 10);
         folder.add(this.taperAmount, "value", -1, 1)
     }
 
