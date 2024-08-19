@@ -47,7 +47,7 @@ section {
     padding: 0 4vw;
     width: 100vw;
     min-height: 100vh;
-    align-items: center;
+    /* align-items: center; */
     font: 20px Arial, sans-serif;
 
     /* Debug */
@@ -78,6 +78,23 @@ section {
         width: 100%;
         flex: 1;
         margin-bottom: 30px;
+    }
+
+    &#video-panel-section {
+        #video-panel-start {
+            width: 500px;
+            height: 300px;
+            border: 1px dashed red;
+            top: 100px;
+            left: 0;
+        }
+
+        #video-panel-end {
+            width: 100%;
+            aspect-ratio: calc(16/9);
+            border: 1px dashed red;
+            margin: 20vh auto 10vh auto;
+        }
     }
 
     &#project-tiles-section {

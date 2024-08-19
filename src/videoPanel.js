@@ -1,10 +1,12 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { pageToWorldCoords } from "./utils";
+import { elementToWorldRect, pageToWorldCoords } from "./utils";
 
 const TINT_COLOUR_START = new THREE.Color("#5b1473");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
+const PANEL_START_ID = "video-panel-start";
+const PANEL_END_ID = "video-panel-end";
 
 export class VideoPanel extends THREE.Group {
     mixer = null;
@@ -14,8 +16,8 @@ export class VideoPanel extends THREE.Group {
     animDuration;
 
     // The scroll positions used to calculate t, a percentage used to play the panel animation
-    scrollYAnimStart = window.innerHeight * 1.2;
-    scrollYAnimEnd = window.innerHeight * 1.9;
+    scrollYAnimStart = window.innerHeight * 0.9;
+    scrollYAnimEnd = window.innerHeight * 1.3;
 
     // Positions at t
     worldPosAtAnimStart;    // t = 0
@@ -26,6 +28,8 @@ export class VideoPanel extends THREE.Group {
 
     material;
     tintColour = TINT_COLOUR_START.clone();
+
+    panelScene;
 
     constructor(camera) {
         super();
@@ -40,14 +44,23 @@ export class VideoPanel extends THREE.Group {
             color: this.tintColour
         });
 
-        new GLTFLoader().load('../assets/panel-anim-bones.glb', (gltf) => {
-            const mesh = gltf.scene.children[0].children[0];
-            mesh.material = this.material;
-            this.add(gltf.scene);
+        this.worldPosAtAnimStart = elementToWorldRect(PANEL_START_ID, camera).position;
+        this.worldPosAtAnimEnd = elementToWorldRect(PANEL_END_ID, camera).position;
 
+        // this.scale.setScalar(3);
+
+        new GLTFLoader().load('../assets/panel-anim-bones.glb', (gltf) => {
+            this.panelScene = gltf.scene;
+
+            const panelMesh = this.panelScene.children[0].children[0];
+            panelMesh.material = this.material;
+
+            this.panelScene.position.copy(this.worldPosAtAnimStart)
+
+            this.add(this.panelScene);
 
             // Set up the animation mixer
-            this.mixer = new THREE.AnimationMixer(gltf.scene);
+            this.mixer = new THREE.AnimationMixer(this.panelScene);
 
             this.animClip = gltf.animations[0];
             this.action = this.mixer.clipAction(this.animClip);
@@ -58,11 +71,6 @@ export class VideoPanel extends THREE.Group {
         }, undefined, (error) => {
             console.error(error);
         });
-
-        this.worldPosAtAnimStart = pageToWorldCoords(0, window.innerHeight * 1.9, camera).y;
-        this.worldPosAtAnimEnd = pageToWorldCoords(0, window.innerHeight * 2.5, camera).y;
-        this.position.y = this.worldPosAtAnimStart;
-        this.scale.setScalar(3);
 
         window.addEventListener("scroll", this.onScroll);
     }
@@ -95,11 +103,14 @@ export class VideoPanel extends THREE.Group {
 
     onScroll = (e) => {
         this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
-        const yPos = THREE.MathUtils.lerp(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, this.animPlaybackPercent);
+
+        const pos = new THREE.Vector3();
+        pos.lerpVectors(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, this.animPlaybackPercent);
         this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
 
         this.playAnimation(this.animPlaybackPercent);
-        this.position.y = yPos;
+
+        this.panelScene.position.copy(pos);
 
         this.scrollDelta = (window.scrollY - this.prevScrollY);
 

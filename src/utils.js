@@ -101,7 +101,7 @@ export function getElementPageCoords(elementId, anchor = { x: 0.5, y: 0.5 }) {
 }
 
 export function elementToWorldRect(elementId, camera) {
-    const elementPageCoords = getElementPageCoords(elementId, { x: 0.5, y: 0.5 });
+    const elementPageCoords = getElementPageCoords(elementId);
 
     const position = pageToWorldCoords(elementPageCoords.x, elementPageCoords.y, camera);
     const width = pagePixelsToWorldUnit(elementPageCoords.width, camera);
