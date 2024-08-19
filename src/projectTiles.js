@@ -5,7 +5,6 @@ import { createBevelledPlane, elementToWorldRect } from "./utils";
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
 export default class ProjectTiles extends THREE.Group {
-    portalMaterial;
     renderTarget;
     portalScene;
     portalCamera;
@@ -63,12 +62,12 @@ export default class ProjectTiles extends THREE.Group {
 
         this.portalScene.add(light);
 
-        this.portalMaterial = new THREE.MeshStandardMaterial({ map: this.renderTarget.texture });
-
-        const boxMat = new THREE.MeshStandardMaterial();
+        this.shaderMaterial.map = this.renderTarget.texture;
+        
+        const portalObjMat = new THREE.MeshStandardMaterial();
 
         for (let i = 0; i < 3; i++) {
-            const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), boxMat);
+            const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), portalObjMat);
             portalBox.position.random();
             portalBox.position.z = Math.random() * 10;
             portalBox.rotateY(Math.PI * 0.25);
