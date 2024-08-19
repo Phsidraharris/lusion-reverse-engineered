@@ -10,19 +10,12 @@ const PANEL_END_ID = "video-panel-end";
 const AUTOSCROLL_ENABLED = false;
 
 export default class VideoPanelBones extends THREE.Group {
-    mixer = null;
-    action = null;
-    animPlaybackPercent = 0;
-    animClip;
-    animDuration;
-
     // The scroll positions used to calculate t, a percentage used to play the panel animation
     scrollYAnimStart = window.innerHeight * 0.9;
     scrollYAnimEnd = window.innerHeight * 1.3;
 
-    // Positions at t
-    worldPosAtAnimStart;    // t = 0
-    worldPosAtAnimEnd;      // t = 1
+    worldRectStart;
+    worldRectEnd;
 
     prevScrollY = 0;
     scrollDelta = 1;    // 1 down, -1 up
@@ -35,6 +28,11 @@ export default class VideoPanelBones extends THREE.Group {
     /** @type THREE.Bone[] */
     bones = [];
 
+    boneTL;
+    boneTR;
+    boneBL;
+    boneBR;
+
     constructor(camera) {
         super();
 
@@ -46,10 +44,8 @@ export default class VideoPanelBones extends THREE.Group {
             color: this.tintColour
         });
 
-        this.worldPosAtAnimStart = elementToWorldRect(PANEL_START_ID, camera).position;
-        this.worldPosAtAnimEnd = elementToWorldRect(PANEL_END_ID, camera).position;
-
-        // this.scale.setScalar(3);
+        this.worldRectStart = elementToWorldRect(PANEL_START_ID, camera, { x: 0, y: 0 });
+        this.worldRectEnd = elementToWorldRect(PANEL_END_ID, camera, { x: 0, y: 0 });
 
         new GLTFLoader().load('../assets/panel-anim-bones-02.glb', (gltf) => {
             this.panelScene = gltf.scene;
@@ -57,29 +53,35 @@ export default class VideoPanelBones extends THREE.Group {
             const panelMesh = this.panelScene.children[0].children[0];
             panelMesh.material = this.material;
 
-            this.panelScene.position.copy(this.worldPosAtAnimStart);
+            this.panelScene.position.copy(this.worldRectStart.position);
 
             this.add(this.panelScene);
+
             this.panelScene.children[0].children.forEach(child => {
                 if (child.type === "Bone") {
-                    this.bones.push(child);
-
-                    console.log("bone", child.parent)
+                    console.log(child.name)
+                    if (child.name === "BoneTR") {
+                        this.boneTR = child;
+                    }
+                    else if (child.name === "BoneTL") {
+                        this.boneTL = child;
+                    }
+                    else if (child.name === "BoneBR") {
+                        this.boneBR = child;
+                    }
+                    else if (child.name === "BoneBL") {
+                        this.boneBL = child;
+                    }
                 }
             });
 
-            // Set up the animation mixer
-            // this.mixer = new THREE.AnimationMixer(this.panelScene);
+            console.assert(this.boneBL);
+            console.assert(this.boneBR);
+            console.assert(this.boneTL);
+            console.assert(this.boneTR);
 
-            // this.animClip = gltf.animations[0];
-            // this.action = this.mixer.clipAction(this.animClip);
-            // this.action.play();
-
-            // this.animDuration = this.animClip.duration;
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
-
             this.initDebug();
-
         }, undefined, (error) => {
             console.error(error);
         });
@@ -93,24 +95,6 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     playAnimation(percent) {
-        if (this.action) {
-            const time = Math.min(percent * this.animDuration, this.animDuration);
-            this.mixer.setTime(time);
-        }
-
-        const start = this.worldPosAtAnimStart.clone();
-        const end = this.worldPosAtAnimEnd.clone();
-
-        const curve = new THREE.CubicBezierCurve3(
-            this.bones[0].parent.worldToLocal(start),
-            new THREE.Vector3(0, 1, 0),
-            new THREE.Vector3(1, 0, 0),
-            
-            this.bones[0].parent.worldToLocal(end),
-        );
-
-        const p = curve.getPoint(percent);
-        this.bones[0].position.copy(p);
     }
 
     createVideoTexture() {
@@ -128,26 +112,38 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     onScroll = (e) => {
-        this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
+        // this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
 
-        const curve = new THREE.CubicBezierCurve3(
-            this.worldPosAtAnimStart,
-            new THREE.Vector3(-5, 15, 0),
-            new THREE.Vector3(20, 15, 0),
-            this.worldPosAtAnimEnd,
-        );
+        // const curve = new THREE.CubicBezierCurve3(
+        //     this.worldPosAtAnimStart,
+        //     new THREE.Vector3(-5, 15, 0),
+        //     new THREE.Vector3(20, 15, 0),
+        //     this.worldPosAtAnimEnd,
+        // );
+        // new THREE.Vector3(20, 15, 0),
 
-        const p = curve.getPoint(this.animPlaybackPercent);
+        // const p = curve.getPoint(this.animPlaybackPercent);
 
+        /** @type THREE.Vector3 */
+        const tl = this.worldRectStart.position.clone();
+        const tr = this.worldRectStart.position.clone();
+        tr.x += this.worldRectStart.width;
+        const bl = this.worldRectStart.position.clone();
+        bl.y -= this.worldRectStart.height;
+        const br = this.worldRectStart.position.clone();
+        br.x += this.worldRectStart.width;
+        br.y -= this.worldRectStart.height;
 
+        const parent = this.boneBL.parent;
+        parent.worldToLocal(tl);
+        parent.worldToLocal(tr);
+        parent.worldToLocal(bl);
+        parent.worldToLocal(br);
 
-        // const pos = new THREE.Vector3();
-        // pos.lerpVectors(this.worldPosAtAnimStart, this.worldPosAtAnimEnd, this.animPlaybackPercent);
-        // this.material.color = this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
-
-        // this.playAnimation(this.animPlaybackPercent);
-
-        // this.panelScene.position.copy(pos);
+        this.boneTL.position.copy(tl);
+        this.boneTR.position.copy(tr);
+        this.boneBL.position.copy(bl);
+        this.boneBR.position.copy(br);
 
         // this.scrollDelta = (window.scrollY - this.prevScrollY);
 
