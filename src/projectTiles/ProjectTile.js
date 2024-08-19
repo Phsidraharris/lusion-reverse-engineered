@@ -1,11 +1,16 @@
 import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils";
 
+const ASPECT = 16 / 9;
+
 export default class ProjectTile extends THREE.Group {
     tileElementId;
     pageOrthoCamera;
-    renderTarget = new THREE.WebGLRenderTarget(512, 512 / (16 / 9));
-    portalCamera = new THREE.PerspectiveCamera();
+    renderTarget = new THREE.WebGLRenderTarget(512, 512 / ASPECT, {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+    });
+    portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
     tileMesh;
     taperAmount = {

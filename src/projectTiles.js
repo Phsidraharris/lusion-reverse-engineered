@@ -28,6 +28,11 @@ export default class ProjectTiles extends THREE.Group {
 
         ELEMENT_IDS.forEach(elementId => {
             const projectTile = new ProjectTile(elementId, this.pageOrthoCamera);
+
+            const sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshStandardMaterial({ color: "red" }));
+            sphere.position.z = 2;
+            projectTile.portalScene.add(sphere);
+
             this.add(projectTile);
             this.projectTiles.push(projectTile);
         });
