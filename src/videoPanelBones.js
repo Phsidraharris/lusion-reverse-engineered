@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { elementToWorldRect, elementToWorldRectPoints, pageToWorldCoords } from "./utils";
+import { elementToWorldRect, elementToLocalRectPoints, pageToWorldCoords } from "./utils";
 
 const TINT_COLOUR_START = new THREE.Color("#5b1473");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
@@ -16,8 +16,8 @@ export default class VideoPanelBones extends THREE.Group {
     scrollYAnimStart = window.innerHeight * 0.9;
     scrollYAnimEnd = window.innerHeight * 1.3;
 
-    worldRectStart;
-    worldRectEnd;
+    localRectStart;
+    localRectEnd;
 
     prevScrollY = 0;
     scrollDelta = 1;    // 1 down, -1 up
@@ -32,6 +32,8 @@ export default class VideoPanelBones extends THREE.Group {
     boneBL;
     boneBR;
 
+    curveTL;
+
     constructor(camera) {
         super();
 
@@ -43,18 +45,11 @@ export default class VideoPanelBones extends THREE.Group {
             color: this.tintColour
         });
 
-        this.worldRectStart = elementToWorldRectPoints(PANEL_START_ID, camera);
-        this.worldRectEnd = elementToWorldRectPoints(PANEL_END_ID, camera);
-
         new GLTFLoader().load('../assets/panel-anim-bones-02.glb', (gltf) => {
             this.panelScene = gltf.scene;
 
             const panelMesh = this.panelScene.children[0].children[0];
             panelMesh.material = this.material;
-
-            this.panelScene.position.copy(this.worldRectStart.center);
-
-            this.add(this.panelScene);
 
             this.panelScene.children[0].children.forEach(child => {
                 if (child.type === "Bone") {
@@ -80,15 +75,22 @@ export default class VideoPanelBones extends THREE.Group {
 
             const parent = this.boneBL.parent;
 
-            parent.worldToLocal(this.worldRectStart.tl);
-            parent.worldToLocal(this.worldRectStart.tr);
-            parent.worldToLocal(this.worldRectStart.bl);
-            parent.worldToLocal(this.worldRectStart.br);
+            this.localRectStart = elementToLocalRectPoints(PANEL_START_ID, parent, camera);
+            this.localRectEnd = elementToLocalRectPoints(PANEL_END_ID, parent, camera);
+            
+            // curveTL = new THREE.CubicBezierCurve3(this.worldRectStart.tl,
+            //     this.worldRectStart.tl.clone().addScalar(1),
+            //     this.worldRectEnd.tl.clone().addScalar(-1),
+            //     this.worldRectEnd.tl.clone()
+            // );
 
-            parent.worldToLocal(this.worldRectEnd.tl);
-            parent.worldToLocal(this.worldRectEnd.tr);
-            parent.worldToLocal(this.worldRectEnd.bl);
-            parent.worldToLocal(this.worldRectEnd.br);
+            // curveTL = new THREE.CubicBezierCurve3(this.worldRectStart.tl,
+            //     this.worldRectStart.tl.clone().addScalar(1),
+            //     this.worldRectEnd.tl.clone().addScalar(-1),
+            //     this.worldRectEnd.tl.clone()
+            // );
+
+            this.add(this.panelScene);
 
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
 
@@ -106,10 +108,10 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     playAnimation() {
-        this.boneTL.position.lerpVectors(this.worldRectStart.tl, this.worldRectEnd.tl, this.animPlaybackPercent);
-        this.boneTR.position.lerpVectors(this.worldRectStart.tr, this.worldRectEnd.tr, this.animPlaybackPercent);
-        this.boneBL.position.lerpVectors(this.worldRectStart.bl, this.worldRectEnd.bl, this.animPlaybackPercent);
-        this.boneBR.position.lerpVectors(this.worldRectStart.br, this.worldRectEnd.br, this.animPlaybackPercent);
+        this.boneTL.position.lerpVectors(this.localRectStart.tl, this.localRectEnd.tl, this.animPlaybackPercent);
+        this.boneTR.position.lerpVectors(this.localRectStart.tr, this.localRectEnd.tr, this.animPlaybackPercent);
+        this.boneBL.position.lerpVectors(this.localRectStart.bl, this.localRectEnd.bl, this.animPlaybackPercent);
+        this.boneBR.position.lerpVectors(this.localRectStart.br, this.localRectEnd.br, this.animPlaybackPercent);
 
         this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
     }

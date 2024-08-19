@@ -110,7 +110,7 @@ export function elementToWorldRect(elementId, camera, anchor = { x: 0.5, y: 0.5 
     return { position, width, height }
 }
 
-export function elementToWorldRectPoints(elementId, camera) {
+export function elementToLocalRectPoints(elementId, parent, camera) {
     const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
 
     const tl = worldRect.position;
@@ -128,6 +128,11 @@ export function elementToWorldRectPoints(elementId, camera) {
     const center = worldRect.position.clone();
     center.x += worldRect.width * 0.5;
     center.y -= worldRect.height * 0.5;
+
+    parent.worldToLocal(tl);
+    parent.worldToLocal(tr);
+    parent.worldToLocal(br);
+    parent.worldToLocal(bl);
 
     return { tl, tr, br, bl, center };
 }
