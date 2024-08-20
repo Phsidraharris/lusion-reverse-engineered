@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
 import { elementToLocalRectPoints } from "./utils";
 
-const TINT_COLOUR_START = new THREE.Color("#5b1473");
+const TINT_COLOUR_START = new THREE.Color("#94e0e6");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
@@ -13,8 +13,8 @@ export default class VideoPanelBones extends THREE.Group {
     animPlaybackPercent = 0;
 
     // The scroll positions used to calculate t, a percentage used to play the panel animation
-    scrollYAnimStart = window.innerHeight * 1.3;
-    scrollYAnimEnd = window.innerHeight * 1.8;
+    scrollYAnimStart = window.innerHeight * 1.8;
+    scrollYAnimEnd = window.innerHeight * 2.4;
 
     localRectStart;
     localRectEnd;
