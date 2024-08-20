@@ -89,11 +89,12 @@ section {
     }
 
     &#video-panel-section {
-        padding: 19vh 0 10vh 0;
+        padding-top: 19vh;
+        padding-bottom: 10vh;
 
         .about-headers {
             padding-bottom: 10vh;
-            
+
             .animated-h1-container {
                 overflow: hidden;
                 margin: 0;
