@@ -1,20 +1,20 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { elementToWorldRect, elementToLocalRectPoints, pageToWorldCoords } from "./utils";
+import { elementToLocalRectPoints } from "./utils";
 
 const TINT_COLOUR_START = new THREE.Color("#5b1473");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
-const AUTOSCROLL_ENABLED = false;
+const AUTOSCROLL_ENABLED = true;
 
 export default class VideoPanelBones extends THREE.Group {
     animPlaybackPercent = 0;
 
     // The scroll positions used to calculate t, a percentage used to play the panel animation
-    scrollYAnimStart = window.innerHeight * 0.9;
-    scrollYAnimEnd = window.innerHeight * 1.3;
+    scrollYAnimStart = window.innerHeight * 1.1;
+    scrollYAnimEnd = window.innerHeight * 1.4;
 
     localRectStart;
     localRectEnd;
@@ -23,7 +23,6 @@ export default class VideoPanelBones extends THREE.Group {
     scrollDelta = 1;    // 1 down, -1 up
 
     material;
-    tintColour = TINT_COLOUR_START.clone();
 
     panelScene;
 
@@ -37,6 +36,9 @@ export default class VideoPanelBones extends THREE.Group {
     curveBL;
     curveBR;
 
+    debugCurveGroup = new THREE.Group();
+    debugCurvesEnabled = false;
+
     constructor(camera) {
         super();
 
@@ -45,7 +47,7 @@ export default class VideoPanelBones extends THREE.Group {
             metalness: 0,
             map: this.createVideoTexture(),
             side: THREE.FrontSide,
-            color: this.tintColour
+            color: TINT_COLOUR_START
         });
 
         new GLTFLoader().load('../assets/panel-anim-bones-02.glb', (gltf) => {
@@ -105,11 +107,6 @@ export default class VideoPanelBones extends THREE.Group {
                 this.localRectEnd.br.clone()
             );
 
-            this.addCurve(this.curveTR);
-            this.addCurve(this.curveTL);
-            this.addCurve(this.curveBL);
-            this.addCurve(this.curveBR);
-
             this.add(this.panelScene);
 
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
@@ -125,6 +122,9 @@ export default class VideoPanelBones extends THREE.Group {
     initDebug() {
         const folder = debugGui.addFolder("VideoPanel");
         folder.add(this, "animPlaybackPercent", 0, 1).onChange(v => this.playAnimation(v));
+        folder.add(this, "debugCurvesEnabled").onChange(v => {
+            this.setDebugCurvedEnabled(v);
+        });
     }
 
     playAnimation() {
@@ -140,7 +140,7 @@ export default class VideoPanelBones extends THREE.Group {
         const br = this.curveBR.getPointAt(this.animPlaybackPercent);
         this.boneBR.position.copy(br);
 
-        this.tintColour.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
+        this.material.color.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
     }
 
     createVideoTexture() {
@@ -157,36 +157,38 @@ export default class VideoPanelBones extends THREE.Group {
         return texture;
     }
 
-    addCurve = (curve) => {
-        const points = curve.getPoints(50);
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-        const curveObject = new THREE.Line(geometry, material);
-        this.add(curveObject)
+    setDebugCurvedEnabled = (enabled) => {
+        const curves = [this.curveTR, this.curveTL, this.curveBL, this.curveBR];
 
+        if (enabled) {
+
+            if (this.debugCurveGroup.children.length === 0) {
+                curves.forEach(curve => {
+                    const points = curve.getPoints(50);
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+                    const curveObject = new THREE.Line(geometry, material);
+                    this.debugCurveGroup.add(curveObject)
+                });
+            }
+
+            this.add(this.debugCurveGroup);
+        }
+        else {
+            this.remove(this.debugCurveGroup);
+        }
     }
 
     onScroll = (e) => {
-        // this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
+        this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
 
-        // const curve = new THREE.CubicBezierCurve3(
-        //     this.worldPosAtAnimStart,
-        //     new THREE.Vector3(-5, 15, 0),
-        //     new THREE.Vector3(20, 15, 0),
-        //     this.worldPosAtAnimEnd,
-        // );
-        // new THREE.Vector3(20, 15, 0),
-
-        // const p = curve.getPoint(this.animPlaybackPercent);
         this.playAnimation()
 
-        // this.scrollDelta = (window.scrollY - this.prevScrollY);
-
-        // this.prevScrollY = window.scrollY;
+        this.scrollDelta = (window.scrollY - this.prevScrollY);
+        this.prevScrollY = window.scrollY;
     }
 
     update(dt) {
-        // this.mixer && this.mixer.update(dt);
         if (!AUTOSCROLL_ENABLED) {
             return;
         }
