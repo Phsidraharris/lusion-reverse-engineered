@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { elementToWorldRect, pageToWorldCoords } from "./utils";
+import { elementToWorldRect, pageToWorldCoords } from "./utils/utils";
 
 const TINT_COLOUR_START = new THREE.Color("#5b1473");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");

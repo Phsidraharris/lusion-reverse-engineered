@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { elementToLocalRectPoints } from "./utils";
+import { elementToLocalRectPoints } from "./utils/utils";
 
 const TINT_COLOUR_START = new THREE.Color("#94e0e6");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");

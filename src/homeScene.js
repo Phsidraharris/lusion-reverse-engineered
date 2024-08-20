@@ -4,7 +4,7 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { AnimatedTube } from "./animatedTube";
 import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
-import { updateCameraIntrisics } from "./utils";
+import { updateCameraIntrisics } from "./utils/utils";
 import VideoPanelBones from "./videoPanelBones";
 import { debugGui } from "./debugGui";
 

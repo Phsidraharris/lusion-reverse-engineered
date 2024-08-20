@@ -1,6 +1,6 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils";
+import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils/utils";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6

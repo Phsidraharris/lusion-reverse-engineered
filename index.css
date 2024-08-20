@@ -18,6 +18,12 @@ body {
     background-color: #F0F1FA;
     -ms-overflow-style: none;
     color: #1c1d21;
+    opacity: 1;
+    transition: opacity 0.1s;
+
+    .fade-out {
+        opacity: 0;
+    }
 }
 
 ::-webkit-scrollbar {
@@ -52,6 +58,15 @@ a {
     z-index: -1;
 }
 
+#home-content {
+    opacity: 1;
+    transition: opacity 1s;
+
+    &.fade-out {
+        opacity: 0;
+    }
+}
+
 section {
     display: flex;
     flex-direction: column;
@@ -70,7 +85,7 @@ section {
         display: flex;
         justify-content: space-between;
         gap: 20px;
-        
+
         div {
             &:nth-child(1) {
                 flex: 1;
@@ -166,7 +181,6 @@ section {
                 flex-direction: column;
                 border-radius: 6px;
                 cursor: pointer;
-                background-color: rgba(21, 21, 21, 0.03);
 
                 .project-tile-thumb {
                     width: 100%;

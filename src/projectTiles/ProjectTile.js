@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { createBevelledPlane, elementToWorldRect } from "../utils";
+import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
 
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
@@ -107,7 +107,12 @@ export default class ProjectTile extends THREE.Group {
     }
 
     onClick = () => {
-        this.homeScene.setCameraFrustumSize(this.homeScene.frustumSize - 1);
+        const homeContent = document.getElementById("home-content");
+        homeContent.classList.add("fade-out");
+
+        setTimeout(() => {
+            this.homeScene.setCameraFrustumSize(this.homeScene.frustumSize - 1);
+        }, 1000);
     }
 
     update(dt, renderer) {
