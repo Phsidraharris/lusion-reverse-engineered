@@ -14,7 +14,7 @@ export default class ProjectTile extends THREE.Group {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
     });
-    portalCamera = new THREE.PerspectiveCamera(45, ASPECT, 0, 100);
+    portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
     tileMesh;
     taperAmount = {
@@ -113,8 +113,8 @@ export default class ProjectTile extends THREE.Group {
 
     update(dt, renderer) {
         const scale = THREE.MathUtils.lerp(this.tileMesh.scale.x, this.tileMeshTargetScale, dt * 5);
-
         this.tileMesh.scale.setScalar(scale);
+        
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
 

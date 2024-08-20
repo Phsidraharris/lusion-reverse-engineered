@@ -13,8 +13,8 @@ export default class VideoPanelBones extends THREE.Group {
     animPlaybackPercent = 0;
 
     // The scroll positions used to calculate t, a percentage used to play the panel animation
-    scrollYAnimStart = window.innerHeight * 1.1;
-    scrollYAnimEnd = window.innerHeight * 1.4;
+    scrollYAnimStart = window.innerHeight * 1.3;
+    scrollYAnimEnd = window.innerHeight * 1.8;
 
     localRectStart;
     localRectEnd;
@@ -37,7 +37,7 @@ export default class VideoPanelBones extends THREE.Group {
     curveBR;
 
     debugCurveGroup = new THREE.Group();
-    debugCurvesEnabled = false;
+    debugCurvesEnabled = true;
 
     constructor(camera) {
         super();
@@ -90,7 +90,7 @@ export default class VideoPanelBones extends THREE.Group {
             );
 
             this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
-                this.localRectStart.tr.clone().add(new THREE.Vector3(10, -8, 0)),
+                this.localRectStart.tr.clone().add(new THREE.Vector3(20, -8, 0)),
                 this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
                 this.localRectEnd.tr.clone()
             );
@@ -112,6 +112,7 @@ export default class VideoPanelBones extends THREE.Group {
             this.onScroll();    // trigger scroll in case user refreshes mid scroll
 
             this.initDebug();
+            this.setDebugCurvedEnabled(this.debugCurvesEnabled);
         }, undefined, (error) => {
             console.error(error);
         });

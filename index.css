@@ -91,9 +91,10 @@ section {
 
         #video-panel-end {
             width: 100%;
-            aspect-ratio: calc(21/9);
+            height: 80vh;
+            /* aspect-ratio: calc(21/9); */
             border: 1px dashed red;
-            margin: 20vh auto 10vh auto;
+            margin: 10vh auto 10vh auto;
         }
 
         .animated-h1-container {
