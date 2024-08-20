@@ -8,7 +8,7 @@ const TINT_COLOUR_END = new THREE.Color("#ffffff");
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
 
-export class VideoPanel extends THREE.Group {
+export class VideoPanelOld extends THREE.Group {
     mixer = null;
     action = null;
     animPlaybackPercent = 0;

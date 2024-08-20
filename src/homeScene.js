@@ -5,7 +5,6 @@ import { AnimatedTube } from "./animatedTube";
 import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils";
-import { VideoPanel } from "./videoPanel";
 import VideoPanelBones from "./videoPanelBones";
 
 class HomeScene {
