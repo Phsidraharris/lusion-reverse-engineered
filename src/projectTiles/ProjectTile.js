@@ -4,20 +4,24 @@ import { createBevelledPlane, elementToWorldRect } from "../utils";
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0.9, 0);
+const RENDER_TEXTURE_WIDTH = 512;
+const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
 
 export default class ProjectTile extends THREE.Group {
     tileElementId;
     pageOrthoCamera;
-    renderTarget = new THREE.WebGLRenderTarget(512, 512 / ASPECT, {
+    renderTarget = new THREE.WebGLRenderTarget(RENDER_TEXTURE_WIDTH, RENDER_TEXTURE_HEIGHT, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
     });
-    portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
+    portalCamera = new THREE.PerspectiveCamera(45, ASPECT, 0, 100);
     portalScene = new THREE.Scene();
     tileMesh;
     taperAmount = {
         value: 0
     };
+    tileMeshTargetScale = 1;
+
     tileMeshMat = new THREE.MeshBasicMaterial({
         onBeforeCompile: shader => {
             shader.uniforms.taperAmount = this.taperAmount;
@@ -71,6 +75,7 @@ export default class ProjectTile extends THREE.Group {
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
         document.getElementById(elementId).addEventListener("mouseleave", this.onMouseLeave);
+        document.getElementById(elementId).addEventListener("click", this.onClick);
     }
 
     initTileMesh() {
@@ -102,13 +107,21 @@ export default class ProjectTile extends THREE.Group {
         this.targetCameraPosition.copy(CAMERA_POS_START);
     }
 
+    onClick = (e) => {
+        this.tileMeshTargetScale = 10;
+    }
+
     update(dt, renderer) {
+        const scale = THREE.MathUtils.lerp(this.tileMesh.scale.x, this.tileMeshTargetScale, dt * 5);
+
+        this.tileMesh.scale.setScalar(scale);
+        this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
+        this.portalCamera.lookAt(CAMERA_LOOKAT);
+
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
 
-        this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
-        this.portalCamera.lookAt(CAMERA_LOOKAT);
     }
 
     cleanup() {

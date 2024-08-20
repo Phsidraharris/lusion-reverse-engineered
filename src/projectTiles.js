@@ -1,7 +1,6 @@
 import * as THREE from "three";
-import ProjectTile from "./projectTiles/ProjectTile";
-import { elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import ProjectTile from "./projectTiles/ProjectTile";
 
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 

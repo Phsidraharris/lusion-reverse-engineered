@@ -44,6 +44,7 @@ export class AnimatedTube extends THREE.Group {
             this.setRadius(value);
         });
 
+        // this.position.z = -1;
         window.addEventListener("scroll", e => this.onScroll());
         window.addEventListener("resize", e => this.onResize());
         this.onScroll();

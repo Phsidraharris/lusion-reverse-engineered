@@ -4,7 +4,7 @@
 }
 
 :root {
-    --h1-font-size: 6rem;
+    --h1-font-size: 6vw;
 }
 
 html {
@@ -95,6 +95,37 @@ section {
             border: 1px dashed red;
             margin: 20vh auto 10vh auto;
         }
+
+        .animated-h1-container {
+            overflow: hidden;
+            margin: 0;
+            width: 100%;
+            white-space: nowrap;
+
+            h1 {
+                font-size: var(--h1-font-size);
+                display: inline-block;
+                visibility: hidden;
+            }
+
+            #h1-topline {
+                &.animate {
+                    visibility: visible;
+                    animation: animate-topline 2s forwards;
+                }
+            }
+
+            #h1-tagline {
+                &.animate {
+                    visibility: visible;
+                    animation: animate-tagline 2s forwards;
+                }
+            }
+        }
+
+        .about-paragraphs {
+            width: 40%;
+        }
     }
 
     &#project-tiles-section {
@@ -140,32 +171,7 @@ section {
     border-radius: 8px;
 }
 
-.animated-h1-container {
-    overflow: hidden;
-    margin: 0;
-    width: 100%;
-    white-space: nowrap;
 
-    h1 {
-        font-size: var(--h1-font-size);
-        display: inline-block;
-        visibility: hidden;
-    }
-
-    #h1-topline {
-        &.animate {
-            visibility: visible;
-            animation: animate-topline 2s forwards;
-        }
-    }
-
-    #h1-tagline {
-        &.animate {
-            visibility: visible;
-            animation: animate-tagline 2s forwards;
-        }
-    }
-}
 
 a.button {
     padding: 16px 26px;
