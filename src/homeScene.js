@@ -6,6 +6,7 @@ import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils";
 import VideoPanelBones from "./videoPanelBones";
+import { debugGui } from "./debugGui";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -30,6 +31,8 @@ class HomeScene {
 
         window.addEventListener("scroll", this.onScroll);
         window.addEventListener('resize', this.onWindowResized);
+
+        this.initDebug();
     }
 
     initThree = () => {
@@ -76,6 +79,11 @@ class HomeScene {
         this.camera.position.y = -window.scrollY / window.innerHeight * this.frustumSize;
     }
 
+    setCameraFrustumSize = (frustumSize) => {
+        this.frustumSize = frustumSize;
+        updateCameraIntrisics(this.camera, this.frustumSize);
+    }
+
     onWindowResized = () => {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         updateCameraIntrisics(this.camera, this.frustumSize);
@@ -90,6 +98,11 @@ class HomeScene {
         this.projectTiles && this.projectTiles.update(dt, this.renderer);
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
+    }
+
+    initDebug = () => {
+        const folder = debugGui.addFolder("Scene");
+        folder.add(this, "frustumSize", 0, 100).onChange(this.setCameraFrustumSize);
     }
 }
 
