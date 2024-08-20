@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
+import { animate } from "../utils/animationUtils";
 
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
@@ -110,8 +111,19 @@ export default class ProjectTile extends THREE.Group {
         const homeContent = document.getElementById("home-content");
         homeContent.classList.add("fade-out");
 
+        const currentFrustum = this.homeScene.frustumSize;
+        const startPosition = this.homeScene.camera.position.clone();
+        const targetPosition = this.tileMesh.position.clone();
+        targetPosition.z = this.homeScene.camera.position.z;
+
         setTimeout(() => {
-            this.homeScene.setCameraFrustumSize(this.homeScene.frustumSize - 1);
+            animate((percent) => {
+                const frustum = THREE.MathUtils.lerp(currentFrustum, 3, percent);
+
+                this.homeScene.setCameraFrustumSize(frustum);
+                this.homeScene.camera.position.lerpVectors(startPosition, targetPosition, percent);
+                this.homeScene.camera.rotateZ(0.001);
+            }, 1000);
         }, 1000);
     }
 
