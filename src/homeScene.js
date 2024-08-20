@@ -70,7 +70,7 @@ class HomeScene {
         this.videoPanel = new VideoPanelBones(this.camera);
         this.scene.add(this.videoPanel);
 
-        this.projectTiles = new ProjectTiles(this.camera);
+        this.projectTiles = new ProjectTiles(this);
         this.scene.add(this.projectTiles);
     }
 

@@ -9,12 +9,12 @@ export default class ProjectTiles extends THREE.Group {
     portalScene;
     portalCamera;
     projectTiles = [];
-    pageOrthoCamera;
+    homeScene;
 
-    constructor(camera) {
+    constructor(homeScene) {
         super();
 
-        this.pageOrthoCamera = camera;
+        this.homeScene = homeScene;
         this.initTiles();
 
         window.addEventListener("resize", () => this.initTiles());
@@ -29,7 +29,7 @@ export default class ProjectTiles extends THREE.Group {
         const loader = new GLTFLoader();
 
         ELEMENT_IDS.forEach(elementId => {
-            const projectTile = new ProjectTile(elementId, this.pageOrthoCamera);
+            const projectTile = new ProjectTile(elementId, this.homeScene);
 
             loader.load('../assets/project-tiles/rp_mei_posed_001_30k.glb', (gltf) => {
                 projectTile.portalScene.add(gltf.scene);

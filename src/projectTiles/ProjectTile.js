@@ -9,7 +9,7 @@ const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
 
 export default class ProjectTile extends THREE.Group {
     tileElementId;
-    pageOrthoCamera;
+    homeScene;
     renderTarget = new THREE.WebGLRenderTarget(RENDER_TEXTURE_WIDTH, RENDER_TEXTURE_HEIGHT, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
@@ -20,7 +20,6 @@ export default class ProjectTile extends THREE.Group {
     taperAmount = {
         value: 0
     };
-    tileMeshTargetScale = 1;
 
     tileMeshMat = new THREE.MeshBasicMaterial({
         onBeforeCompile: shader => {
@@ -44,11 +43,11 @@ export default class ProjectTile extends THREE.Group {
         return this.renderTarget.texture;
     }
 
-    constructor(elementId, orthoCamera) {
+    constructor(elementId, homeScene) {
         super();
 
         this.elementId = elementId;
-        this.pageOrthoCamera = orthoCamera;
+        this.homeScene = homeScene;
 
         this.portalCamera.position.copy(this.targetCameraPosition);
 
@@ -79,7 +78,7 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initTileMesh() {
-        const tileWorldRect = elementToWorldRect(this.elementId, this.pageOrthoCamera);
+        const tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
         this.tileMeshMat.map = this.renderTexture;
         this.tileMesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.tileMeshMat);
         this.tileMesh.position.copy(tileWorldRect.position);
@@ -107,21 +106,17 @@ export default class ProjectTile extends THREE.Group {
         this.targetCameraPosition.copy(CAMERA_POS_START);
     }
 
-    onClick = (e) => {
-        this.tileMeshTargetScale = 10;
+    onClick = () => {
+        this.homeScene.setCameraFrustumSize(this.homeScene.frustumSize - 1);
     }
 
     update(dt, renderer) {
-        const scale = THREE.MathUtils.lerp(this.tileMesh.scale.x, this.tileMeshTargetScale, dt * 5);
-        this.tileMesh.scale.setScalar(scale);
-        
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
 
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
-
     }
 
     cleanup() {
