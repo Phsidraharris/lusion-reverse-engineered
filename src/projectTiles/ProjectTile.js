@@ -21,6 +21,7 @@ export default class ProjectTile extends THREE.Group {
     taperAmount = {
         value: 0
     };
+    forceRenderOnce = true;
 
     tileMeshMat = new THREE.MeshBasicMaterial({
         onBeforeCompile: shader => {
@@ -131,9 +132,19 @@ export default class ProjectTile extends THREE.Group {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
 
+        if (!this.forceRenderOnce) {
+            const vec = new THREE.Vector3();
+            vec.subVectors(this.targetCameraPosition, this.portalCamera.position);
+
+            if (vec.lengthSq() < 0.00001) {
+                return;
+            }
+        }
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
+
+        this.forceRenderOnce = false;
     }
 
     cleanup() {
