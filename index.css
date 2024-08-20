@@ -5,6 +5,7 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 10px;
 }
 
 body {
@@ -12,6 +13,7 @@ body {
     scrollbar-width: none;
     background-color: #F0F1FA;
     -ms-overflow-style: none;
+    color: #1c1d21;
 }
 
 ::-webkit-scrollbar {
@@ -32,6 +34,11 @@ h2 {
 
 p {
     margin-bottom: 1rem;
+}
+
+a {
+    color: #42444b;
+    text-decoration: none;
 }
 
 #canvas {
@@ -85,7 +92,8 @@ section {
         padding: 19vh 0 10vh 0;
 
         .about-headers {
-
+            padding-bottom: 10vh;
+            
             .animated-h1-container {
                 overflow: hidden;
                 margin: 0;
