@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
-import { animate } from "../utils/animationUtils";
+import { animate, animateAsync, waitAsync } from "../utils/animationUtils";
 
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
@@ -108,7 +108,7 @@ export default class ProjectTile extends THREE.Group {
         this.targetCameraPosition.copy(CAMERA_POS_START);
     }
 
-    onClick = () => {
+    onClick = async () => {
         const homeContent = document.getElementById("home-content");
         homeContent.classList.add("fade-out");
 
@@ -117,18 +117,18 @@ export default class ProjectTile extends THREE.Group {
         const targetPosition = this.tileMesh.position.clone();
         targetPosition.z = this.homeScene.camera.position.z;
 
-        setTimeout(() => {
-            animate((percent) => {
-                const frustum = THREE.MathUtils.lerp(currentFrustum, 3, percent);
+        // Wait for css animation
+        await waitAsync(1000);
+        await animateAsync(500, (percent) => {
+            const frustum = THREE.MathUtils.lerp(currentFrustum, 3, percent);
 
-                this.homeScene.setCameraFrustumSize(frustum);
-                this.homeScene.camera.position.lerpVectors(startPosition, targetPosition, percent);
-                this.homeScene.camera.rotateZ(0.001);
+            this.homeScene.setCameraFrustumSize(frustum);
+            this.homeScene.camera.position.lerpVectors(startPosition, targetPosition, percent);
+            this.homeScene.camera.rotateZ(0.001);
 
-                this.portalCamera.zoom = 1 + percent * 2;
-                this.portalCamera.updateProjectionMatrix();
-            }, 500);
-        }, 1000);
+            this.portalCamera.zoom = 1 + percent * 2;
+            this.portalCamera.updateProjectionMatrix();
+        });
     }
 
     update(dt, renderer) {
