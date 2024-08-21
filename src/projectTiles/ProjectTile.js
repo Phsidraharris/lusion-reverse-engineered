@@ -103,7 +103,7 @@ export default class ProjectTile extends THREE.Group {
         y = (y - 0.5) * 2;
 
         this.targetCameraPosition.x = CAMERA_POS_START.x + x;
-        this.targetCameraPosition.y = CAMERA_POS_START.y + y;
+        this.targetCameraPosition.y = CAMERA_POS_START.y - y;
         this.targetCameraPosition.z = CAMERA_POS_START.z;
     }
 
@@ -133,8 +133,6 @@ export default class ProjectTile extends THREE.Group {
                 const pageCamFrustum = THREE.MathUtils.lerp(pageCamStartFrustum, pageCamTargetFrustum, percent);
                 const pageCamRotationZ = THREE.MathUtils.lerp(pageCamStartRotationZ, pageCamTargetRotationZ, percent);
 
-                console.log(pageCamRotationZ)
-
                 this.homeScene.setCameraFrustumSize(pageCamFrustum);
                 this.homeScene.camera.position.lerpVectors(pageCamStartPosition, pageCamTargetPosition, percent);
                 this.homeScene.camera.rotation.z = pageCamRotationZ;
@@ -154,14 +152,14 @@ export default class ProjectTile extends THREE.Group {
         await zoomSequence(3, 3, this.tileMesh.position.clone(), 0.1);
 
         // Example of going back:
-        // await waitAsync(1000);
-        // await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
-        // addCssClass(false);
+        await waitAsync(1000);
+        await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
+        addCssClass(false);
     }
 
     update(dt, renderer) {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
-        this.portalCamera.lookAt(CAMERA_LOOKAT);
+        // this.portalCamera.lookAt(CAMERA_LOOKAT);
 
         // if (!this.forceRenderOnce) {
         //     const vec = new THREE.Vector3();
