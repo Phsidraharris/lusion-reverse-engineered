@@ -88,6 +88,10 @@ export default class ProjectTile extends THREE.Group {
         this.add(this.tileMesh);
     }
 
+    addToPortalScene = (object) => {
+        this.portalScene.add(object)
+    }
+    
     onMouseMove = (e) => {
         const rect = e.target.getBoundingClientRect();
         const xAbs = e.clientX - rect.left; //x position within the element.
@@ -119,6 +123,8 @@ export default class ProjectTile extends THREE.Group {
 
         // Wait for css animation
         await waitAsync(1000);
+
+        // zoom in to project tile + fade out objects
         await animateAsync(500, (percent) => {
             const frustum = THREE.MathUtils.lerp(currentFrustum, 3, percent);
 

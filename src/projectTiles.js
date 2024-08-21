@@ -32,7 +32,7 @@ export default class ProjectTiles extends THREE.Group {
             const projectTile = new ProjectTile(elementId, this.homeScene);
 
             loader.load('../assets/project-tiles/rp_mei_posed_001_30k.glb', (gltf) => {
-                projectTile.portalScene.add(gltf.scene);
+                projectTile.addToPortalScene(gltf.scene);
                 projectTile.forceRenderOnce = true;
             });
 
