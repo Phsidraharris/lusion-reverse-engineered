@@ -1,6 +1,6 @@
 import * as THREE from "three";
+import { animateAsync, waitAsync } from "../utils/animationUtils";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
-import { animate, animateAsync, waitAsync } from "../utils/animationUtils";
 
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
@@ -22,7 +22,6 @@ export default class ProjectTile extends THREE.Group {
         value: 0
     };
     forceRenderOnce = true;
-
     tileMeshMat = new THREE.MeshBasicMaterial({
         onBeforeCompile: shader => {
             shader.uniforms.taperAmount = this.taperAmount;
@@ -113,34 +112,51 @@ export default class ProjectTile extends THREE.Group {
     }
 
     onClick = async () => {
-        const homeContent = document.getElementById("home-content");
-        homeContent.classList.add("fade-out");
+        function addCssClass(isForward) {
+            const homeContent = document.getElementById("home-content");
+            if (isForward) {
+                homeContent.classList.add("fade-out");
+            }
+            else {
+                homeContent.classList.remove("fade-out");
+            }
+        }
 
-        const currentFrustum = this.homeScene.frustumSize;
-        const startPosition = this.homeScene.camera.position.clone();
-        const targetPosition = this.tileMesh.position.clone();
-        targetPosition.z = this.homeScene.camera.position.z;
+        const zoomSequence = async (portalCamTargetZoom, pageCamTargetFrustum, pageCamTargetPosition, pageCamTargetRotationZ) => {
+            const portalCamStartZoom = this.portalCamera.zoom;
+            const pageCamStartFrustum = this.homeScene.frustumSize;
+            const pageCamStartPosition = this.homeScene.camera.position.clone();
+            const pageCamStartRotationZ = this.homeScene.camera.rotation.z;
 
-        // Wait for css animation
-        await waitAsync(1000);
+            await animateAsync(500, (percent) => {
+                const portalCamZoom = THREE.MathUtils.lerp(portalCamStartZoom, portalCamTargetZoom, percent);
+                const pageCamFrustum = THREE.MathUtils.lerp(pageCamStartFrustum, pageCamTargetFrustum, percent);
+                const pageCamRotationZ = THREE.MathUtils.lerp(pageCamStartRotationZ, pageCamTargetRotationZ, percent);
 
-        // zoom in to project tile + fade out objects
-        await animateAsync(500, (percent) => {
-            const frustum = THREE.MathUtils.lerp(currentFrustum, 3, percent);
+                console.log(pageCamRotationZ)
 
-            this.homeScene.setCameraFrustumSize(frustum);
-            this.homeScene.camera.position.lerpVectors(startPosition, targetPosition, percent);
-            this.homeScene.camera.rotateZ(0.001);
+                this.homeScene.setCameraFrustumSize(pageCamFrustum);
+                this.homeScene.camera.position.lerpVectors(pageCamStartPosition, pageCamTargetPosition, percent);
+                this.homeScene.camera.rotation.z = pageCamRotationZ;
 
-            this.portalCamera.zoom = 1 + percent * 2;
-            this.portalCamera.updateProjectionMatrix();
-
-            this.portalScene.children.forEach(child => {
-                if (child.type === "Mesh") {
-                    child.material.opacity = 1 - percent;
-                }
+                this.portalCamera.zoom = portalCamZoom;
+                this.portalCamera.updateProjectionMatrix();
             });
-        });
+        }
+
+        const portalCamStartZoom = this.portalCamera.zoom;
+        const pageCamStartFrustumSize = this.homeScene.frustumSize;
+        const pageCamStartPosition = this.homeScene.camera.position.clone();
+        const pageCamStartRotationZ = this.homeScene.camera.rotation.z;
+
+        addCssClass(true);
+        await waitAsync(1000);
+        await zoomSequence(3, 3, this.tileMesh.position.clone(), 0.1);
+
+        // Example of going back:
+        // await waitAsync(1000);
+        // await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
+        // addCssClass(false);
     }
 
     update(dt, renderer) {
