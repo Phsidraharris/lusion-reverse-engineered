@@ -59,7 +59,7 @@ export default class ProjectTile extends THREE.Group {
         light.position.set(0, 1, 0);
         this.portalScene.add(light);
 
-        const portalObjMat = new THREE.MeshStandardMaterial();
+        const portalObjMat = new THREE.MeshStandardMaterial({ transparent: true });
 
         for (let i = 0; i < 3; i++) {
             const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), portalObjMat);
@@ -89,9 +89,9 @@ export default class ProjectTile extends THREE.Group {
     }
 
     addToPortalScene = (object) => {
-        this.portalScene.add(object)
+        this.portalScene.add(object);
     }
-    
+
     onMouseMove = (e) => {
         const rect = e.target.getBoundingClientRect();
         const xAbs = e.clientX - rect.left; //x position within the element.
@@ -134,6 +134,12 @@ export default class ProjectTile extends THREE.Group {
 
             this.portalCamera.zoom = 1 + percent * 2;
             this.portalCamera.updateProjectionMatrix();
+
+            this.portalScene.children.forEach(child => {
+                if (child.type === "Mesh") {
+                    child.material.opacity = 1 - percent;
+                }
+            });
         });
     }
 

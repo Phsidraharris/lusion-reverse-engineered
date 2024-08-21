@@ -13,8 +13,6 @@ export function animate(duration, onAnimationFrame, onDone) {
         else {
             onDone?.();
         }
-
-        console.log("step", percent);
     }
 
     requestAnimationFrame(step);

@@ -31,10 +31,10 @@ export default class ProjectTiles extends THREE.Group {
         ELEMENT_IDS.forEach(elementId => {
             const projectTile = new ProjectTile(elementId, this.homeScene);
 
-            loader.load('../assets/project-tiles/rp_mei_posed_001_30k.glb', (gltf) => {
-                projectTile.addToPortalScene(gltf.scene);
-                projectTile.forceRenderOnce = true;
-            });
+            // loader.load('../assets/project-tiles/rp_mei_posed_001_30k.glb', (gltf) => {
+            //     projectTile.addToPortalScene(gltf.scene);
+            //     projectTile.forceRenderOnce = true;
+            // });
 
             this.add(projectTile);
             this.projectTiles.push(projectTile);
