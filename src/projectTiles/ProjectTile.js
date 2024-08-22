@@ -110,7 +110,7 @@ export default class ProjectTile extends THREE.Group {
             }
         }
 
-        const zoomSequence = async (portalCamTargetZoom, pageCamTargetFrustum, pageCamTargetPosition, pageCamTargetRotationZ) => {
+        const zoomSequence = async (portalCamTargetZoom, pageCamTargetFrustum, pageCamTargetPosition, pageCamTargetRotationZ, isForward) => {
             const portalCamStartZoom = this.portalCamera.zoom;
             const pageCamStartFrustum = this.homeScene.frustumSize;
             const pageCamStartPosition = this.homeScene.camera.position.clone();
@@ -127,6 +127,12 @@ export default class ProjectTile extends THREE.Group {
 
                 this.portalCamera.zoom = portalCamZoom;
                 this.portalCamera.updateProjectionMatrix();
+
+                this.portalScene.children.forEach(child => {
+                    if (child.type === "Mesh") {
+                        child.material.opacity = isForward ? 1 - percent : percent;
+                    }
+                })
             });
         }
 
@@ -138,11 +144,11 @@ export default class ProjectTile extends THREE.Group {
         document.body.style.overflow = 'hidden';
         addCssClass(true);
         await waitAsync(1000);
-        await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1);
+        await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1, true);
 
         // Example of going back:
         await waitAsync(1000);
-        await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
+        await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ, false);
         addCssClass(false);
         document.body.style.overflow = 'auto';
     }
