@@ -135,6 +135,7 @@ export default class ProjectTile extends THREE.Group {
         const pageCamStartPosition = this.homeScene.camera.position.clone();
         const pageCamStartRotationZ = this.homeScene.camera.rotation.z;
 
+        document.body.style.overflow = 'hidden';
         addCssClass(true);
         await waitAsync(1000);
         await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1);
@@ -143,6 +144,7 @@ export default class ProjectTile extends THREE.Group {
         await waitAsync(1000);
         await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
         addCssClass(false);
+        document.body.style.overflow = 'auto';
     }
 
     calculatePageCamTargetFrustum = () => {
