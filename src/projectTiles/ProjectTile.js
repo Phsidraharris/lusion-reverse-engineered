@@ -5,8 +5,9 @@ import { debugGui } from "../debugGui";
 import TileMeshMaterial from "./TileMeshMaterial";
 
 const ASPECT = 16 / 9;
-const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
-const CAMERA_LOOKAT = new THREE.Vector3(0, 0.9, 0);
+const CAMERA_POS_START = new THREE.Vector3(0, 0, 4);
+const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
+const CAMERA_MOVEMENT_COEF = 0.6;
 const RENDER_TEXTURE_WIDTH = 512;
 const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
 
@@ -35,27 +36,7 @@ export default class ProjectTile extends THREE.Group {
         this.elementId = elementId;
         this.homeScene = homeScene;
 
-        this.portalCamera.position.copy(this.targetCameraPosition);
-
-        this.portalScene.background = new THREE.Color("#222");
-
-        const light = new THREE.DirectionalLight("white", 2);
-        light.position.set(0, 1, 0);
-        this.portalScene.add(light);
-
-        const portalObjMat = new THREE.MeshStandardMaterial({ transparent: true });
-
-        for (let i = 0; i < 3; i++) {
-            const portalBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), portalObjMat);
-            portalBox.position.random();
-            portalBox.position.z = -Math.random() * 10;
-            portalBox.rotateY(Math.PI * 0.25);
-            portalBox.rotateX(Math.PI * 0.25);
-
-            this.portalScene.add(portalBox);
-            this.portalCamera.lookAt(CAMERA_LOOKAT);
-        }
-
+        this.initPortalScene();
         this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
@@ -63,6 +44,26 @@ export default class ProjectTile extends THREE.Group {
         document.getElementById(elementId).addEventListener("click", this.onClick);
 
         this.initDebug();
+    }
+
+    initPortalScene = () => {
+        this.portalScene.background = new THREE.Color("#222");
+
+        this.portalCamera.position.copy(this.targetCameraPosition);
+        this.portalCamera.lookAt(CAMERA_LOOKAT);
+
+        const portalObjMat = new THREE.MeshStandardMaterial({ transparent: true });
+        const portalSphere = new THREE.Mesh(new THREE.SphereGeometry(0.3), portalObjMat);
+
+        const portalBox = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), portalObjMat);
+        portalBox.rotateY(Math.PI * 0.25);
+        portalBox.rotateX(Math.PI * 0.25);
+
+        this.portalScene.add(portalBox, portalSphere);
+
+        const light = new THREE.DirectionalLight("white", 2);
+        light.position.random();
+        this.portalScene.add(light);
     }
 
     initTileMesh() {
@@ -86,8 +87,8 @@ export default class ProjectTile extends THREE.Group {
         let x = xAbs / rect.width;
         let y = yAbs / rect.height;
 
-        x = (x - 0.5) * 2;
-        y = (y - 0.5) * 2;
+        x = (x - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
+        y = (y - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
 
         this.targetCameraPosition.x = CAMERA_POS_START.x + x;
         this.targetCameraPosition.y = CAMERA_POS_START.y - y;
