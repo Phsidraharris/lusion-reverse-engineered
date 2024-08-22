@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { animateAsync, waitAsync } from "../utils/animationUtils";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
+import { debugGui } from "../debugGui";
+import TileMeshMaterial from "./TileMeshMaterial";
 
 const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 1.2, 3);
@@ -17,28 +19,11 @@ export default class ProjectTile extends THREE.Group {
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
+    taperAmount = { value: 0 };
     tileMesh;
-    taperAmount = {
-        value: 0
-    };
-    forceRenderOnce = true;
-    tileMeshMat = new THREE.MeshBasicMaterial({
-        onBeforeCompile: shader => {
-            shader.uniforms.taperAmount = this.taperAmount;
-
-            shader.uniforms.time = { value: 0 };
-            shader.vertexShader = `uniform float taperAmount; 
-                                  ${shader.vertexShader}`;
-            shader.vertexShader = shader.vertexShader.replace(
-                `#include <begin_vertex>`,
-                `#include <begin_vertex>
-                transformed = position;
-                transformed.x *= 1.0 - mix(0.0,uv.y, taperAmount);
-                `
-            );
-        },
-    });
+    tileMeshMat = new TileMeshMaterial(this.taperAmount);
     targetCameraPosition = CAMERA_POS_START.clone();//new THREE.Vector3(CAMERA_POS_START.x, CAMERA_POS_START.y, CAMERA_POS_START.z);
+    forceRenderOnce = true;
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -76,6 +61,8 @@ export default class ProjectTile extends THREE.Group {
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
         document.getElementById(elementId).addEventListener("mouseleave", this.onMouseLeave);
         document.getElementById(elementId).addEventListener("click", this.onClick);
+
+        this.initDebug();
     }
 
     initTileMesh() {
@@ -155,6 +142,15 @@ export default class ProjectTile extends THREE.Group {
         await waitAsync(1000);
         await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ);
         addCssClass(false);
+    }
+
+    calculatePageCamTargetZoom = () => {
+        // how many times taller is page vs tile?
+    }
+
+    initDebug = () => {
+        const folder = debugGui.addFolder("Project Tile");
+        folder.add(this.taperAmount, "value", -1, 1);
     }
 
     update(dt, renderer) {
