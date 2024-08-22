@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { animateAsync, waitAsync } from "../utils/animationUtils";
+import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
 import { debugGui } from "../debugGui";
 import TileMeshMaterial from "./TileMeshMaterial";
@@ -137,7 +137,7 @@ export default class ProjectTile extends THREE.Group {
 
         addCssClass(true);
         await waitAsync(1000);
-        await zoomSequence(3, 3, this.tileMesh.position.clone(), 0.1);
+        await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1);
 
         // Example of going back:
         await waitAsync(1000);
@@ -145,8 +145,11 @@ export default class ProjectTile extends THREE.Group {
         addCssClass(false);
     }
 
-    calculatePageCamTargetZoom = () => {
-        // how many times taller is page vs tile?
+    calculatePageCamTargetFrustum = () => {
+        const height = document.getElementById(this.elementId).getBoundingClientRect().height;
+        const ratio = height / window.innerHeight;
+        const fudge = 0.1;
+        return (this.homeScene.frustumSize * ratio) - fudge;
     }
 
     initDebug = () => {

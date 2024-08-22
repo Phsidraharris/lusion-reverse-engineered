@@ -27,3 +27,7 @@ export function animateAsync(duration, onAnimationFrame) {
 export function waitAsync(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function randomSign() {
+    return Math.random() < 0.5 ? -1 : 1;
+}

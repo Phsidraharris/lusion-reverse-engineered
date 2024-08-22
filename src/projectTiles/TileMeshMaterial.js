@@ -4,7 +4,6 @@ export default class TileMeshMaterial extends THREE.MeshBasicMaterial {
     constructor(taperAmount) {
         super({
             onBeforeCompile: (shader) => {
-                console.log(taperAmount)
                 shader.uniforms.taperAmount = taperAmount;
 
                 shader.uniforms.time = { value: 0 };
