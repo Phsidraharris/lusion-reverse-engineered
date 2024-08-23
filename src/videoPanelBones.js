@@ -13,8 +13,8 @@ export default class VideoPanelBones extends THREE.Group {
     animPlaybackPercent = 0;
 
     // The scroll positions used to calculate t, a percentage used to play the panel animation
-    scrollYAnimStart = window.innerHeight * 1.8;
-    scrollYAnimEnd = window.innerHeight * 2.4;
+    scrollYAnimStart;
+    scrollYAnimEnd;
 
     localRectStart;
     localRectEnd;
@@ -41,6 +41,12 @@ export default class VideoPanelBones extends THREE.Group {
 
     constructor(camera) {
         super();
+
+        // when element PANEL_START_ID appears in middle of screen
+        const panelStartElement = document.getElementById(PANEL_START_ID);
+        const panelEndElement = document.getElementById(PANEL_END_ID);
+        this.scrollYAnimStart = panelStartElement.offsetTop - window.innerHeight * 0.5 + panelStartElement.offsetHeight * 0.5;
+        this.scrollYAnimEnd = panelEndElement.offsetTop - window.innerHeight * 0.5;
 
         this.material = new THREE.MeshBasicMaterial({
             roughness: 0.1,
@@ -90,7 +96,7 @@ export default class VideoPanelBones extends THREE.Group {
             );
 
             this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
-                this.localRectStart.tr.clone().add(new THREE.Vector3(20, -8, 0)),
+                this.localRectStart.tr.clone().add(new THREE.Vector3(20, 8, 0)),
                 this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
                 this.localRectEnd.tr.clone()
             );
@@ -163,7 +169,6 @@ export default class VideoPanelBones extends THREE.Group {
 
         if (enabled) {
             if (this.debugCurveGroup.children.length === 0) {
-                this.boneTR.updateWorldMatrix(true);
                 curves.forEach(curve => {
                     const points = curve.getPoints(50);
                     const pointsWorld = points.map(p => p.clone().applyMatrix4(this.boneBL.parent.matrixWorld));
@@ -182,7 +187,7 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     onScroll = (e) => {
-        this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 0.99);
+        this.animPlaybackPercent = THREE.MathUtils.clamp(THREE.MathUtils.inverseLerp(this.scrollYAnimStart, this.scrollYAnimEnd, window.scrollY), 0, 1);
 
         this.playAnimation()
 
