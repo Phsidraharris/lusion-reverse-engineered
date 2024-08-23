@@ -168,10 +168,8 @@ section {
 
     &#project-tiles-section {
         .project-tiles-grid {
-            width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-auto-rows: 400px;
+            grid-template-columns: repeat(2, minmax(160px, 1fr));
             gap: 3rem;
 
             .project-tile {
@@ -179,10 +177,11 @@ section {
                 flex-direction: column;
                 border-radius: 6px;
                 cursor: pointer;
+                aspect-ratio: 16/9;
 
                 .project-tile-thumb {
                     width: 100%;
-                    aspect-ratio: calc(16/9);
+                    height: 100%;
                 }
             }
         }
