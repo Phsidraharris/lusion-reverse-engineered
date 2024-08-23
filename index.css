@@ -191,6 +191,27 @@ section {
     }
 }
 
+.project-tile-content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #22232e;
+    color: white;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 1s;
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    p {
+        width: 50vw;
+    }
+}
+
 #scrollbar {
     position: fixed;
     height: 120px;
@@ -210,8 +231,6 @@ section {
     border-radius: 8px;
 }
 
-
-
 a.button {
     padding: 16px 26px;
     border-radius: 26px;
@@ -220,6 +239,8 @@ a.button {
     text-decoration: none;
     transition: background-color 0.2s;
     color: white;
+    cursor: pointer;
+    display: inline-block;
 
     &:hover {
         background-color: #0016ec;

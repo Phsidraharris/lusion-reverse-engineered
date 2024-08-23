@@ -141,22 +141,39 @@ export default class ProjectTile extends THREE.Group {
         const pageCamStartPosition = this.homeScene.camera.position.clone();
         const pageCamStartRotationZ = this.homeScene.camera.rotation.z;
 
+        const onBack = async (e) => {
+            e.preventDefault();
+            document.getElementById("project-tile-1").classList.remove("show");
+            await waitAsync(1000);
+            await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ, false);
+            addCssClass(false);
+            document.body.style.overflow = 'auto';
+            document.getElementById("home-content").style.visibility = "visible"
+
+            for (let button of buttons) {
+                button.removeEventListener("click", onBack);
+            }
+        }
+
         document.body.style.overflow = 'hidden';
         addCssClass(true);
         await waitAsync(1000);
         await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1, true);
+        await waitAsync(500);
+        document.getElementById("home-content").style.visibility = "hidden"
+        document.getElementById("project-tile-1").classList.add("show");
 
-        // Example of going back:
-        await waitAsync(1000);
-        await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ, false);
-        addCssClass(false);
-        document.body.style.overflow = 'auto';
+        const buttons = document.getElementsByClassName("project-tile-back-button");
+        for (let button of buttons) {
+            console.log("btn", button)
+            button.addEventListener("click", onBack)
+        }
     }
 
     calculatePageCamTargetFrustum = () => {
         const height = document.getElementById(this.elementId).getBoundingClientRect().height;
         const ratio = height / window.innerHeight;
-        const fudge = 0.1;
+        const fudge = 0.4;
         return (this.homeScene.frustumSize * ratio) - fudge;
     }
 
