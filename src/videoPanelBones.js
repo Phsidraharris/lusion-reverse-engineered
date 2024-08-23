@@ -50,7 +50,7 @@ export default class VideoPanelBones extends THREE.Group {
             color: TINT_COLOUR_START
         });
 
-        new GLTFLoader().load('../assets/panel-anim-bones-02.glb', (gltf) => {
+        new GLTFLoader().load('../assets/panel-anim-bones-04.glb', (gltf) => {
             this.panelScene = gltf.scene;
 
             const panelMesh = this.panelScene.children[0].children[0];
@@ -70,6 +70,7 @@ export default class VideoPanelBones extends THREE.Group {
                     else if (child.name === "BoneBL") {
                         this.boneBL = child;
                     }
+                    console.log("bone", child.scale)
                 }
             });
 
@@ -162,7 +163,6 @@ export default class VideoPanelBones extends THREE.Group {
         const curves = [this.curveTR, this.curveTL, this.curveBL, this.curveBR];
 
         if (enabled) {
-
             if (this.debugCurveGroup.children.length === 0) {
                 curves.forEach(curve => {
                     const points = curve.getPoints(50);
@@ -172,7 +172,6 @@ export default class VideoPanelBones extends THREE.Group {
                     this.debugCurveGroup.add(curveObject)
                 });
             }
-
             this.add(this.debugCurveGroup);
         }
         else {
