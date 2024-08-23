@@ -9,7 +9,7 @@
 
 html {
     scroll-behavior: smooth;
-    font-size: 10px;
+    font: 10px Arial, sans-serif;
 }
 
 body {
@@ -74,8 +74,6 @@ section {
     padding: 0 4vw;
     width: 100vw;
     min-height: 100vh;
-    /* align-items: center; */
-    font: 20px Arial, sans-serif;
 
     /* Debug */
     border-top: 1px dashed grey;
@@ -195,6 +193,7 @@ section {
     position: fixed;
     top: 0;
     left: 0;
+    width: 100vw;
     height: 100vh;
     background-color: #22232e;
     color: white;
@@ -207,8 +206,9 @@ section {
         visibility: visible;
     }
 
-    p {
+    section {
         width: 50vw;
+        justify-content: center;
     }
 }
 
