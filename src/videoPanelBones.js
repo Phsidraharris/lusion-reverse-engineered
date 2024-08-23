@@ -70,7 +70,6 @@ export default class VideoPanelBones extends THREE.Group {
                     else if (child.name === "BoneBL") {
                         this.boneBL = child;
                     }
-                    console.log("bone", child.scale)
                 }
             });
 
@@ -164,9 +163,12 @@ export default class VideoPanelBones extends THREE.Group {
 
         if (enabled) {
             if (this.debugCurveGroup.children.length === 0) {
+                this.boneTR.updateWorldMatrix(true);
                 curves.forEach(curve => {
                     const points = curve.getPoints(50);
-                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const pointsWorld = points.map(p => p.clone().applyMatrix4(this.boneBL.parent.matrixWorld));
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints(pointsWorld);
                     const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
                     const curveObject = new THREE.Line(geometry, material);
                     this.debugCurveGroup.add(curveObject)
