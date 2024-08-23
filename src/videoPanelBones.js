@@ -46,7 +46,7 @@ export default class VideoPanelBones extends THREE.Group {
         const panelStartElement = document.getElementById(PANEL_START_ID);
         const panelEndElement = document.getElementById(PANEL_END_ID);
         this.scrollYAnimStart = panelStartElement.offsetTop - window.innerHeight * 0.5 + panelStartElement.offsetHeight * 0.5;
-        this.scrollYAnimEnd = panelEndElement.offsetTop - window.innerHeight * 0.5;
+        this.scrollYAnimEnd = panelEndElement.offsetTop - window.innerHeight * 0.5 + panelEndElement.offsetHeight * 0.5;
 
         this.material = new THREE.MeshBasicMaterial({
             roughness: 0.1,
@@ -96,7 +96,7 @@ export default class VideoPanelBones extends THREE.Group {
             );
 
             this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
-                this.localRectStart.tr.clone().add(new THREE.Vector3(20, 8, 0)),
+                this.localRectStart.tr.clone().add(new THREE.Vector3(2, 2, 0)),
                 this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
                 this.localRectEnd.tr.clone()
             );
@@ -108,7 +108,7 @@ export default class VideoPanelBones extends THREE.Group {
             );
 
             this.curveBR = new THREE.CubicBezierCurve3(this.localRectStart.br,
-                this.localRectStart.br.clone().add(new THREE.Vector3(1, -8, 0)),
+                this.localRectStart.br.clone().add(new THREE.Vector3(10, 2, 0)),
                 this.localRectEnd.br.clone().add(new THREE.Vector3(0, 0, 0)),
                 this.localRectEnd.br.clone()
             );
@@ -199,7 +199,7 @@ export default class VideoPanelBones extends THREE.Group {
         if (!AUTOSCROLL_ENABLED) {
             return;
         }
-        if (this.animPlaybackPercent > 0.3 && this.animPlaybackPercent < 0.99) {
+        if (this.animPlaybackPercent > 0.1 && this.animPlaybackPercent < 1) {
             let target = window.scrollY;
             if (this.scrollDelta >= 1) {
                 target = this.scrollYAnimEnd;
@@ -209,7 +209,7 @@ export default class VideoPanelBones extends THREE.Group {
             }
 
             const scrollY = THREE.MathUtils.lerp(window.scrollY, target, dt * 3);
-            window.scrollTo({ top: scrollY, behavior: "instant" })
+            window.scrollTo({ top: scrollY, behavior: "instant" });
         }
     }
 }
