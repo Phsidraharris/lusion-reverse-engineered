@@ -143,11 +143,15 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     playAnimation() {
+        if (!this.rectStartScene || !this.rectEndMesh) {
+            return;
+        }
         if (this.animPlaybackPercent === 1) {
             this.remove(this.rectStartScene);
             this.add(this.rectEndMesh);
         }
         else {
+            this.remove(this.rectEndMesh);
             this.add(this.rectStartScene);
 
             const tl = this.curveTL.getPointAt(this.animPlaybackPercent);
@@ -175,7 +179,6 @@ export default class VideoPanelBones extends THREE.Group {
 
         const texture = new THREE.VideoTexture(video);
         texture.colorSpace = THREE.SRGBColorSpace;
-        // texture.flipY = false;
 
         return texture;
     }
@@ -229,23 +232,3 @@ export default class VideoPanelBones extends THREE.Group {
         }
     }
 }
-
-const vertexShader = `
-    varying vec2 vUv;
-
-    void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-`;
-
-// Fragment Shader
-const fragmentShader = `
-    uniform float time;
-    uniform vec2 resolution;
-    void main()	{
-        float x = mod(time + gl_FragCoord.x, 20.) < 10. ? 1. : 0.;
-        float y = mod(time + gl_FragCoord.y, 20.) < 10. ? 1. : 0.;
-        gl_FragColor = vec4(vec3(min(x, y)), 1.);
-    }
-`;
