@@ -57,77 +57,79 @@ export default class VideoPanelBones extends THREE.Group {
             color: TINT_COLOUR_START
         });
 
-        new GLTFLoader().load('../assets/panel-anim-bones-04.glb', (gltf) => {
-            this.panelScene = gltf.scene;
-
-            const panelMesh = this.panelScene.children[0].children[0];
-            panelMesh.material = this.material;
-
-            this.panelScene.children[0].children.forEach(child => {
-                if (child.type === "Bone") {
-                    if (child.name === "BoneTR") {
-                        this.boneTR = child;
-                    }
-                    else if (child.name === "BoneTL") {
-                        this.boneTL = child;
-                    }
-                    else if (child.name === "BoneBR") {
-                        this.boneBR = child;
-                    }
-                    else if (child.name === "BoneBL") {
-                        this.boneBL = child;
-                    }
-                }
-            });
-
-            console.assert(this.boneBL);
-            console.assert(this.boneBR);
-            console.assert(this.boneTL);
-            console.assert(this.boneTR);
-
-            const parent = this.boneBL.parent;
-
-            this.localRectStart = elementToLocalRectPoints(PANEL_START_ID, parent, camera);
-            this.localRectEnd = elementToLocalRectPoints(PANEL_END_ID, parent, camera);
-
-            this.curveTL = new THREE.CubicBezierCurve3(this.localRectStart.tl,
-                this.localRectStart.tl.clone().add(new THREE.Vector3(1, 0, 0)),
-                this.localRectEnd.tl.clone().add(new THREE.Vector3(-1, 0, 0)),
-                this.localRectEnd.tl.clone()
-            );
-
-            this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
-                this.localRectStart.tr.clone().add(new THREE.Vector3(2, 2, 0)),
-                this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
-                this.localRectEnd.tr.clone()
-            );
-
-            this.curveBL = new THREE.CubicBezierCurve3(this.localRectStart.bl,
-                this.localRectStart.bl.clone().add(new THREE.Vector3(1, -8, 0)),
-                this.localRectEnd.bl.clone().add(new THREE.Vector3(0, 0, 0)),
-                this.localRectEnd.bl.clone()
-            );
-
-            this.curveBR = new THREE.CubicBezierCurve3(this.localRectStart.br,
-                this.localRectStart.br.clone().add(new THREE.Vector3(10, 2, 0)),
-                this.localRectEnd.br.clone().add(new THREE.Vector3(0, 0, 0)),
-                this.localRectEnd.br.clone()
-            );
-
-            this.add(this.panelScene);
-
-            this.onScroll();    // trigger scroll in case user refreshes mid scroll
-
-            this.initDebug();
-            this.setDebugCurvedEnabled(this.debugCurvesEnabled);
-        }, undefined, (error) => {
-            console.error(error);
-        });
+        this.initPanels(camera);
+        this.initDebug();
 
         window.addEventListener("scroll", this.onScroll);
     }
 
-    initDebug() {
+    initPanels = async (camera) => {
+        const loader = new GLTFLoader();
+        const gltf = await loader.loadAsync('../assets/panel-anim-bones-04.glb');
+
+        this.panelScene = gltf.scene;
+
+        const panelMesh = this.panelScene.children[0].children[0];
+        panelMesh.material = this.material;
+
+        this.panelScene.children[0].children.forEach(child => {
+            if (child.type === "Bone") {
+                if (child.name === "BoneTR") {
+                    this.boneTR = child;
+                }
+                else if (child.name === "BoneTL") {
+                    this.boneTL = child;
+                }
+                else if (child.name === "BoneBR") {
+                    this.boneBR = child;
+                }
+                else if (child.name === "BoneBL") {
+                    this.boneBL = child;
+                }
+            }
+        });
+
+        console.assert(this.boneBL);
+        console.assert(this.boneBR);
+        console.assert(this.boneTL);
+        console.assert(this.boneTR);
+
+        const parent = this.boneBL.parent;
+
+        this.localRectStart = elementToLocalRectPoints(PANEL_START_ID, parent, camera);
+        this.localRectEnd = elementToLocalRectPoints(PANEL_END_ID, parent, camera);
+
+        this.curveTL = new THREE.CubicBezierCurve3(this.localRectStart.tl,
+            this.localRectStart.tl.clone().add(new THREE.Vector3(1, 0, 0)),
+            this.localRectEnd.tl.clone().add(new THREE.Vector3(-1, 0, 0)),
+            this.localRectEnd.tl.clone()
+        );
+
+        this.curveTR = new THREE.CubicBezierCurve3(this.localRectStart.tr,
+            this.localRectStart.tr.clone().add(new THREE.Vector3(2, 2, 0)),
+            this.localRectEnd.tr.clone().add(new THREE.Vector3(0, 0, 0)),
+            this.localRectEnd.tr.clone()
+        );
+
+        this.curveBL = new THREE.CubicBezierCurve3(this.localRectStart.bl,
+            this.localRectStart.bl.clone().add(new THREE.Vector3(1, -8, 0)),
+            this.localRectEnd.bl.clone().add(new THREE.Vector3(0, 0, 0)),
+            this.localRectEnd.bl.clone()
+        );
+
+        this.curveBR = new THREE.CubicBezierCurve3(this.localRectStart.br,
+            this.localRectStart.br.clone().add(new THREE.Vector3(10, 2, 0)),
+            this.localRectEnd.br.clone().add(new THREE.Vector3(0, 0, 0)),
+            this.localRectEnd.br.clone()
+        );
+
+        this.add(this.panelScene);
+        
+        this.setDebugCurvedEnabled(this.debugCurvesEnabled);
+        this.onScroll();    // trigger scroll in case user refreshes mid scroll
+    }
+
+    initDebug = () => {
         const folder = debugGui.addFolder("VideoPanel");
         folder.add(this, "animPlaybackPercent", 0, 1).onChange(v => this.playAnimation(v));
         folder.add(this, "debugCurvesEnabled").onChange(v => {
