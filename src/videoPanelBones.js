@@ -25,6 +25,7 @@ export default class VideoPanelBones extends THREE.Group {
     material;
 
     panelScene;
+    widePanelMesh;
 
     boneTL;
     boneTR;
@@ -135,17 +136,24 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     playAnimation() {
-        const tl = this.curveTL.getPointAt(this.animPlaybackPercent);
-        this.boneTL.position.copy(tl);
+        if (this.animPlaybackPercent === 1) {
+            this.remove(this.panelScene);
+        }
+        else {
+            this.add(this.panelScene);
 
-        const tr = this.curveTR.getPointAt(this.animPlaybackPercent);
-        this.boneTR.position.copy(tr);
+            const tl = this.curveTL.getPointAt(this.animPlaybackPercent);
+            this.boneTL.position.copy(tl);
 
-        const bl = this.curveBL.getPointAt(this.animPlaybackPercent);
-        this.boneBL.position.copy(bl);
+            const tr = this.curveTR.getPointAt(this.animPlaybackPercent);
+            this.boneTR.position.copy(tr);
 
-        const br = this.curveBR.getPointAt(this.animPlaybackPercent);
-        this.boneBR.position.copy(br);
+            const bl = this.curveBL.getPointAt(this.animPlaybackPercent);
+            this.boneBL.position.copy(bl);
+
+            const br = this.curveBR.getPointAt(this.animPlaybackPercent);
+            this.boneBR.position.copy(br);
+        }
 
         this.material.color.lerpColors(TINT_COLOUR_START, TINT_COLOUR_END, this.animPlaybackPercent);
     }
