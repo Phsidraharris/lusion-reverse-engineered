@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
-import { elementToLocalRectPoints } from "./utils/utils";
+import { createBevelledPlane, elementToLocalRectPoints, elementToWorldRect } from "./utils/utils";
 
 const TINT_COLOUR_START = new THREE.Color("#94e0e6");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
@@ -24,8 +24,8 @@ export default class VideoPanelBones extends THREE.Group {
 
     material;
 
-    panelScene;
-    widePanelMesh;
+    rectStartScene;
+    rectEndMesh;
 
     boneTL;
     boneTR;
@@ -67,12 +67,12 @@ export default class VideoPanelBones extends THREE.Group {
         const loader = new GLTFLoader();
         const gltf = await loader.loadAsync('../assets/panel-anim-bones-04.glb');
 
-        this.panelScene = gltf.scene;
+        this.rectStartScene = gltf.scene;
 
-        const panelMesh = this.panelScene.children[0].children[0];
+        const panelMesh = this.rectStartScene.children[0].children[0];
         panelMesh.material = this.material;
 
-        this.panelScene.children[0].children.forEach(child => {
+        this.rectStartScene.children[0].children.forEach(child => {
             if (child.type === "Bone") {
                 if (child.name === "BoneTR") {
                     this.boneTR = child;
@@ -123,8 +123,13 @@ export default class VideoPanelBones extends THREE.Group {
             this.localRectEnd.br.clone()
         );
 
-        this.add(this.panelScene);
-        
+        this.add(this.rectStartScene);
+
+        const panelEnd = elementToWorldRect(PANEL_END_ID, camera);
+        const geometry = createBevelledPlane(panelEnd.width, panelEnd.height, 0.3);
+        this.rectEndMesh = new THREE.Mesh(geometry, this.material);
+        this.rectEndMesh.position.copy(panelEnd.position);
+
         this.setDebugCurvedEnabled(this.debugCurvesEnabled);
         this.onScroll();    // trigger scroll in case user refreshes mid scroll
     }
@@ -139,10 +144,11 @@ export default class VideoPanelBones extends THREE.Group {
 
     playAnimation() {
         if (this.animPlaybackPercent === 1) {
-            this.remove(this.panelScene);
+            this.remove(this.rectStartScene);
+            this.add(this.rectEndMesh);
         }
         else {
-            this.add(this.panelScene);
+            this.add(this.rectStartScene);
 
             const tl = this.curveTL.getPointAt(this.animPlaybackPercent);
             this.boneTL.position.copy(tl);
@@ -169,7 +175,7 @@ export default class VideoPanelBones extends THREE.Group {
 
         const texture = new THREE.VideoTexture(video);
         texture.colorSpace = THREE.SRGBColorSpace;
-        texture.flipY = false;
+        // texture.flipY = false;
 
         return texture;
     }
