@@ -3,7 +3,8 @@
     "@dimforge/rapier3d": "^0.14.0",
     "phy-engine": "^0.1.1",
     "three": "^0.166.1",
-    "vite-plugin-wasm": "^3.3.0"
+    "vite-plugin-wasm": "^3.3.0",
+    "wiggle": "^0.0.17"
   },
   "devDependencies": {
     "lil-gui": "^0.19.2",
