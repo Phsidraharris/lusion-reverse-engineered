@@ -2,38 +2,36 @@ import * as THREE from "three";
 import { WiggleBone } from "wiggle";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { WiggleRigHelper } from "wiggle/helper";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 
 export default class VideoPanelWiggleBones extends THREE.Group {
-  constructor() {
+  constructor(camera) {
     super();
+
+    this.control = new TransformControls(camera, document.getElementById("canvas"));
+    this.control.addEventListener("dragging-changed", function (event) {
+      orbit.enabled = !event.value;
+    });
+    this.add(this.control)
 
     this.init();
   }
 
   init = async () => {
-    const loader = new GLTFLoader();
-    const gltf = await loader.loadAsync('../assets/panel-anim-wiggle-bones.glb');
+    const gltf = await new GLTFLoader().loadAsync('../assets/panel-anim-wiggle-bones.glb');
+    this.add(gltf.scene);
 
+    const rootL = gltf.scene.getObjectByName("RootL");
     const mesh = gltf.scene.getObjectByName("Plane");
-    let rootBone;
-    const wiggleBones = [];
+
+    this.control.attach(rootL);
 
     const helper = new WiggleRigHelper({
       skeleton: mesh.skeleton,
     });
     this.add(helper);
-
-    mesh.skeleton.bones.forEach((bone) => {
-      if (!bone.parent.isBone) {
-        rootBone = bone;
-      } else {
-        const wiggleBone = new WiggleBone(bone, {
-          velocity: 0.5,
-        });
-        wiggleBones.push(wiggleBone);
-      }
-    });
   }
+
   update = (dt) => {
 
   }
