@@ -14,14 +14,12 @@ export default class VideoPanelWiggleBones extends THREE.Group {
 
   init = async () => {
     const gltf = await new GLTFLoader().loadAsync('../assets/panel-anim-wiggle-bones.glb');
-    this.add(gltf.scene);
-
-    const rootL = gltf.scene.getObjectByName("RootL");
     const mesh = gltf.scene.getObjectByName("Plane");
-
     const helper = new WiggleRigHelper({
       skeleton: mesh.skeleton,
     });
+
+    this.add(gltf.scene);
     this.add(helper);
 
     const stiffness = 400;
