@@ -138,3 +138,16 @@ export function elementToLocalRectPoints(elementId, parent, camera) {
 
     return { tl, tr, br, bl, center };
 }
+
+export function createVideoTexture(src) {
+    const video = document.createElement('video');
+    video.src = src;
+    video.loop = true;
+    video.muted = true;
+    video.play();
+
+    const texture = new THREE.VideoTexture(video);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    return texture;
+}
