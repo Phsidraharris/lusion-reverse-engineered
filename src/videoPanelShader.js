@@ -11,8 +11,8 @@ const SIZE = 1;
 const SUBDIVISIONS = 16;
 
 export default class VideoPanelShader extends THREE.Group {
-    test = { value: 0 };
-    animateProgress = { value: 0 };
+    positionProgress = { value: 0 };
+    maskProgress = { value: 0 };
 
     constructor(camera) {
         super();
@@ -28,8 +28,8 @@ export default class VideoPanelShader extends THREE.Group {
             uniforms: {
                 startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
                 endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
-                test: this.test,
-                animateProgress: this.animateProgress,
+                positionProgress: this.positionProgress,
+                maskProgress: this.maskProgress,
                 size: { value: SIZE },
                 map: { value: videoTexture }
             },
@@ -45,8 +45,8 @@ export default class VideoPanelShader extends THREE.Group {
 
     initDebug = () => {
         const folder = debugGui.addFolder("Video Panel Shader");
-        folder.add(this.test, "value", -10, 10);
-        folder.add(this.animateProgress, "value", 0, 1);
+        folder.add(this.positionProgress, "value", 0, 1);
+        folder.add(this.maskProgress, "value", 0, 1);
     }
 
     /**
