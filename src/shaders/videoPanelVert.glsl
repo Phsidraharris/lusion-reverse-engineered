@@ -15,7 +15,11 @@ void main() {
     newPosition.x = mix(startRectPos.x, startRectPos.x + startRectSize.x, positionNormalised.x);
     newPosition.y = mix(-startRectPos.y, -startRectPos.y + startRectSize.y, positionNormalised.y);
 
-    newPosition.x *= sin(test);
+    // Normalised value that determines how much of this vertex is affected by the displacement
+    float mask = step(positionNormalised.x, test);
+    if (mask > 0.5) {
+        newPosition = vec3(-100., -100., -100.);
+    }
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }
