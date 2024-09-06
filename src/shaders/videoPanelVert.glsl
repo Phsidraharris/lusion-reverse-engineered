@@ -4,12 +4,18 @@ uniform float size;
 
 uniform float positionProgress;
 uniform float maskProgress;
+uniform float deformWeightX;
+uniform float deformWeightY;
 
 varying vec2 vUv;
 varying float vMask;
 
 void main() {
     vec2 positionNormalised = vec2(position.x + size * 0.5, position.y - size * 0.5);
+
+    // Experiment with modifying 
+    positionNormalised.y += cos(positionNormalised.x * 6.) * deformWeightX;
+    positionNormalised.x += sin(positionNormalised.y * 6.) * deformWeightY;
 
     vec3 startPosition;
     startPosition.x = mix(startRect.x, startRect.x + startRect.w, positionNormalised.x);
@@ -19,11 +25,10 @@ void main() {
     endPosition.x = mix(endRect.x, endRect.x + endRect.w, positionNormalised.x);
     endPosition.y = mix(endRect.y, endRect.y + endRect.z, positionNormalised.y);
 
-    vMask = smoothstep(0.9 - maskProgress, 1., positionNormalised.x);
-
     vec3 newPosition = mix(startPosition, endPosition, positionProgress);
 
-    vUv = uv;
-
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+
+    vMask = smoothstep(0.9 - maskProgress, 1., positionNormalised.x);
+    vUv = uv;
 }
