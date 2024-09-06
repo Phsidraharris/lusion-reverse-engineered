@@ -19,9 +19,9 @@ void main() {
     endPosition.x = mix(endRect.x, endRect.x + endRect.w, positionNormalised.x);
     endPosition.y = mix(endRect.y, endRect.y + endRect.z, positionNormalised.y);
 
-    vec3 newPosition = mix(startPosition, endPosition, positionProgress);
+    vMask = smoothstep(0.9 - maskProgress, 1., positionNormalised.x);
 
-    vMask = smoothstep(position.x, position.x + 0.1, maskProgress);
+    vec3 newPosition = mix(startPosition, endPosition, positionProgress);
 
     vUv = uv;
 
