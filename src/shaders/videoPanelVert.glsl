@@ -5,7 +5,6 @@ uniform vec2 startRectSize;
 uniform float test;
 uniform float size;
 
-varying vec3 vNormal;
 varying vec2 vUv;
 
 void main() {
@@ -20,6 +19,8 @@ void main() {
     if (mask > 0.5) {
         newPosition = vec3(-100., -100., -100.);
     }
+
+    vUv = uv;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }
