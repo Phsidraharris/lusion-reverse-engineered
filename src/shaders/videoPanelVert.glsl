@@ -1,5 +1,3 @@
-attribute float displacement;
-
 uniform vec3 startRectPos;
 uniform vec2 startRectSize;
 uniform float test;

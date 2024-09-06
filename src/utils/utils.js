@@ -112,6 +112,15 @@ export function elementToWorldRect(elementId, camera, anchor = { x: 0.5, y: 0.5 
     return { position, width, height }
 }
 
+export function elementToLocalRect(elementId, parent, camera) {
+    const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
+    const { position, width, height } = worldRect;
+
+    parent.worldToLocal(position);
+
+    return { position, width, height };
+}
+
 export function elementToLocalRectPoints(elementId, parent, camera) {
     const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
 
