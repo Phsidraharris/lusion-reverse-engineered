@@ -1,5 +1,4 @@
-uniform vec3 startRectPos;
-uniform vec2 startRectSize;
+uniform vec4 startRect;
 uniform float test;
 uniform float size;
 
@@ -9,8 +8,8 @@ void main() {
     vec2 positionNormalised = vec2(position.x + size * 0.5, position.y + size * 0.5);
 
     vec3 newPosition = position;
-    newPosition.x = mix(startRectPos.x, startRectPos.x + startRectSize.x, positionNormalised.x);
-    newPosition.y = mix(-startRectPos.y, -startRectPos.y + startRectSize.y, positionNormalised.y);
+    newPosition.x = mix(startRect.x, startRect.x + startRect.w, positionNormalised.x);
+    newPosition.y = mix(-startRect.y, -startRect.y + startRect.z, positionNormalised.y);
 
     // Normalised value that determines how much of this vertex is affected by the displacement
     float mask = step(positionNormalised.x, test);

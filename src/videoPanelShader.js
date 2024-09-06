@@ -1,11 +1,9 @@
 import * as THREE from "three";
-import { BoxGeometry } from "three";
-import videoPanelVert from "./shaders/videoPanelVert.glsl?raw";
-import videoPanelVFrag from "./shaders/videoPanelFrag.glsl?raw";
-import { createVideoTexture, elementToLocalRect, elementToLocalRectPoints, elementToWorldRect } from "./utils/utils";
+import { BoxGeometry, Vector4 } from "three";
 import { debugGui } from "./debugGui";
-import { Vector2 } from "three";
-import { Vector4 } from "three";
+import videoPanelVFrag from "./shaders/videoPanelFrag.glsl?raw";
+import videoPanelVert from "./shaders/videoPanelVert.glsl?raw";
+import { createVideoTexture, elementToLocalRect, elementToWorldRect } from "./utils/utils";
 
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
@@ -27,8 +25,7 @@ export default class VideoPanelShader extends THREE.Group {
 
         this.material = new THREE.ShaderMaterial({
             uniforms: {
-                startRectPos: { value: startRectLocal.position },
-                startRectSize: { value: new Vector2(startRectLocal.width, startRectLocal.height) },
+                startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
                 test: this.test,
                 size: { value: SIZE },
                 map: { value: videoTexture }
@@ -46,6 +43,21 @@ export default class VideoPanelShader extends THREE.Group {
     initDebug = () => {
         const folder = debugGui.addFolder("Video Panel Shader");
         folder.add(this.test, "value", -10, 10);
+    }
+
+
+    /**
+     * Converts a  height rect to a vec4 (for shader uniforms),
+     * where x = x pos, y = y pos, w = width, z = height 
+     * @param {{position: Vector3, width: number, height: number}} rect 
+     */
+    static rectToVec4(rect) {
+        return new Vector4(
+            rect.position.x,
+            rect.position.y,
+            rect.height,
+            rect.width,
+        );
     }
 
     update() { }
