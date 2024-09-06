@@ -37,7 +37,7 @@ export default class VideoPanelShader extends THREE.Group {
             fragmentShader: videoPanelVFrag
         });
         this.mesh = new THREE.Mesh(new BoxGeometry(SIZE, SIZE, 1, SUBDIVISIONS, SUBDIVISIONS, SUBDIVISIONS), this.material);
-
+        this.mesh.frustumCulled = false;
         this.add(this.mesh);
 
         this.initDebug();
