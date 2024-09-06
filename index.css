@@ -160,7 +160,7 @@ section {
 
         #video-panel-end {
             width: 100%;
-            aspect-ratio: 16/9;
+            height: 75vh;
             border: 1px dashed red;
             margin: 10vh auto 10vh auto;
         }
