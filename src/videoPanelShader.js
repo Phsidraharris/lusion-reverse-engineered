@@ -8,7 +8,7 @@ import { createVideoTexture, elementToLocalRect, elementToWorldRect } from "./ut
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
 const SIZE = 1;
-const SUBDIVISIONS = 16;
+const SUBDIVISIONS = 32;
 
 export default class VideoPanelShader extends THREE.Group {
     positionProgress = { value: 0 };
