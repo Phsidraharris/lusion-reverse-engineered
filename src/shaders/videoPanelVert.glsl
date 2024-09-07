@@ -17,11 +17,11 @@ void main() {
     positionNormalised.y += cos(positionNormalised.x * 6.) * deformWeightX;
     positionNormalised.x += sin(positionNormalised.y * 6.) * deformWeightY;
 
-    vec3 startPosition;
+    vec2 startPosition;
     startPosition.x = mix(startRect.x, startRect.x + startRect.w, positionNormalised.x);
     startPosition.y = mix(startRect.y, startRect.y + startRect.z, positionNormalised.y);
 
-    vec3 endPosition;
+    vec2 endPosition;
     endPosition.x = mix(endRect.x, endRect.x + endRect.w, positionNormalised.x);
     endPosition.y = mix(endRect.y, endRect.y + endRect.z, positionNormalised.y);
 
@@ -31,7 +31,7 @@ void main() {
     vMask = smoothstep(maskProgress + 0.25, maskProgress, vMask);
     vUv = uv;
 
-    vec3 newPosition = mix(startPosition, endPosition, vMask);
+    vec2 newPosition = mix(startPosition, endPosition, vMask);
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 0.0, 1.0);
 }
