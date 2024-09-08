@@ -32,20 +32,21 @@ vec2 getRectPos(vec4 rect, vec2 uv) {
 void main() {
     vec3 pos = position;
 
-    float stepEdge = 1.0 - sin(maskProgress * PI) * 3.;   // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
-    float startEndProgress = smoothstep(0.2, 1.0, maskProgress);
+    float stepEdgeCurve = 1.0 - sin(maskProgress * PI) * 3.;   // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
+    float startEndCurve = smoothstep(0.2, 1.0, maskProgress);
+    float rotateCurve = PI * 0.125 * sin(maskProgress * PI);
 
     vec2 videoPanelStartPos = getRectPos(startRect, uv);
     vec2 videoPanelEndPos = getRectPos(endRect, uv);
 
     vUv = uv;
-    vMask = smoothstep(stepEdge, 1.0, uv.x);
-    vMask *= smoothstep(stepEdge, 1.0, uv.y);
+    vMask = smoothstep(stepEdgeCurve, 1.0, uv.x);
+    vMask *= smoothstep(stepEdgeCurve, 1.0, uv.y);
 
-    pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndProgress);
+    pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndCurve);
 
     pos.xy += vec2(0.1, 0.1) * vMask;
-    pos.xy = rotate(pos.xy, PI * 0.125 * vMask);
+    pos.xy = rotate(pos.xy, rotateCurve * vMask);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
