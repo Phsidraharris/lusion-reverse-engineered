@@ -40,7 +40,7 @@ export default class VideoPanelShader extends THREE.Group {
             vertexShader: videoPanelVert,
             fragmentShader: videoPanelVFrag
         });
-        this.mesh = new THREE.Mesh(new BoxGeometry(SIZE, SIZE, 1, SUBDIVISIONS, SUBDIVISIONS, SUBDIVISIONS), this.material);
+        this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE, SUBDIVISIONS, SUBDIVISIONS), this.material);
         this.mesh.frustumCulled = false;
         this.add(this.mesh);
 
@@ -51,8 +51,8 @@ export default class VideoPanelShader extends THREE.Group {
         const folder = debugGui.addFolder("Video Panel Shader");
         folder.add(this.positionProgress, "value", 0, 1).name("Position progress");
         folder.add(this.maskProgress, "value", 0, 1).name("Mask progress");
-        folder.add(this.deformWeightX, "value", 0, 1).name("Deform weight X");
-        folder.add(this.deformWeightY, "value", 0, 1).name("Deform weight Y");
+        folder.add(this.deformWeightX, "value", -1, 1).name("Deform weight X");
+        folder.add(this.deformWeightY, "value", -1, 1).name("Deform weight Y");
     }
 
     /**

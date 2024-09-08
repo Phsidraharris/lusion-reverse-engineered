@@ -1,3 +1,5 @@
+#define PI 3.14159
+
 uniform vec4 startRect;
 uniform vec4 endRect;
 uniform float size;
@@ -10,28 +12,26 @@ uniform float deformWeightY;
 varying vec2 vUv;
 varying float vMask;
 
+vec2 rotate(vec2 pos, float angle) {
+    float cosTheta = cos(angle);
+    float sinTheta = sin(angle);
+    mat2 rotMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
+
+    pos.xy = rotMat * pos.xy;
+    return pos;
+}
+
 void main() {
-    vec2 positionNormalised = vec2(position.x + size * 0.5, position.y + size * 0.5);
+    vec3 pos = position;
 
-    // Experiment with modifying 
-    positionNormalised.y += cos(positionNormalised.x * 6.) * deformWeightX;
-    positionNormalised.x += sin(positionNormalised.y * 6.) * deformWeightY;
+    float stepEdge = 1.0 - maskProgress;
 
-    vec2 startPosition;
-    startPosition.x = mix(startRect.x, startRect.x + startRect.w, positionNormalised.x);
-    startPosition.y = mix(startRect.y, startRect.y + startRect.z, positionNormalised.y);
-
-    vec2 endPosition;
-    endPosition.x = mix(endRect.x, endRect.x + endRect.w, positionNormalised.x);
-    endPosition.y = mix(endRect.y, endRect.y + endRect.z, positionNormalised.y);
-
-    // vMask = smoothstep(0.9 - maskProgress, 1., positionNormalised.x);
-    vMask = distance(positionNormalised, vec2(1.25, 0.95));
-    vMask = clamp(vMask, 0., 1.);
-    vMask = smoothstep(maskProgress + 0.25, maskProgress, vMask);
     vUv = uv;
+    vMask = smoothstep(stepEdge, 1.0, uv.x);
+    vMask *= smoothstep(stepEdge, 1.0, uv.y);
 
-    vec2 newPosition = mix(startPosition, endPosition, vMask);
+    // pos.xy += vec2(1., 0.) * vMask;
+    pos.xy = rotate(pos.xy, PI * 0.125 * vMask);
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 0.0, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
