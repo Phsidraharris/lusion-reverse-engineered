@@ -33,15 +33,16 @@ void main() {
     vec3 pos = position;
 
     float stepEdge = 1.0 - sin(maskProgress * PI) * 3.;   // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
+    float startEndProgress = smoothstep(0.2, 1.0, maskProgress);
+
+    vec2 videoPanelStartPos = getRectPos(startRect, uv);
+    vec2 videoPanelEndPos = getRectPos(endRect, uv);
 
     vUv = uv;
     vMask = smoothstep(stepEdge, 1.0, uv.x);
     vMask *= smoothstep(stepEdge, 1.0, uv.y);
 
-    vec2 videoPanelStartPos = getRectPos(startRect, uv);
-    vec2 videoPanelEndPos = getRectPos(endRect, uv);
-
-    pos.xy = mix(videoPanelStartPos, videoPanelEndPos, maskProgress);
+    pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndProgress);
 
     pos.xy += vec2(0.1, 0.1) * vMask;
     pos.xy = rotate(pos.xy, PI * 0.125 * vMask);
