@@ -1,4 +1,4 @@
-#define PI 3.14159
+#define PI 3.14159265358979
 
 uniform vec4 startRect;
 uniform vec4 endRect;
@@ -24,13 +24,13 @@ vec2 rotate(vec2 pos, float angle) {
 void main() {
     vec3 pos = position;
 
-    float stepEdge = 1.0 - maskProgress;
-
+    float stepEdge = 1.0 - sin(maskProgress * PI) * 3.;   // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
+    
     vUv = uv;
     vMask = smoothstep(stepEdge, 1.0, uv.x);
     vMask *= smoothstep(stepEdge, 1.0, uv.y);
 
-    // pos.xy += vec2(1., 0.) * vMask;
+    pos.xy += vec2(0.1, 0.1) * vMask;
     pos.xy = rotate(pos.xy, PI * 0.125 * vMask);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
