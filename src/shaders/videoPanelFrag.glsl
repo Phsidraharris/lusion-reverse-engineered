@@ -3,6 +3,7 @@ uniform float borderRadius;
 uniform vec4 startRect;
 uniform vec4 endRect;
 uniform float maskProgress;
+uniform vec3 tintColour;
 
 varying vec2 vUv;
 
@@ -36,6 +37,11 @@ float roundedCornerMask() {
 
 void main() {
     vec4 albedo = texture2D(map, vUv);
+
+    float tintCurve = 1.0 - smoothstep(1., 0.0, maskProgress);
+
     albedo.a = roundedCornerMask();
+    albedo.rgb = mix(albedo.rgb * tintColour, albedo.rgb, tintCurve);
+
     gl_FragColor = albedo;
 }

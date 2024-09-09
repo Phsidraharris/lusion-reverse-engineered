@@ -7,9 +7,9 @@ uniform float maskProgress;
 varying vec2 vUv;
 varying float vMask;
 
-vec2 rotate(vec2 pos, float angle) {
-    float cosTheta = cos(angle);
-    float sinTheta = sin(angle);
+vec2 rotate(vec2 pos, float radians) {
+    float cosTheta = cos(radians);
+    float sinTheta = sin(radians);
     mat2 rotMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
 
     pos.xy = rotMat * pos.xy;

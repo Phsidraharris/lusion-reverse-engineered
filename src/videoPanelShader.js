@@ -13,6 +13,7 @@ const SUBDIVISIONS = 32;
 export default class VideoPanelShader extends THREE.Group {
     maskProgress = { value: 0 };
     borderRadius = { value: 0.085 };
+    tintColour = { value: new THREE.Color(0.6, 0.6, 1.0) };
 
     constructor(camera) {
         super();
@@ -30,6 +31,7 @@ export default class VideoPanelShader extends THREE.Group {
                 endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
                 maskProgress: this.maskProgress,
                 borderRadius: this.borderRadius,
+                tintColour: this.tintColour,
                 map: { value: videoTexture }
             },
             vertexShader: videoPanelVert,
@@ -46,7 +48,8 @@ export default class VideoPanelShader extends THREE.Group {
     initDebug = () => {
         const folder = debugGui.addFolder("Video Panel Shader");
         folder.add(this.maskProgress, "value", 0, 1).name("Mask progress");
-        folder.add(this.borderRadius, "value", 0, 1).name("Borderadius");
+        folder.add(this.borderRadius, "value", 0, 1).name("Border radius");
+        folder.addColor(this.tintColour, "value").name("Tint colour");
     }
 
     /**
