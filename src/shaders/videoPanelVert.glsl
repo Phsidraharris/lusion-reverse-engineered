@@ -19,7 +19,7 @@ vec2 rotate(vec2 pos, float radians) {
 vec2 getRectPos(vec4 rect, vec2 uv) {
     vec2 pos;
     pos.x = mix(rect.x, rect.x + rect.w, uv.x);
-    pos.y = mix(rect.y, rect.y + rect.z, uv.y);
+    pos.y = mix(rect.y - rect.z, rect.y, uv.y);
     return pos;
 }
 
@@ -28,7 +28,7 @@ void main() {
 
     float stepEdgeCurve = 1.0 - sin(maskProgress * PI) * 2.0;    // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
     float startEndCurve = smoothstep(0.2, 1.0, maskProgress);
-    float rotateCurve = PI * 0.125 * sin(maskProgress * PI);    // rotate by 1/8th of PI (i.e 16th turn of a circle), that peaks at maskProgress = 0.5
+    float rotateCurve = PI * 0.125 * sin(maskProgress * PI);     // rotate by 1/8th of PI (i.e 16th turn of a circle), that peaks at maskProgress = 0.5
 
     vec2 videoPanelStartPos = getRectPos(startRect, uv);
     vec2 videoPanelEndPos = getRectPos(endRect, uv);
