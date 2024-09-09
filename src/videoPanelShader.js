@@ -7,6 +7,7 @@ import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementP
 
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
+const PANEL_END_PARENT_ID = "video-panel-end-parent";
 const SIZE = 1;
 const SUBDIVISIONS = 32;
 

@@ -153,19 +153,17 @@ section {
         #video-panel-start {
             width: 50%;
             aspect-ratio: 16/9;
-            top: 100px;
-            left: 0;
         }
 
         #video-panel-end-parent {
             position: relative;
             width: 100%;
-            height: 75vh;
+            height: 70vh;
             margin: 10vh auto 10vh auto;
 
             #video-panel-end {
                 position: absolute;
-                top: -25%;
+                top: -50%;
                 width: 100%;
                 height: 100%;
             }
