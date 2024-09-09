@@ -112,6 +112,15 @@ export function elementToWorldRect(elementId, camera, anchor = { x: 0.5, y: 0.5 
     return { position, width, height }
 }
 
+export function elementToLocalRect(elementId, parent, camera) {
+    const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
+    const { position, width, height } = worldRect;
+
+    parent.worldToLocal(position);
+
+    return { position, width, height };
+}
+
 export function elementToLocalRectPoints(elementId, parent, camera) {
     const worldRect = elementToWorldRect(elementId, camera, { x: 0, y: 0 });
 
@@ -137,4 +146,17 @@ export function elementToLocalRectPoints(elementId, parent, camera) {
     parent.worldToLocal(bl);
 
     return { tl, tr, br, bl, center };
+}
+
+export function createVideoTexture(src) {
+    const video = document.createElement('video');
+    video.src = src;
+    video.loop = true;
+    video.muted = true;
+    video.play();
+
+    const texture = new THREE.VideoTexture(video);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    return texture;
 }
