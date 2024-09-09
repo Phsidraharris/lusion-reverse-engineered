@@ -13,17 +13,21 @@ float getAspect() {
 }
 
 float roundedCornerMask() {
-    // Convert to normalised device coordinates (i.e center = 0, 0)
+    // Convert to normalised device coordinates (i.e center = 0, 0),
+    // then treat corners as distances from the center with abs
     vec2 uv = vUv * 2.0 - 1.0;
     uv = abs(uv);
 
-    // Define the position in normalized space
-    vec2 cornerDistance = max(uv - (vec2(1.0) - borderRadius), 0.0);
-    // cornerDistance.x *= getAspect();
-    
-    float dist = length(cornerDistance);
+    // distance to corner
+    vec2 corner = uv - vec2(1.0 - borderRadius, 1.0 - borderRadius);
 
-    return step(borderRadius, dist);
+    // max 0.0, prevents negative values
+    corner = max(corner, vec2(0.0, 0.0));
+
+    corner.x *= getAspect();
+
+    float dist = length(corner);
+
     // Define alpha based on distance and borderRadius
     float alpha = step(0., borderRadius - dist);
 
@@ -32,5 +36,6 @@ float roundedCornerMask() {
 
 void main() {
     vec4 albedo = texture2D(map, vUv);
-    gl_FragColor = albedo + roundedCornerMask();
+    albedo.a = roundedCornerMask();
+    gl_FragColor = albedo;
 }

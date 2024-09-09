@@ -12,7 +12,7 @@ const SUBDIVISIONS = 32;
 
 export default class VideoPanelShader extends THREE.Group {
     maskProgress = { value: 0 };
-    borderRadius = { value: 0.1 };
+    borderRadius = { value: 0.085 };
 
     constructor(camera) {
         super();
@@ -33,7 +33,8 @@ export default class VideoPanelShader extends THREE.Group {
                 map: { value: videoTexture }
             },
             vertexShader: videoPanelVert,
-            fragmentShader: videoPanelVFrag
+            fragmentShader: videoPanelVFrag,
+            transparent: true,
         });
         this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE, SUBDIVISIONS, SUBDIVISIONS), this.material);
         this.mesh.frustumCulled = false;
