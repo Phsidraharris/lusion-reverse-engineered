@@ -5,7 +5,6 @@ uniform vec4 endRect;
 uniform float maskProgress;
 
 varying vec2 vUv;
-varying float vMask;
 
 vec2 rotate(vec2 pos, float radians) {
     float cosTheta = cos(radians);
@@ -34,14 +33,15 @@ void main() {
     vec2 videoPanelStartPos = getRectPos(startRect, uv);
     vec2 videoPanelEndPos = getRectPos(endRect, uv);
 
-    vUv = uv;
-    vMask = smoothstep(stepEdgeCurve, 1.0, uv.x);
-    vMask *= smoothstep(stepEdgeCurve, 1.0, uv.y);
+    float mask = smoothstep(stepEdgeCurve, 1.0, uv.x);
+    mask *= smoothstep(stepEdgeCurve, 1.0, uv.y);
 
     pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndCurve);
 
-    pos.xy += vec2(0.1, 0.1) * vMask;
-    pos.xy = rotate(pos.xy, rotateCurve * vMask);
+    pos.xy += vec2(0.1, 0.1) * mask;
+    pos.xy = rotate(pos.xy, rotateCurve * mask);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    
+    vUv = uv;
 }
