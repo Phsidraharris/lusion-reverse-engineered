@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BoxGeometry, Vector4 } from "three";
+import { Vector4 } from "three";
 import { debugGui } from "./debugGui";
 import videoPanelVFrag from "./shaders/videoPanelFrag.glsl?raw";
 import videoPanelVert from "./shaders/videoPanelVert.glsl?raw";
@@ -11,10 +11,7 @@ const SIZE = 1;
 const SUBDIVISIONS = 32;
 
 export default class VideoPanelShader extends THREE.Group {
-    positionProgress = { value: 0 };
     maskProgress = { value: 0 };
-    deformWeightX = { value: 0 };
-    deformWeightY = { value: 0 };
 
     constructor(camera) {
         super();
@@ -30,11 +27,7 @@ export default class VideoPanelShader extends THREE.Group {
             uniforms: {
                 startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
                 endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
-                positionProgress: this.positionProgress,
                 maskProgress: this.maskProgress,
-                deformWeightX: this.deformWeightX,
-                deformWeightY: this.deformWeightY,
-                size: { value: SIZE },
                 map: { value: videoTexture }
             },
             vertexShader: videoPanelVert,
@@ -49,10 +42,7 @@ export default class VideoPanelShader extends THREE.Group {
 
     initDebug = () => {
         const folder = debugGui.addFolder("Video Panel Shader");
-        folder.add(this.positionProgress, "value", 0, 1).name("Position progress");
         folder.add(this.maskProgress, "value", 0, 1).name("Mask progress");
-        folder.add(this.deformWeightX, "value", -1, 1).name("Deform weight X");
-        folder.add(this.deformWeightY, "value", -1, 1).name("Deform weight Y");
     }
 
     /**
