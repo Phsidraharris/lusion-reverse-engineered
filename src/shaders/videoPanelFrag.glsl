@@ -1,15 +1,15 @@
-uniform sampler2D map;
+uniform float animateProgress;
 uniform float borderRadius;
 uniform vec4 startRect;
 uniform vec4 endRect;
-uniform float maskProgress;
 uniform vec3 tintColour;
+uniform sampler2D map;
 
 varying vec2 vUv;
 
 float getAspect() {
-    float width = mix(startRect.w, endRect.w, maskProgress);
-    float height = mix(startRect.z, endRect.z, maskProgress);
+    float width = mix(startRect.w, endRect.w, animateProgress);
+    float height = mix(startRect.z, endRect.z, animateProgress);
     return width / height;
 }
 
@@ -38,7 +38,7 @@ float roundedCornerMask() {
 void main() {
     vec4 albedo = texture2D(map, vUv);
 
-    float tintCurve = 1.0 - smoothstep(1., 0.0, maskProgress);
+    float tintCurve = 1.0 - smoothstep(1., 0.0, animateProgress);
 
     albedo.a = roundedCornerMask();
     albedo.rgb = mix(albedo.rgb * tintColour, albedo.rgb, tintCurve);

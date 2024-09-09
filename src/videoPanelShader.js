@@ -3,7 +3,7 @@ import { Vector4 } from "three";
 import { debugGui } from "./debugGui";
 import videoPanelVFrag from "./shaders/videoPanelFrag.glsl?raw";
 import videoPanelVert from "./shaders/videoPanelVert.glsl?raw";
-import { createVideoTexture, elementToLocalRect, elementToWorldRect } from "./utils/utils";
+import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords } from "./utils/utils";
 
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
@@ -11,7 +11,7 @@ const SIZE = 1;
 const SUBDIVISIONS = 32;
 
 export default class VideoPanelShader extends THREE.Group {
-    maskProgress = { value: 0 };
+    animateProgress = { value: 0 };
     borderRadius = { value: 0.085 };
     tintColour = { value: new THREE.Color(0.6, 0.6, 1.0) };
 
@@ -29,7 +29,7 @@ export default class VideoPanelShader extends THREE.Group {
             uniforms: {
                 startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
                 endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
-                maskProgress: this.maskProgress,
+                animateProgress: this.animateProgress,
                 borderRadius: this.borderRadius,
                 tintColour: this.tintColour,
                 map: { value: videoTexture }
@@ -42,12 +42,22 @@ export default class VideoPanelShader extends THREE.Group {
         this.mesh.frustumCulled = false;
         this.add(this.mesh);
 
+        this.scrollPositionAnimStart = getElementPageCoords(PANEL_START_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.scrollPositionAnimEnd = getElementPageCoords(PANEL_END_ID).y + window.scrollY - window.innerHeight * 0.5;
+
+        window.addEventListener("scroll", this.onScroll);
+
         this.initDebug();
+    }
+
+    onScroll = (e) => {
+        this.animateProgress.value = THREE.MathUtils.inverseLerp(this.scrollPositionAnimStart, this.scrollPositionAnimEnd, window.scrollY);
+        this.animateProgress.value = THREE.MathUtils.clamp(this.animateProgress.value, 0, 1);
     }
 
     initDebug = () => {
         const folder = debugGui.addFolder("Video Panel Shader");
-        folder.add(this.maskProgress, "value", 0, 1).name("Mask progress");
+        folder.add(this.animateProgress, "value", 0, 1).name("Mask progress");
         folder.add(this.borderRadius, "value", 0, 1).name("Border radius");
         folder.addColor(this.tintColour, "value").name("Tint colour");
     }

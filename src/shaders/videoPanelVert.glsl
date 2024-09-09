@@ -1,8 +1,8 @@
 #define PI 3.14159265358979
 
+uniform float animateProgress;
 uniform vec4 startRect;
 uniform vec4 endRect;
-uniform float maskProgress;
 
 varying vec2 vUv;
 
@@ -26,9 +26,9 @@ vec2 getRectPos(vec4 rect, vec2 uv) {
 void main() {
     vec3 pos = position;
 
-    float stepEdgeCurve = 1.0 - sin(maskProgress * PI) * 2.0;    // multiply by 3 so that when maskProgress = 1, step edge contains more of the uv
-    float startEndCurve = smoothstep(0.2, 1.0, maskProgress);
-    float rotateCurve = PI * 0.125 * sin(maskProgress * PI);     // rotate by 1/8th of PI (i.e 16th turn of a circle), that peaks at maskProgress = 0.5
+    float stepEdgeCurve = 1.0 - sin(animateProgress * PI) * 2.0;    // multiply by 3 so that when animateProgress = 1, step edge contains more of the uv
+    float startEndCurve = smoothstep(0.2, 1.0, animateProgress);
+    float rotateCurve = PI * 0.125 * sin(animateProgress * PI);     // rotate by 1/8th of PI (i.e 16th turn of a circle), that peaks at animateProgress = 0.5
 
     vec2 videoPanelStartPos = getRectPos(startRect, uv);
     vec2 videoPanelEndPos = getRectPos(endRect, uv);
