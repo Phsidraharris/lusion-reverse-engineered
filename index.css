@@ -20,6 +20,7 @@ body {
     color: #1c1d21;
     opacity: 1;
     transition: opacity 0.1s;
+    overscroll-behavior-y: none;
 
     .fade-out {
         opacity: 0;
