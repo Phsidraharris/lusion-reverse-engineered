@@ -1,3 +1,5 @@
+#define REFERENCE_ASPECT 1.77777777778
+
 uniform float animateProgress;
 uniform float borderRadius;
 uniform vec4 startRect;
@@ -36,7 +38,18 @@ float roundedCornerMask() {
 }
 
 void main() {
-    vec4 albedo = texture2D(map, vUv);
+    vec2 uv = vUv;
+
+    // if aspect = 16 / 9, take uvs as they are
+    // if aspect becomes wider then we want to see less
+    // css prevents aspect from being lower than 16/9 (but lets it be wider)
+    float aspect = getAspect();
+    float aspectScale = (getAspect() / REFERENCE_ASPECT) - 1.;    // will be 1 where aspect matches, > 1 if wider, < 1 if taller
+    aspectScale /= aspect;
+    
+    uv.y = mix(aspectScale, 1.0 - aspectScale, vUv.y);
+
+    vec4 albedo = texture2D(map, uv);
 
     float tintCurve = 1.0 - smoothstep(1., 0.0, animateProgress);
 
