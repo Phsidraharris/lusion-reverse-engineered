@@ -23,20 +23,20 @@ export default class ProjectTile extends THREE.Group {
     taperAmount = { value: 0 };
     tileMesh;
     tileMeshMat = new TileMeshMaterial(this.taperAmount);
-    targetCameraPosition = CAMERA_POS_START.clone();//new THREE.Vector3(CAMERA_POS_START.x, CAMERA_POS_START.y, CAMERA_POS_START.z);
+    targetCameraPosition = CAMERA_POS_START.clone();
     forceRenderOnce = true;
 
     get renderTexture() {
         return this.renderTarget.texture;
     }
 
-    constructor(elementId, homeScene) {
+    constructor(elementId, backgroundColor, homeScene) {
         super();
 
         this.elementId = elementId;
         this.homeScene = homeScene;
 
-        this.initPortalScene();
+        this.initPortalScene(backgroundColor);
         this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
@@ -46,24 +46,11 @@ export default class ProjectTile extends THREE.Group {
         this.initDebug();
     }
 
-    initPortalScene = () => {
-        this.portalScene.background = new THREE.Color("#222");
+    initPortalScene = (backgroundColor) => {
+        this.portalScene.background = new THREE.Color(backgroundColor);
 
         this.portalCamera.position.copy(this.targetCameraPosition);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
-
-        const portalObjMat = new THREE.MeshStandardMaterial({ transparent: true });
-        const portalSphere = new THREE.Mesh(new THREE.SphereGeometry(0.3), portalObjMat);
-
-        const portalBox = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), portalObjMat);
-        portalBox.rotateY(Math.PI * 0.25);
-        portalBox.rotateX(Math.PI * 0.25);
-
-        this.portalScene.add(portalBox, portalSphere);
-
-        const light = new THREE.DirectionalLight("white", 2);
-        light.position.random();
-        this.portalScene.add(light);
     }
 
     initTileMesh() {

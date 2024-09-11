@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import ProjectTile from "./projectTiles/ProjectTile";
+import ProjectTileRobotScene from "./projectTiles/ProjectTileRobotScene";
 
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
@@ -20,25 +21,17 @@ export default class ProjectTiles extends THREE.Group {
         window.addEventListener("resize", () => this.initTiles());
     }
 
-    initTiles = () => {
+    initTiles = async () => {
         this.projectTiles.forEach(projectTile => {
             this.remove(projectTile);
             projectTile.cleanup();
         });
 
-        const loader = new GLTFLoader();
-
-        ELEMENT_IDS.forEach(elementId => {
-            const projectTile = new ProjectTile(elementId, this.homeScene);
-
-            // loader.load('../assets/project-tiles/rp_mei_posed_001_30k.glb', (gltf) => {
-            //     projectTile.addToPortalScene(gltf.scene);
-            //     projectTile.forceRenderOnce = true;
-            // });
-
-            this.add(projectTile);
-            this.projectTiles.push(projectTile);
-        });
+        const projectTile1 = new ProjectTile("tile-1", "#44cc00", this.homeScene);
+        const robotScene = await ProjectTileRobotScene.CreateAsync();
+        projectTile1.addToPortalScene(robotScene);
+        this.add(projectTile1);
+        this.projectTiles.push(projectTile1);
     }
 
     /**
