@@ -8,7 +8,7 @@ const ASPECT = 16 / 9;
 const CAMERA_POS_START = new THREE.Vector3(0, 0, 4);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
-const RENDER_TEXTURE_WIDTH = 512;
+const RENDER_TEXTURE_WIDTH = 2048;
 const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
 
 export default class ProjectTile extends THREE.Group {
