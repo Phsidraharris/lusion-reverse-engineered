@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { Vector4 } from "three";
 import { debugGui } from "./debugGui";
-import videoPanelVFrag from "./shaders/videoPanelFrag.glsl?raw";
-import videoPanelVert from "./shaders/videoPanelVert.glsl?raw";
+import videoPanelVFrag from "./shaders/videoPanelFrag.glsl";
+import videoPanelVert from "./shaders/videoPanelVert.glsl";
 import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords } from "./utils/utils";
 
 const PANEL_START_ID = "video-panel-start";

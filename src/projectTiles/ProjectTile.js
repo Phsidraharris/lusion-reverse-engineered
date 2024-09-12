@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { debugGui } from "../debugGui";
-import projectTileFrag from "../shaders/projectTileFrag.glsl?raw";
-import projectTileVert from "../shaders/projectTileVert.glsl?raw";
+import projectTileFrag from "../shaders/projectTileFrag.glsl";
+import projectTileVert from "../shaders/projectTileVert.glsl";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { elementToWorldRect } from "../utils/utils";
 
@@ -186,7 +186,7 @@ export default class ProjectTile extends THREE.Group {
 
     initDebug = () => {
         const folder = debugGui.addFolder("Project Tile");
-        folder.add(this.taperAmount, "value", -1, 1);
+        folder.add(this.taperAmount, "value", -1, 1).name("Taper amount");
     }
 
     update(dt, renderer) {
