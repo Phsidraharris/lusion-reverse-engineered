@@ -42,7 +42,7 @@ export default class ProjectTiles extends THREE.Group {
         projectTile3.addToPortalScene(gridScene.scene);
 
         const projectTile4 = new ProjectTile("tile-4", this.homeScene);
-        const foxScene = await loader.loadAsync("../../assets/project-tiles/fox_in_a_cape.glb")
+        const foxScene = await loader.loadAsync("../../assets/project-tiles/tile-4.glb")
         projectTile4.addToPortalScene(foxScene.scene);
 
         this.add(projectTile1);
