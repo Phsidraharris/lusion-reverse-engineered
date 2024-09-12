@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { debugGui } from "../debugGui";
-import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
-import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
-import projectTileVert from "../shaders/projectTileVert.glsl?raw";
 import projectTileFrag from "../shaders/projectTileFrag.glsl?raw";
+import projectTileVert from "../shaders/projectTileVert.glsl?raw";
+import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
+import { elementToWorldRect } from "../utils/utils";
 
 const ASPECT = 16 / 9;
 const DEFAULT_BG_COLOUR = "#eee";
@@ -62,9 +62,12 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initTileMesh() {
+        const tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
+
         this.tileMeshMat = new THREE.ShaderMaterial({
             uniforms: {
                 taperAmount: this.taperAmount,
+                aspect: { value: tileWorldRect.width / tileWorldRect.height },
                 map: { value: this.renderTexture },
             },
             vertexShader: projectTileVert,
@@ -72,9 +75,8 @@ export default class ProjectTile extends THREE.Group {
             transparent: true,
         });
 
-        const tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
         this.tileMeshMat.map = this.renderTexture;
-        this.tileMesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.tileMeshMat);
+        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(tileWorldRect.width, tileWorldRect.height, 16), this.tileMeshMat);
         this.tileMesh.position.copy(tileWorldRect.position);
 
         this.add(this.tileMesh);
