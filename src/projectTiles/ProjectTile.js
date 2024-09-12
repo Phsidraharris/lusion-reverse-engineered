@@ -1,7 +1,8 @@
 import * as THREE from "three";
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { debugGui } from "../debugGui";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
-import { debugGui } from "../debugGui";
 import TileMeshMaterial from "./TileMeshMaterial";
 
 const ASPECT = 16 / 9;
@@ -46,7 +47,7 @@ export default class ProjectTile extends THREE.Group {
         this.initDebug();
     }
 
-    initPortalScene = (backgroundColor, cameraPosition) => {
+    initPortalScene = async (backgroundColor, cameraPosition) => {
         this.portalScene.background = new THREE.Color(backgroundColor || DEFAULT_BG_COLOUR);
 
         this.cameraPosition = cameraPosition || DEFAULT_CAM_POS;
@@ -54,6 +55,10 @@ export default class ProjectTile extends THREE.Group {
 
         this.portalCamera.position.copy(this.cameraPosition);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
+
+        const texture = await new RGBELoader().setPath('../assets/').loadAsync('quarry_01_1k.hdr');
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        this.portalScene.environment = texture;
     }
 
     initTileMesh() {

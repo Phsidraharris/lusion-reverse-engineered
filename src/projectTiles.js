@@ -29,27 +29,31 @@ export default class ProjectTiles extends THREE.Group {
         const loader = new GLTFLoader();
 
         // Tile 1
-        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00" });
-        const robotSceneGlb = await loader.loadAsync("../../assets/project-tiles/robot-scene.glb")
-        projectTile1.addToPortalScene(robotSceneGlb.scene);
+        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00", cameraPosition: new THREE.Vector3(3, 1, 3) });
+        const robotScene = await loader.loadAsync("../../assets/project-tiles/autonomous_robot_sweeper.glb")
+        projectTile1.addToPortalScene(robotScene.scene);
 
         const projectTile2 = new ProjectTile("tile-2", this.homeScene);
-        const ballSceneGlb = await loader.loadAsync("../../assets/project-tiles/ball-scene.glb")
-        this.adjustLightingInGlb(ballSceneGlb);
-        projectTile2.addToPortalScene(ballSceneGlb.scene);
+        const ballScene = await loader.loadAsync("../../assets/project-tiles/pool_ball.glb");
+        projectTile2.addToPortalScene(ballScene.scene);
 
-        const projectTile3 = new ProjectTile("tile-3", this.homeScene, {cameraPosition: new THREE.Vector3(0, 4, -3)});
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene, { cameraPosition: new THREE.Vector3(0, 4, -3) });
         const gridScene = await loader.loadAsync("../../assets/project-tiles/3d_grid_tool.glb")
-        this.adjustLightingInGlb(gridScene);
         projectTile3.addToPortalScene(gridScene.scene);
+
+        const projectTile4 = new ProjectTile("tile-4", this.homeScene);
+        const foxScene = await loader.loadAsync("../../assets/project-tiles/fox_in_a_cape.glb")
+        projectTile4.addToPortalScene(foxScene.scene);
 
         this.add(projectTile1);
         this.add(projectTile2);
         this.add(projectTile3);
+        this.add(projectTile4);
 
         this.projectTiles.push(projectTile1);
         this.projectTiles.push(projectTile2);
         this.projectTiles.push(projectTile3);
+        this.projectTiles.push(projectTile4);
     }
 
     adjustLightingInGlb = (glb) => {
