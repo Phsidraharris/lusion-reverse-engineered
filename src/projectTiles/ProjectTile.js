@@ -3,10 +3,11 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { debugGui } from "../debugGui";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { createBevelledPlane, elementToWorldRect } from "../utils/utils";
-import TileMeshMaterial from "./TileMeshMaterial";
+import projectTileVert from "../shaders/projectTileVert.glsl?raw";
+import projectTileFrag from "../shaders/projectTileFrag.glsl?raw";
 
 const ASPECT = 16 / 9;
-const DEFAULT_BG_COLOUR = "eee";
+const DEFAULT_BG_COLOUR = "#eee";
 const DEFAULT_CAM_POS = new THREE.Vector3(0, 0, 4);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
@@ -22,10 +23,8 @@ export default class ProjectTile extends THREE.Group {
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
-    taperAmount = { value: 0 };
-    tileMesh;
-    tileMeshMat = new TileMeshMaterial(this.taperAmount);
     forceRenderOnce = true;
+    taperAmount = { value: 0 };
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -63,6 +62,16 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initTileMesh() {
+        this.tileMeshMat = new THREE.ShaderMaterial({
+            uniforms: {
+                taperAmount: this.taperAmount,
+                map: { value: this.renderTexture },
+            },
+            vertexShader: projectTileVert,
+            fragmentShader: projectTileFrag,
+            transparent: true,
+        });
+
         const tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
         this.tileMeshMat.map = this.renderTexture;
         this.tileMesh = new THREE.Mesh(createBevelledPlane(tileWorldRect.width, tileWorldRect.height, 0.2), this.tileMeshMat);
