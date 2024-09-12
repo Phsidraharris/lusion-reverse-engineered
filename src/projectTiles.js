@@ -29,20 +29,27 @@ export default class ProjectTiles extends THREE.Group {
         const loader = new GLTFLoader();
 
         // Tile 1
-        const projectTile1 = new ProjectTile("tile-1", "#44cc00", this.homeScene);
+        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00" });
         const robotSceneGlb = await loader.loadAsync("../../assets/project-tiles/robot-scene.glb")
         projectTile1.addToPortalScene(robotSceneGlb.scene);
 
-        const projectTile2 = new ProjectTile("tile-2", "#dd77aa", this.homeScene);
-        const robotSceneGlb2 = await loader.loadAsync("../../assets/project-tiles/ball-scene.glb")
-        this.adjustLightingInGlb(robotSceneGlb2);
-        projectTile2.addToPortalScene(robotSceneGlb2.scene);
+        const projectTile2 = new ProjectTile("tile-2", this.homeScene);
+        const ballSceneGlb = await loader.loadAsync("../../assets/project-tiles/ball-scene.glb")
+        this.adjustLightingInGlb(ballSceneGlb);
+        projectTile2.addToPortalScene(ballSceneGlb.scene);
+
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene);
+        const gridScene = await loader.loadAsync("../../assets/project-tiles/3d_grid_tool.glb")
+        this.adjustLightingInGlb(gridScene);
+        projectTile3.addToPortalScene(gridScene.scene);
 
         this.add(projectTile1);
         this.add(projectTile2);
+        this.add(projectTile3);
 
         this.projectTiles.push(projectTile1);
         this.projectTiles.push(projectTile2);
+        this.projectTiles.push(projectTile3);
     }
 
     adjustLightingInGlb = (glb) => {

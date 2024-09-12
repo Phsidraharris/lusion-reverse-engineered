@@ -5,6 +5,7 @@ import { debugGui } from "../debugGui";
 import TileMeshMaterial from "./TileMeshMaterial";
 
 const ASPECT = 16 / 9;
+const DEFAULT_BG_COLOUR = "eee";
 const CAMERA_POS_START = new THREE.Vector3(0, 0, 4);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
@@ -30,13 +31,13 @@ export default class ProjectTile extends THREE.Group {
         return this.renderTarget.texture;
     }
 
-    constructor(elementId, backgroundColor, homeScene) {
+    constructor(elementId, homeScene, { backgroundColor } = {}) {
         super();
 
         this.elementId = elementId;
         this.homeScene = homeScene;
 
-        this.initPortalScene(backgroundColor);
+        this.initPortalScene(backgroundColor || DEFAULT_BG_COLOUR);
         this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
