@@ -29,16 +29,16 @@ export default class ProjectTiles extends THREE.Group {
         const loader = new GLTFLoader();
 
         // Tile 1
-        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00", cameraPosition: new THREE.Vector3(3, 1, 3) });
-        const robotScene = await loader.loadAsync("../../assets/project-tiles/autonomous_robot_sweeper.glb")
+        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00" });
+        const robotScene = await loader.loadAsync("../../assets/project-tiles/tile-1.glb")
         projectTile1.addToPortalScene(robotScene.scene);
 
         const projectTile2 = new ProjectTile("tile-2", this.homeScene);
-        const ballScene = await loader.loadAsync("../../assets/project-tiles/pool_ball.glb");
+        const ballScene = await loader.loadAsync("../../assets/project-tiles/tile-2.glb");
         projectTile2.addToPortalScene(ballScene.scene);
 
-        const projectTile3 = new ProjectTile("tile-3", this.homeScene, { cameraPosition: new THREE.Vector3(0, 4, -3) });
-        const gridScene = await loader.loadAsync("../../assets/project-tiles/3d_grid_tool.glb")
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene, );
+        const gridScene = await loader.loadAsync("../../assets/project-tiles/tile-3.glb")
         projectTile3.addToPortalScene(gridScene.scene);
 
         const projectTile4 = new ProjectTile("tile-4", this.homeScene);
@@ -62,7 +62,7 @@ export default class ProjectTiles extends THREE.Group {
 
         lights.forEach(light => {
             light.castShadow = true;
-            light.intensity /= 20;
+            light.intensity /= 40;
             light.shadow.radius = 16;
         });
 

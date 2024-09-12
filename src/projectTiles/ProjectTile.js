@@ -56,9 +56,10 @@ export default class ProjectTile extends THREE.Group {
         this.portalCamera.position.copy(this.cameraPosition);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
 
-        const texture = await new RGBELoader().setPath('../assets/').loadAsync('quarry_01_1k.hdr');
+        const texture = await new RGBELoader().setPath('../assets/hdri/').loadAsync('studio_small_08_1k.hdr');
         texture.mapping = THREE.EquirectangularReflectionMapping;
         this.portalScene.environment = texture;
+        this.portalScene.environmentIntensity = 0.8;
     }
 
     initTileMesh() {
