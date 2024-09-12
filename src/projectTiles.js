@@ -38,7 +38,7 @@ export default class ProjectTiles extends THREE.Group {
         this.adjustLightingInGlb(ballSceneGlb);
         projectTile2.addToPortalScene(ballSceneGlb.scene);
 
-        const projectTile3 = new ProjectTile("tile-3", this.homeScene);
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene, {cameraPosition: new THREE.Vector3(0, 4, -3)});
         const gridScene = await loader.loadAsync("../../assets/project-tiles/3d_grid_tool.glb")
         this.adjustLightingInGlb(gridScene);
         projectTile3.addToPortalScene(gridScene.scene);

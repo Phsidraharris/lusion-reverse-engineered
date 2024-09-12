@@ -6,7 +6,7 @@ import TileMeshMaterial from "./TileMeshMaterial";
 
 const ASPECT = 16 / 9;
 const DEFAULT_BG_COLOUR = "eee";
-const CAMERA_POS_START = new THREE.Vector3(0, 0, 4);
+const DEFAULT_CAM_POS = new THREE.Vector3(0, 0, 4);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
 const RENDER_TEXTURE_WIDTH = 2048;
@@ -24,20 +24,19 @@ export default class ProjectTile extends THREE.Group {
     taperAmount = { value: 0 };
     tileMesh;
     tileMeshMat = new TileMeshMaterial(this.taperAmount);
-    targetCameraPosition = CAMERA_POS_START.clone();
     forceRenderOnce = true;
 
     get renderTexture() {
         return this.renderTarget.texture;
     }
 
-    constructor(elementId, homeScene, { backgroundColor } = {}) {
+    constructor(elementId, homeScene, { backgroundColor, cameraPosition } = {}) {
         super();
 
         this.elementId = elementId;
         this.homeScene = homeScene;
 
-        this.initPortalScene(backgroundColor || DEFAULT_BG_COLOUR);
+        this.initPortalScene(backgroundColor, cameraPosition);
         this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
@@ -47,10 +46,13 @@ export default class ProjectTile extends THREE.Group {
         this.initDebug();
     }
 
-    initPortalScene = (backgroundColor) => {
-        this.portalScene.background = new THREE.Color(backgroundColor);
+    initPortalScene = (backgroundColor, cameraPosition) => {
+        this.portalScene.background = new THREE.Color(backgroundColor || DEFAULT_BG_COLOUR);
 
-        this.portalCamera.position.copy(this.targetCameraPosition);
+        this.cameraPosition = cameraPosition || DEFAULT_CAM_POS;
+        this.targetCameraPosition = this.cameraPosition.clone();
+
+        this.portalCamera.position.copy(this.cameraPosition);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
     }
 
@@ -78,13 +80,13 @@ export default class ProjectTile extends THREE.Group {
         x = (x - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
         y = (y - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
 
-        this.targetCameraPosition.x = CAMERA_POS_START.x + x;
-        this.targetCameraPosition.y = CAMERA_POS_START.y - y;
-        this.targetCameraPosition.z = CAMERA_POS_START.z;
+        this.targetCameraPosition.x = this.cameraPosition.x + x;
+        this.targetCameraPosition.y = this.cameraPosition.y - y;
+        this.targetCameraPosition.z = this.cameraPosition.z;
     }
 
     onMouseLeave = (e) => {
-        this.targetCameraPosition.copy(CAMERA_POS_START);
+        this.targetCameraPosition.copy(this.cameraPosition);
     }
 
     onClick = async () => {
