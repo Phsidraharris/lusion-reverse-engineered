@@ -8,9 +8,8 @@ varying vec2 vUv;
 
 void main() {
     vec4 albedo = texture2D(map, vUv);
-    
-    float taperScaled = taperAmount * vUv.y;
-    albedo.a = roundedCornerMask(vUv, 0.1, aspect, taperScaled);
 
+    float taperScaled = taperAmount * cos(vUv.y);
+    albedo.a = roundedCornerMask(vUv, 0.1, aspect, taperScaled);
     gl_FragColor = albedo;
 }
