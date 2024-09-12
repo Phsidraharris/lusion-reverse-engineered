@@ -37,4 +37,5 @@ void main() {
     albedo.rgb = mix(albedo.rgb * tintColour, albedo.rgb, tintCurve);
 
     gl_FragColor = albedo;
+    // gl_FragColor = vec4(vec3(vUv.x), 1.);
 }

@@ -8,7 +8,7 @@ varying vec2 vUv;
 void main() {
     vec4 albedo = texture2D(map, vUv);
     
-    albedo.a = roundedCornerMask(vUv, 0.2, aspect);
+    albedo.a = roundedCornerMask(vUv, 0.1, aspect);
 
     gl_FragColor = albedo;
 }

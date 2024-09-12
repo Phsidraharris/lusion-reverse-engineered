@@ -37,8 +37,6 @@ void main() {
     mask *= smoothstep(stepEdgeCurve, 1.0, uv.y);
 
     pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndCurve);
-
-    pos.xy += vec2(0.1, 0.1) * mask;
     pos.xy = rotate(pos.xy, rotateCurve * mask);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
