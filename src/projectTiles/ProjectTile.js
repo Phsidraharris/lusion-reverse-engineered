@@ -26,6 +26,7 @@ export default class ProjectTile extends THREE.Group {
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
     maskAmount = { value: HORIZONTAL_MASK_CLOSED };
+    stretchAmount = { value:0.3 }
     targetMaskAmount = HORIZONTAL_MASK_CLOSED;
 
     get renderTexture() {
@@ -72,6 +73,7 @@ export default class ProjectTile extends THREE.Group {
             uniforms: {
                 maskAmount: this.maskAmount,
                 aspect: { value: this.tileWorldRect.width / this.tileWorldRect.height },
+                stretchAmount: this.stretchAmount,
                 map: { value: this.renderTexture },
             },
             vertexShader: projectTileVert,
@@ -80,7 +82,7 @@ export default class ProjectTile extends THREE.Group {
         });
 
         this.tileMeshMat.map = this.renderTexture;
-        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.tileWorldRect.width, this.tileWorldRect.height, 16), this.tileMeshMat);
+        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.tileWorldRect.width, this.tileWorldRect.height, 64), this.tileMeshMat);
         this.tileMesh.position.copy(this.tileWorldRect.position);
 
         this.add(this.tileMesh);
@@ -197,7 +199,8 @@ export default class ProjectTile extends THREE.Group {
 
     initDebug = () => {
         const folder = debugGui.addFolder("Project Tile");
-        folder.add(this.maskAmount, "value", -1, 1).name("Taper amount");
+        folder.add(this.maskAmount, "value", -1, 1).name("Mask amount");
+        folder.add(this.stretchAmount, "value", -1, 1).name("Stretch amount");
     }
 
     onScroll = () => {
