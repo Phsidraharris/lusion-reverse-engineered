@@ -13,6 +13,8 @@ const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
 const RENDER_TEXTURE_WIDTH = 2048;
 const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
+const HORIZONTAL_MASK_CLOSED = 0.5;
+const HORIZONTAL_MASK_OPEN = 0;
 
 export default class ProjectTile extends THREE.Group {
     tileElementId;
@@ -23,8 +25,8 @@ export default class ProjectTile extends THREE.Group {
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
-    forceRenderOnce = true;
-    taperAmount = { value: 0.5 };
+    maskAmount = { value: HORIZONTAL_MASK_CLOSED };
+    targetMaskAmount = HORIZONTAL_MASK_CLOSED;
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -38,10 +40,13 @@ export default class ProjectTile extends THREE.Group {
 
         this.initPortalScene();
         this.initTileMesh();
+        this.initInteractionObserver();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
         document.getElementById(elementId).addEventListener("mouseleave", this.onMouseLeave);
         document.getElementById(elementId).addEventListener("click", this.onClick);
+
+        window.addEventListener("scroll", this.onScroll);
 
         this.initDebug();
     }
@@ -61,12 +66,12 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initTileMesh() {
-        const tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
+        this.tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
 
         this.tileMeshMat = new THREE.ShaderMaterial({
             uniforms: {
-                taperAmount: this.taperAmount,
-                aspect: { value: tileWorldRect.width / tileWorldRect.height },
+                maskAmount: this.maskAmount,
+                aspect: { value: this.tileWorldRect.width / this.tileWorldRect.height },
                 map: { value: this.renderTexture },
             },
             vertexShader: projectTileVert,
@@ -75,10 +80,17 @@ export default class ProjectTile extends THREE.Group {
         });
 
         this.tileMeshMat.map = this.renderTexture;
-        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(tileWorldRect.width, tileWorldRect.height, 16), this.tileMeshMat);
-        this.tileMesh.position.copy(tileWorldRect.position);
+        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.tileWorldRect.width, this.tileWorldRect.height, 16), this.tileMeshMat);
+        this.tileMesh.position.copy(this.tileWorldRect.position);
 
         this.add(this.tileMesh);
+    }
+
+    initInteractionObserver = () => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => this.targetMaskAmount = entry.isIntersecting ? HORIZONTAL_MASK_OPEN : HORIZONTAL_MASK_CLOSED);
+        });
+        observer.observe(document.getElementById(this.elementId));
     }
 
     addToPortalScene = (object) => {
@@ -185,26 +197,21 @@ export default class ProjectTile extends THREE.Group {
 
     initDebug = () => {
         const folder = debugGui.addFolder("Project Tile");
-        folder.add(this.taperAmount, "value", -1, 1).name("Taper amount");
+        folder.add(this.maskAmount, "value", -1, 1).name("Taper amount");
+    }
+
+    onScroll = () => {
+        // did this project tile become visible?
+
     }
 
     update(dt, renderer) {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
-        // this.portalCamera.lookAt(CAMERA_LOOKAT);
+        this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.targetMaskAmount, dt * 3);
 
-        // if (!this.forceRenderOnce) {
-        //     const vec = new THREE.Vector3();
-        //     vec.subVectors(this.targetCameraPosition, this.portalCamera.position);
-
-        //     if (vec.lengthSq() < 0.00001) {
-        //         return;
-        //     }
-        // }
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
-
-        // this.forceRenderOnce = false;
     }
 
     cleanup() {
