@@ -47,6 +47,7 @@ export default class VideoPanelShader extends THREE.Group {
 
         this.scrollPositionAnimStart = getElementPageCoords(PANEL_START_ID).y + window.scrollY - window.innerHeight * 0.5;
         this.scrollPositionAnimEnd = getElementPageCoords(PANEL_END_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.scrollPositionAnimFollowEnd = getElementPageCoords(PANEL_END_PARENT_ID).y + window.scrollY - window.innerHeight * 0.5;
 
         window.addEventListener("scroll", this.onScroll);
 
@@ -56,6 +57,10 @@ export default class VideoPanelShader extends THREE.Group {
     onScroll = (e) => {
         this.animateProgress.value = THREE.MathUtils.inverseLerp(this.scrollPositionAnimStart, this.scrollPositionAnimEnd, window.scrollY);
         this.animateProgress.value = THREE.MathUtils.clamp(this.animateProgress.value, 0, 1);
+
+        let positionFollowAmount = THREE.MathUtils.inverseLerp(this.scrollPositionAnimEnd, this.scrollPositionAnimFollowEnd, window.scrollY);
+        positionFollowAmount = THREE.MathUtils.clamp(positionFollowAmount, 0, 1);
+        this.mesh.position.y = -positionFollowAmount * 2.5;
     }
 
     initDebug = () => {
