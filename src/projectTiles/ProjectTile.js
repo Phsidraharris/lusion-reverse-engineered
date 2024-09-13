@@ -5,6 +5,7 @@ import projectTileFrag from "../shaders/projectTileFrag.glsl";
 import projectTileVert from "../shaders/projectTileVert.glsl";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { elementToWorldRect } from "../utils/utils";
+import { clamp } from "three/src/math/MathUtils.js";
 
 const ASPECT = 16 / 9;
 const DEFAULT_BG_COLOUR = "#eee";
@@ -25,7 +26,7 @@ export default class ProjectTile extends THREE.Group {
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
-    stretchAmount = { value: 0.3 }
+    stretchAmount = { value: 0.0, targetValue: 0.0 }
     maskAmount = { value: HORIZONTAL_MASK_CLOSED };
     targetMaskAmount = HORIZONTAL_MASK_CLOSED;
 
@@ -205,15 +206,25 @@ export default class ProjectTile extends THREE.Group {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.targetMaskAmount, dt * 3);
 
-        if (this.lastScrollPosition !== window.scrollY) {
-            const distance = window.scrollY - this.lastScrollPosition;
-            const speed = distance / dt;    // pixels per second
-        }
-        this.lastScrollPosition = window.scrollY;
+        this.updateStretchAmount(dt);
 
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
         renderer.setRenderTarget(null);
+    }
+
+    updateStretchAmount(dt) {
+        if (!!this.lastScrollPosition && this.lastScrollPosition !== window.scrollY) {
+            const distance = window.scrollY - this.lastScrollPosition;
+            const speed = distance / dt;    // pixels per second
+            this.stretchAmount.targetValue = THREE.MathUtils.clamp(speed * 0.00005, -1, 1);
+        }
+        else {
+            this.stretchAmount.targetValue = 0;
+        }
+        this.lastScrollPosition = window.scrollY;
+
+        this.stretchAmount.value = THREE.MathUtils.lerp(this.stretchAmount.value, this.stretchAmount.targetValue, dt * 5);
     }
 
     cleanup() {
