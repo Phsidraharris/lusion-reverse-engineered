@@ -37,10 +37,7 @@ body {
 
 h1 {
     font-size: var(--h1-font-size);
-}
-
-h2 {
-    font-size: 7vw;
+    margin-bottom: 5rem;
 }
 
 p {
@@ -122,6 +119,7 @@ section {
                 h1 {
                     display: inline-block;
                     visibility: hidden;
+                    margin: 0;
                 }
 
                 #h1-topline {
@@ -181,7 +179,7 @@ section {
         .project-tiles-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(160px, 1fr));
-            gap: 3rem;
+            gap: 4rem;
 
             .project-tile {
                 display: flex;
@@ -193,6 +191,7 @@ section {
                 .project-tile-thumb {
                     width: 100%;
                     height: 100%;
+                    margin-bottom: 1rem;
                 }
             }
         }
