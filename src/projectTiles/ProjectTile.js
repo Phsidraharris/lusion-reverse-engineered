@@ -25,8 +25,8 @@ export default class ProjectTile extends THREE.Group {
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
+    stretchAmount = { value: 0.3 }
     maskAmount = { value: HORIZONTAL_MASK_CLOSED };
-    stretchAmount = { value:0.3 }
     targetMaskAmount = HORIZONTAL_MASK_CLOSED;
 
     get renderTexture() {
@@ -46,8 +46,6 @@ export default class ProjectTile extends THREE.Group {
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
         document.getElementById(elementId).addEventListener("mouseleave", this.onMouseLeave);
         document.getElementById(elementId).addEventListener("click", this.onClick);
-
-        window.addEventListener("scroll", this.onScroll);
 
         this.initDebug();
     }
@@ -203,14 +201,15 @@ export default class ProjectTile extends THREE.Group {
         folder.add(this.stretchAmount, "value", -1, 1).name("Stretch amount");
     }
 
-    onScroll = () => {
-        // did this project tile become visible?
-
-    }
-
     update(dt, renderer) {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.targetMaskAmount, dt * 3);
+
+        if (this.lastScrollPosition !== window.scrollY) {
+            const distance = window.scrollY - this.lastScrollPosition;
+            const speed = distance / dt;    // pixels per second
+        }
+        this.lastScrollPosition = window.scrollY;
 
         renderer.setRenderTarget(this.renderTarget);
         renderer.render(this.portalScene, this.portalCamera);
