@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import Stats from 'three/addons/libs/stats.module.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import Stats from "three/addons/libs/stats.module.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { AnimatedTube } from "./animatedTube";
 import { debugGui } from "./debugGui";
 import PhysicsSandbox from "./physicsSandbox";
@@ -30,7 +30,7 @@ class HomeScene {
         document.body.appendChild(this.stats.dom);
 
         window.addEventListener("scroll", this.onScroll);
-        window.addEventListener('resize', this.onWindowResized);
+        window.addEventListener("resize", this.onWindowResized);
 
         this.initDebug();
     }
@@ -56,7 +56,7 @@ class HomeScene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(window.getComputedStyle(document.body).backgroundColor);
 
-        new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', (texture) => {
+        new RGBELoader().setPath("assets/").load("quarry_01_1k.hdr", (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;
         });
@@ -77,7 +77,7 @@ class HomeScene {
     }
 
     onScroll = () => {
-        // Move the threejs camera's y position to make it appear to be scrolling with the page.
+        // Move the threejs camera"s y position to make it appear to be scrolling with the page.
         this.camera.position.y = -window.scrollY / window.innerHeight * this.frustumSize;
     }
 
