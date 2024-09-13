@@ -3,7 +3,7 @@ import { Vector4 } from "three";
 import { debugGui } from "./debugGui";
 import videoPanelVFrag from "./shaders/videoPanelFrag.glsl";
 import videoPanelVert from "./shaders/videoPanelVert.glsl";
-import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords } from "./utils/utils";
+import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords, pagePixelsToWorldUnit } from "./utils/utils";
 
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
@@ -45,22 +45,29 @@ export default class VideoPanelShader extends THREE.Group {
         this.mesh.frustumCulled = false;
         this.add(this.mesh);
 
-        this.scrollPositionAnimStart = getElementPageCoords(PANEL_START_ID).y + window.scrollY - window.innerHeight * 0.5;
-        this.scrollPositionAnimEnd = getElementPageCoords(PANEL_END_ID).y + window.scrollY - window.innerHeight * 0.5;
-        this.scrollPositionAnimFollowEnd = getElementPageCoords(PANEL_END_PARENT_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.calculateElementValues();
 
         window.addEventListener("scroll", this.onScroll);
 
         this.initDebug();
     }
 
+    calculateElementValues() {
+        this.scrollPositionAnimStart = getElementPageCoords(PANEL_START_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.scrollPositionAnimEnd = getElementPageCoords(PANEL_END_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.scrollPositionAnimFollowEnd = getElementPageCoords(PANEL_END_PARENT_ID).y + window.scrollY - window.innerHeight * 0.5;
+        this.followDistanceWorld = pagePixelsToWorldUnit(this.scrollPositionAnimFollowEnd - this.scrollPositionAnimEnd, this.camera);
+    }
+
     onScroll = (e) => {
         this.animateProgress.value = THREE.MathUtils.inverseLerp(this.scrollPositionAnimStart, this.scrollPositionAnimEnd, window.scrollY);
         this.animateProgress.value = THREE.MathUtils.clamp(this.animateProgress.value, 0, 1);
 
+        const distanceWorld = pagePixelsToWorldUnit(this.scrollPositionAnimFollowEnd - this.scrollPositionAnimEnd, this.camera);
         let positionFollowAmount = THREE.MathUtils.inverseLerp(this.scrollPositionAnimEnd, this.scrollPositionAnimFollowEnd, window.scrollY);
         positionFollowAmount = THREE.MathUtils.clamp(positionFollowAmount, 0, 1);
-        this.mesh.position.y = -positionFollowAmount * 3;
+
+        this.mesh.position.y = -positionFollowAmount * distanceWorld;
     }
 
     initDebug = () => {
@@ -85,11 +92,15 @@ export default class VideoPanelShader extends THREE.Group {
     }
 
     resize = () => {
+        this.calculateElementValues();
+
         const startRectLocal = elementToLocalRect(PANEL_START_ID, this, this.camera);
         const endRectLocal = elementToLocalRect(PANEL_END_ID, this, this.camera);
 
         this.material.uniforms.startRect.value = VideoPanelShader.rectToVec4(startRectLocal);
         this.material.uniforms.endRect.value = VideoPanelShader.rectToVec4(endRectLocal);
+    
+        this.onScroll();
     }
 
     update = () => { }
