@@ -9,7 +9,7 @@
 
 html {
     scroll-behavior: smooth;
-    font: 10px Arial, sans-serif;
+    font: 14px Arial, sans-serif;
 }
 
 body {
@@ -37,7 +37,7 @@ body {
 
 h1 {
     font-size: var(--h1-font-size);
-    margin-bottom: 5rem;
+    margin-bottom: 2rem;
 }
 
 p {
@@ -72,9 +72,6 @@ section {
     padding: 0 4vw;
     width: 100vw;
     min-height: 100vh;
-
-    /* Debug */
-    border-top: 1px dashed grey;
 
     header {
         padding: 3vw 0;
@@ -158,7 +155,6 @@ section {
             position: relative;
             width: 100%;
             margin: 20vh auto 10vh auto;
-            border: 1px solid green;
             aspect-ratio: 16/9;
 
             @media (min-aspect-ratio: 3/2) {
