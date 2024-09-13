@@ -29,7 +29,7 @@ export default class ProjectTiles extends THREE.Group {
         const loader = new GLTFLoader();
 
         // Tile 1
-        const projectTile1 = new ProjectTile("tile-1", this.homeScene, { backgroundColor: "#44cc00" });
+        const projectTile1 = new ProjectTile("tile-1", this.homeScene);
         const robotScene = await loader.loadAsync("../../assets/project-tiles/tile-1.glb")
         projectTile1.addToPortalScene(robotScene.scene);
 
@@ -37,7 +37,7 @@ export default class ProjectTiles extends THREE.Group {
         const ballScene = await loader.loadAsync("../../assets/project-tiles/tile-2.glb");
         projectTile2.addToPortalScene(ballScene.scene);
 
-        const projectTile3 = new ProjectTile("tile-3", this.homeScene, );
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene,);
         const gridScene = await loader.loadAsync("../../assets/project-tiles/tile-3.glb")
         projectTile3.addToPortalScene(gridScene.scene);
 

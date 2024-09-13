@@ -24,19 +24,19 @@ export default class ProjectTile extends THREE.Group {
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
     forceRenderOnce = true;
-    taperAmount = { value: 0 };
+    taperAmount = { value: 0.5 };
 
     get renderTexture() {
         return this.renderTarget.texture;
     }
 
-    constructor(elementId, homeScene, { backgroundColor, cameraPosition } = {}) {
+    constructor(elementId, homeScene) {
         super();
 
         this.elementId = elementId;
         this.homeScene = homeScene;
 
-        this.initPortalScene(backgroundColor, cameraPosition);
+        this.initPortalScene();
         this.initTileMesh();
 
         document.getElementById(elementId).addEventListener("mousemove", this.onMouseMove);
@@ -47,12 +47,11 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initPortalScene = async (backgroundColor, cameraPosition) => {
-        this.portalScene.background = new THREE.Color(backgroundColor || DEFAULT_BG_COLOUR);
+        this.portalScene.background = new THREE.Color(DEFAULT_BG_COLOUR);
 
-        this.cameraPosition = cameraPosition || DEFAULT_CAM_POS;
-        this.targetCameraPosition = this.cameraPosition.clone();
+        this.targetCameraPosition = DEFAULT_CAM_POS.clone();
 
-        this.portalCamera.position.copy(this.cameraPosition);
+        this.portalCamera.position.copy(DEFAULT_CAM_POS);
         this.portalCamera.lookAt(CAMERA_LOOKAT);
 
         const texture = await new RGBELoader().setPath('../assets/hdri/').loadAsync('studio_small_08_1k.hdr');
@@ -97,13 +96,13 @@ export default class ProjectTile extends THREE.Group {
         x = (x - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
         y = (y - 0.5) * 2 * CAMERA_MOVEMENT_COEF;
 
-        this.targetCameraPosition.x = this.cameraPosition.x + x;
-        this.targetCameraPosition.y = this.cameraPosition.y - y;
-        this.targetCameraPosition.z = this.cameraPosition.z;
+        this.targetCameraPosition.x = DEFAULT_CAM_POS.x + x;
+        this.targetCameraPosition.y = DEFAULT_CAM_POS.y - y;
+        this.targetCameraPosition.z = DEFAULT_CAM_POS.z;
     }
 
     onMouseLeave = (e) => {
-        this.targetCameraPosition.copy(this.cameraPosition);
+        this.targetCameraPosition.copy(DEFAULT_CAM_POS);
     }
 
     onClick = async () => {
