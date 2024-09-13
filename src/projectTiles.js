@@ -16,8 +16,6 @@ export default class ProjectTiles extends THREE.Group {
 
         this.homeScene = homeScene;
         this.initTiles();
-
-        window.addEventListener("resize", () => this.initTiles());
     }
 
     initTiles = async () => {
@@ -72,6 +70,10 @@ export default class ProjectTiles extends THREE.Group {
         })
 
         console.log(meshes)
+    }
+
+    resize = () => {
+        this.projectTiles.forEach(projectTile => projectTile.resize());
     }
 
     /**

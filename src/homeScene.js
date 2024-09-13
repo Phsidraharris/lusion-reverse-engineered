@@ -82,6 +82,11 @@ class HomeScene {
     onWindowResized = () => {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         updateCameraIntrisics(this.camera, this.frustumSize);
+
+        this.physicsSandbox && this.physicsSandbox.resize();
+        this.animatedTube && this.animatedTube.resize();
+        this.videoPanel && this.videoPanel.resize();
+        this.projectTiles && this.projectTiles.resize();
     }
 
     animate = () => {
@@ -91,6 +96,7 @@ class HomeScene {
         this.animatedTube && this.animatedTube.update(dt);
         this.videoPanel && this.videoPanel.update(dt);
         this.projectTiles && this.projectTiles.update(dt, this.renderer);
+
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
     }

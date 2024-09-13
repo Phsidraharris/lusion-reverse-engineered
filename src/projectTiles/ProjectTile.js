@@ -200,6 +200,16 @@ export default class ProjectTile extends THREE.Group {
         folder.add(this.stretchAmount, "value", -1, 1).name("Stretch amount");
     }
 
+    resize = () => {
+        this.tileWorldRect = elementToWorldRect(this.elementId, this.homeScene.camera);
+
+        this.remove(this.tileMesh);
+
+        this.tileMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.tileWorldRect.width, this.tileWorldRect.height, 64), this.tileMeshMat);
+        this.tileMesh.position.copy(this.tileWorldRect.position);
+        this.add(this.tileMesh);
+    }
+
     update(dt, renderer) {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
         this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.maskAmount.targetValue, dt * 3);

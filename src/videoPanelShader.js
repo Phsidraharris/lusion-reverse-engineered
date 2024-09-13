@@ -77,5 +77,9 @@ export default class VideoPanelShader extends THREE.Group {
         );
     }
 
-    update() { }
+    resize = () => {
+
+    }
+
+    update = () => { }
 }

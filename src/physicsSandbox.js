@@ -33,7 +33,6 @@ export default class PhysicsSandbox extends THREE.Group {
         this.initObjects();
 
         window.addEventListener('mousemove', this.onMouseMove, false);
-        window.addEventListener('resize', this.onWindowResized);
     }
 
     initViewMask = () => {
@@ -139,7 +138,7 @@ export default class PhysicsSandbox extends THREE.Group {
         this.meshBodyLookup.set(mesh, rigidbody);
     }
 
-    onWindowResized = () => {
+    resize = () => {
         this.remove(this.physicsMaskMesh);
         this.initViewMask();
     }

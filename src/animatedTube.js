@@ -47,10 +47,8 @@ export class AnimatedTube extends THREE.Group {
         this.position.y = -3;
         this.position.z = -1;
         window.addEventListener("scroll", e => this.onScroll());
-        window.addEventListener("resize", e => this.onResize());
         this.onScroll();
-        this.onResize();
-
+        this.resize();
     }
 
     onScroll(e) {
@@ -58,7 +56,7 @@ export class AnimatedTube extends THREE.Group {
         this.targetDrawPercent = v;
     }
 
-    onResize(e) {
+    resize = () => {
         this.mesh.position.x = this.camera.left;
         this.mesh.position.y = this.camera.bottom * 1.5;
     }
