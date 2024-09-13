@@ -19,6 +19,8 @@ export default class VideoPanelShader extends THREE.Group {
     constructor(camera) {
         super();
 
+        this.camera = camera;
+
         const startWorldRect = elementToWorldRect(PANEL_START_ID, camera);
         this.position.copy(startWorldRect.position);
 
@@ -78,7 +80,11 @@ export default class VideoPanelShader extends THREE.Group {
     }
 
     resize = () => {
+        const startRectLocal = elementToLocalRect(PANEL_START_ID, this, this.camera);
+        const endRectLocal = elementToLocalRect(PANEL_END_ID, this, this.camera);
 
+        this.material.uniforms.startRect.value = VideoPanelShader.rectToVec4(startRectLocal);
+        this.material.uniforms.endRect.value = VideoPanelShader.rectToVec4(endRectLocal);
     }
 
     update = () => { }
