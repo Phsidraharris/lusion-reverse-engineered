@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { Line2, LineGeometry, LineMaterial } from "three/examples/jsm/Addons.js";
 import nurbsJson from "../assets/nurbs-canxerian.json";
 import { debugGui } from "./debugGui";

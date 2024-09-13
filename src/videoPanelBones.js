@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { debugGui } from "./debugGui";
 import { createBevelledPlane, elementToLocalRectPoints, elementToWorldRect } from "./utils/utils";

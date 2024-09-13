@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import Stats from "three/addons/libs/stats.module.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { AnimatedTube } from "./animatedTube";
@@ -7,6 +7,7 @@ import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils/utils";
 import VideoPanelShader from "./videoPanelShader";
+import hdr from "../assets/hdri/quarry_01_1k.hdr";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -49,15 +50,15 @@ class HomeScene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(window.getComputedStyle(document.body).backgroundColor);
 
-        new RGBELoader().setPath("assets/").load("quarry_01_1k.hdr", (texture) => {
+        new RGBELoader().load(hdr, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;
         });
     }
 
     initScene = () => {
-        this.physicsSandbox = new PhysicsSandbox(this.camera);
-        this.scene.add(this.physicsSandbox);
+        // this.physicsSandbox = new PhysicsSandbox(this.camera);
+        // this.scene.add(this.physicsSandbox);
 
         this.animatedTube = new AnimatedTube(this.camera);
         this.scene.add(this.animatedTube);

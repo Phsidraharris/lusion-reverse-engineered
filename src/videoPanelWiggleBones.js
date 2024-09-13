@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { MeshStandardMaterial } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { WiggleBone } from "wiggle";

@@ -1,9 +1,10 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { Vector4 } from "three";
 import { debugGui } from "./debugGui";
 import videoPanelVFrag from "./shaders/videoPanelFrag.glsl";
 import videoPanelVert from "./shaders/videoPanelVert.glsl";
 import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords, pagePixelsToWorldUnit } from "./utils/utils";
+import mp4 from "../assets/pexels-2519660-uhd_3840_2160_24fps.mp4";
 
 const PANEL_START_ID = "video-panel-start";
 const PANEL_END_ID = "video-panel-end";
@@ -24,7 +25,7 @@ export default class VideoPanelShader extends THREE.Group {
         const startWorldRect = elementToWorldRect(PANEL_START_ID, camera);
         this.position.copy(startWorldRect.position);
 
-        const videoTexture = createVideoTexture("assets/pexels-2519660-uhd_3840_2160_24fps.mp4");
+        const videoTexture = createVideoTexture(mp4);
         const startRectLocal = elementToLocalRect(PANEL_START_ID, this, camera);
         const endRectLocal = elementToLocalRect(PANEL_END_ID, this, camera);
 
@@ -99,7 +100,7 @@ export default class VideoPanelShader extends THREE.Group {
 
         this.material.uniforms.startRect.value = VideoPanelShader.rectToVec4(startRectLocal);
         this.material.uniforms.endRect.value = VideoPanelShader.rectToVec4(endRectLocal);
-    
+
         this.onScroll();
     }
 

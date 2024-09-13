@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 import nurbsJson from "../assets/nurbs-canxerian.json";

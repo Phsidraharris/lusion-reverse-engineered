@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 
 export function createNurbsCurve(nurbsPoints, nurbsDegree = 3) {

@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
 export function pageToWorldCoords(pageX, pageY, camera) {
     const normalisedScreenCoordsX = (pageX / window.innerWidth) * 2 - 1;

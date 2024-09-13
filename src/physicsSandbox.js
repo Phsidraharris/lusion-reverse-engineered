@@ -1,5 +1,5 @@
-import RAPIER, { Ray } from "@dimforge/rapier3d";
-import * as THREE from "three";
+import { Ray } from "@dimforge/rapier3d";
+import * as THREE from 'three';
 import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils/utils";
 
 const OBJECT_COUNT = 30;
@@ -13,7 +13,7 @@ export default class PhysicsSandbox extends THREE.Group {
     positionReuse;
 
     /** @type RAPIER.World */
-    world = null;
+    // world = null;
     /** @type Map<THREE.Mesh, RAPIER.RigidBody */
     meshBodyLookup = new Map();
     /** @type {{ mesh: THREE.Mesh, rigidbody: RAPIER.RigidBody }} */
@@ -29,9 +29,10 @@ export default class PhysicsSandbox extends THREE.Group {
 
         this.camera = camera;
 
-        this.initViewMask();
-        this.initObjects();
-
+        import('@dimforge/rapier3d').then(RAPIER => {
+            this.initViewMask();
+            this.initObjects(RAPIER);
+        });
         window.addEventListener('mousemove', this.onMouseMove, false);
     }
 
@@ -57,7 +58,7 @@ export default class PhysicsSandbox extends THREE.Group {
         this.attractionPos.copy(divWorldRect.position);
     }
 
-    initObjects() {
+    initObjects(RAPIER) {
         for (let i = 0; i < OBJECT_COUNT; i++) {
             const ball = this.createBall(0.6, this.getRandomPosition(5));
             this.add(ball.mesh);

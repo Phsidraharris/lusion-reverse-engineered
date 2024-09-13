@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { FontLoader, TextGeometry } from 'three/examples/jsm/Addons.js';
 
 const FONT_PATH = 'assets/optimer_regular.typeface.json';

@@ -1,6 +1,10 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import ProjectTile from "./projectTiles/ProjectTile";
+import Tile1Glb from "../assets/project-tiles/tile-1.glb";
+import Tile2Glb from "../assets/project-tiles/tile-2.glb";
+import Tile3Glb from "../assets/project-tiles/tile-3.glb";
+import Tile4Glb from "../assets/project-tiles/tile-4.glb";
 
 const ELEMENT_IDS = ["tile-1", "tile-2", "tile-3", "tile-4"];
 
@@ -28,19 +32,19 @@ export default class ProjectTiles extends THREE.Group {
 
         // Tile 1
         const projectTile1 = new ProjectTile("tile-1", this.homeScene);
-        const robotScene = await loader.loadAsync("../../assets/project-tiles/tile-1.glb")
+        const robotScene = await loader.loadAsync(Tile1Glb)
         projectTile1.addToPortalScene(robotScene.scene);
 
         const projectTile2 = new ProjectTile("tile-2", this.homeScene);
-        const ballScene = await loader.loadAsync("../../assets/project-tiles/tile-2.glb");
+        const ballScene = await loader.loadAsync(Tile2Glb);
         projectTile2.addToPortalScene(ballScene.scene);
 
         const projectTile3 = new ProjectTile("tile-3", this.homeScene,);
-        const gridScene = await loader.loadAsync("../../assets/project-tiles/tile-3.glb")
+        const gridScene = await loader.loadAsync(Tile3Glb)
         projectTile3.addToPortalScene(gridScene.scene);
 
         const projectTile4 = new ProjectTile("tile-4", this.homeScene);
-        const foxScene = await loader.loadAsync("../../assets/project-tiles/tile-4.glb")
+        const foxScene = await loader.loadAsync(Tile4Glb)
         projectTile4.addToPortalScene(foxScene.scene);
 
         this.add(projectTile1);
