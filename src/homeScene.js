@@ -57,8 +57,8 @@ class HomeScene {
     }
 
     initScene = () => {
-        // this.physicsSandbox = new PhysicsSandbox(this.camera);
-        // this.scene.add(this.physicsSandbox);
+        this.physicsSandbox = new PhysicsSandbox(this.camera);
+        this.scene.add(this.physicsSandbox);
 
         this.animatedTube = new AnimatedTube(this.camera);
         this.scene.add(this.animatedTube);

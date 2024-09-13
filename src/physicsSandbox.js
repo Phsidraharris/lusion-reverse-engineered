@@ -1,6 +1,6 @@
-import { Ray } from "@dimforge/rapier3d";
+import RAPIER, { Ray } from "@dimforge/rapier3d-compat";
 import * as THREE from 'three';
-import { createBevelledPlane, elementToWorldRect, getElementPageCoords, pageToWorldCoords } from "./utils/utils";
+import { createBevelledPlane, elementToWorldRect, pageToWorldCoords } from "./utils/utils";
 
 const OBJECT_COUNT = 30;
 const DAMPING = 0.6
@@ -10,29 +10,18 @@ const MOUSE_LIGHT_INTENSITY = 40;
 const STENCIL_REF = 1;
 
 export default class PhysicsSandbox extends THREE.Group {
-    positionReuse;
-
-    /** @type RAPIER.World */
-    // world = null;
-    /** @type Map<THREE.Mesh, RAPIER.RigidBody */
+    ballPosition = new THREE.Vector3();
     meshBodyLookup = new Map();
-    /** @type {{ mesh: THREE.Mesh, rigidbody: RAPIER.RigidBody }} */
-    mouseBall;
-    camera;
-    physicsMaskMesh;
     attractionPos = new THREE.Vector3(0, 0, 0);
-    world = new RAPIER.World({ x: 0, y: 0, z: 0 });
     lastMousePos = new THREE.Vector3();
 
     constructor(camera) {
         super();
 
         this.camera = camera;
+        this.initViewMask();
+        this.initPhysics();
 
-        import('@dimforge/rapier3d').then(RAPIER => {
-            this.initViewMask();
-            this.initObjects(RAPIER);
-        });
         window.addEventListener('mousemove', this.onMouseMove, false);
     }
 
@@ -58,7 +47,11 @@ export default class PhysicsSandbox extends THREE.Group {
         this.attractionPos.copy(divWorldRect.position);
     }
 
-    initObjects(RAPIER) {
+    async initPhysics() {
+        await RAPIER.init();
+
+        this.world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+
         for (let i = 0; i < OBJECT_COUNT; i++) {
             const ball = this.createBall(0.6, this.getRandomPosition(5));
             this.add(ball.mesh);
@@ -104,14 +97,14 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     getRandomPosition(radius) {
-        if (!this.positionReuse) {
-            this.positionReuse = new THREE.Vector3();
-        }
-
-        return this.positionReuse.randomDirection().multiplyScalar(radius);
+        return this.ballPosition.randomDirection().multiplyScalar(radius);
     }
 
     onMouseMove = (event) => {
+        if (!this.world) {
+            return
+        }
+
         const worldCords = pageToWorldCoords(event.x, event.y, this.camera);
 
         const { x, y, z } = worldCords;
