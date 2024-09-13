@@ -60,7 +60,7 @@ export default class VideoPanelShader extends THREE.Group {
 
         let positionFollowAmount = THREE.MathUtils.inverseLerp(this.scrollPositionAnimEnd, this.scrollPositionAnimFollowEnd, window.scrollY);
         positionFollowAmount = THREE.MathUtils.clamp(positionFollowAmount, 0, 1);
-        this.mesh.position.y = -positionFollowAmount * 2.5;
+        this.mesh.position.y = -positionFollowAmount * 3;
     }
 
     initDebug = () => {
