@@ -5,7 +5,6 @@ import projectTileFrag from "../shaders/projectTileFrag.glsl";
 import projectTileVert from "../shaders/projectTileVert.glsl";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { elementToWorldRect } from "../utils/utils";
-import { clamp } from "three/src/math/MathUtils.js";
 
 const ASPECT = 16 / 9;
 const DEFAULT_BG_COLOUR = "#eee";
@@ -27,8 +26,7 @@ export default class ProjectTile extends THREE.Group {
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();
     stretchAmount = { value: 0.0, targetValue: 0.0 }
-    maskAmount = { value: HORIZONTAL_MASK_CLOSED };
-    targetMaskAmount = HORIZONTAL_MASK_CLOSED;
+    maskAmount = { value: HORIZONTAL_MASK_CLOSED, targetValue: HORIZONTAL_MASK_CLOSED };
 
     get renderTexture() {
         return this.renderTarget.texture;
@@ -89,7 +87,7 @@ export default class ProjectTile extends THREE.Group {
 
     initInteractionObserver = () => {
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => this.targetMaskAmount = entry.isIntersecting ? HORIZONTAL_MASK_OPEN : HORIZONTAL_MASK_CLOSED);
+            entries.forEach(entry => this.maskAmount.targetValue = entry.isIntersecting ? HORIZONTAL_MASK_OPEN : HORIZONTAL_MASK_CLOSED);
         });
         observer.observe(document.getElementById(this.elementId));
     }
@@ -204,7 +202,7 @@ export default class ProjectTile extends THREE.Group {
 
     update(dt, renderer) {
         this.portalCamera.position.lerp(this.targetCameraPosition, dt * 10);
-        this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.targetMaskAmount, dt * 3);
+        this.maskAmount.value = THREE.MathUtils.lerp(this.maskAmount.value, this.maskAmount.targetValue, dt * 3);
 
         this.updateStretchAmount(dt);
 
