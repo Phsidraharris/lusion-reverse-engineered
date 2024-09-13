@@ -10,14 +10,7 @@ import VideoPanelShader from "./videoPanelShader";
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
-    camera;
-    renderer;
-    scene;
     stats = new Stats();
-    physicsSandbox;
-    animatedTube;
-    videoPanel;
-    projectTiles;
     clock = new THREE.Clock();
 
     constructor() {
