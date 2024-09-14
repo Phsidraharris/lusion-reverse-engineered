@@ -28,29 +28,25 @@ export default class ProjectTiles extends THREE.Group {
             projectTile.cleanup();
         });
 
+        const projectTile1 = new ProjectTile("tile-1", this.homeScene);
+        const projectTile2 = new ProjectTile("tile-2", this.homeScene);
+        const projectTile3 = new ProjectTile("tile-3", this.homeScene,);
+        const projectTile4 = new ProjectTile("tile-4", this.homeScene);
+
         const loader = new GLTFLoader();
 
-        // Tile 1
-        const projectTile1 = new ProjectTile("tile-1", this.homeScene);
-        const robotScene = await loader.loadAsync(Tile1Glb)
-        projectTile1.addToPortalScene(robotScene.scene);
+        const tile1 = loader.loadAsync(Tile1Glb)
+        const tile2 = loader.loadAsync(Tile2Glb);
+        const tile3 = loader.loadAsync(Tile3Glb)
+        const tile4 = loader.loadAsync(Tile4Glb)
+        const results = await Promise.all([tile1, tile2, tile3, tile4]);
 
-        const projectTile2 = new ProjectTile("tile-2", this.homeScene);
-        const ballScene = await loader.loadAsync(Tile2Glb);
-        projectTile2.addToPortalScene(ballScene.scene);
+        projectTile1.addToPortalScene(results[0].scene);
+        projectTile2.addToPortalScene(results[1].scene);
+        projectTile3.addToPortalScene(results[2].scene);
+        projectTile4.addToPortalScene(results[3].scene);
 
-        const projectTile3 = new ProjectTile("tile-3", this.homeScene,);
-        const gridScene = await loader.loadAsync(Tile3Glb)
-        projectTile3.addToPortalScene(gridScene.scene);
-
-        const projectTile4 = new ProjectTile("tile-4", this.homeScene);
-        const foxScene = await loader.loadAsync(Tile4Glb)
-        projectTile4.addToPortalScene(foxScene.scene);
-
-        this.add(projectTile1);
-        this.add(projectTile2);
-        this.add(projectTile3);
-        this.add(projectTile4);
+        this.add(projectTile1, projectTile2, projectTile3, projectTile4);
 
         this.projectTiles.push(projectTile1);
         this.projectTiles.push(projectTile2);
