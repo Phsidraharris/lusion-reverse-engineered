@@ -17,17 +17,19 @@ float calculateRect(vec2 bl, vec2 tr, vec2 uv) {
 void main() {
     vec4 col = vec4(0., 0., 0., 1.0);
 
+    // Scale uv so they cater for different aspects
     vec2 ndcUv = getNdcUV(vUv);
     ndcUv.x *= aspect;
-    // these uvs run from -1 to 1
-    // how can we make these run from 
+
+    float letterThickness = 0.12;
+    float letterLength = 0.3;
 
     // the start and end points of the rect that make up the vertical
     // Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
-    vec2 lVerticalBl = vec2(0.4, 0.5);
-    vec2 lVerticalTr = vec2(0.5, 0.7);
-    vec2 lHorizontalBl = vec2(0.5, 0.4);
-    vec2 lHorizontalTr = vec2(0.7, 0.5);
+    vec2 lVerticalBl = vec2(-0.3, 0.);
+    vec2 lVerticalTr = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y + letterLength);
+    vec2 lHorizontalBl = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y - letterThickness);
+    vec2 lHorizontalTr = vec2(lHorizontalBl.x + letterLength, lVerticalBl.y);
 
     // remove everything outside the defined rectangle
     float vertical = calculateRect(lVerticalBl, lVerticalTr, ndcUv);
