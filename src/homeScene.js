@@ -12,7 +12,6 @@ import LoadingGroup from './loadingGroup';
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
-    stats = new Stats();
     clock = new THREE.Clock();
 
     constructor() {
@@ -22,12 +21,14 @@ class HomeScene {
             this.initScene();
         }, 1);
 
-        document.body.appendChild(this.stats.dom);
-
         window.addEventListener("scroll", this.onScroll);
         window.addEventListener("resize", this.onWindowResized);
 
-        this.initDebug();
+        if (import.meta.env.DEV) {
+            this.initDebug();
+            this.stats = new Stats();
+            document.body.appendChild(this.stats.dom);
+        }
     }
 
     initThree = () => {
@@ -103,7 +104,7 @@ class HomeScene {
         this.projectTiles && this.projectTiles.update(dt, this.renderer);
 
         this.renderer.render(this.scene, this.camera);
-        this.stats.update();
+        this.stats && this.stats.update();
     }
 
     initDebug = () => {
