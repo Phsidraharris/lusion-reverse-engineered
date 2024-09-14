@@ -8,4 +8,5 @@ export default defineConfig({
         glsl(),
     ],
     assetsInclude: ['**/*.hdr', '**/*.glb'],
+    base: "/lusion-reverse-engineered/"
 });
