@@ -1,7 +1,9 @@
 #include "./common.glsl"
 
 uniform float aspect;
-uniform float rotation;
+uniform float letterRotation;
+uniform float letterScale;
+uniform float backgroundAlpha;
 
 varying vec2 vUv;
 
@@ -21,6 +23,7 @@ void main() {
     // Scale uv so they cater for different aspects
     vec2 ndcUv = getNdcUV(vUv);
     ndcUv.x *= aspect;
+    ndcUv /= letterScale;
 
     float letterThickness = 0.12;
     float letterLength = 0.3;
@@ -34,7 +37,7 @@ void main() {
 
     vec2 rotateAnchor = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y);
     vec2 verticalUv = ndcUv;
-    verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, rotation);
+    verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
 
     // remove everything outside the defined rectangle
     float vertical = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
@@ -45,5 +48,5 @@ void main() {
         discard;
     }
 
-    gl_FragColor = vec4(vec3(combined), 1.);
+    gl_FragColor = vec4(vec3(combined), backgroundAlpha);
 }
