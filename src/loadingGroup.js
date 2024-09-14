@@ -2,8 +2,10 @@ import * as THREE from 'three';
 import { pagePixelsToWorldUnit } from './utils/utils';
 import vertexShader from "./shaders/loadingMeshVert.glsl";
 import fragmentShader from "./shaders/loadingMeshFrag.glsl";
+import { debugGui } from './debugGui';
 
 export default class LoadingGroup extends THREE.Group {
+    rotation = { value: 0 }
     constructor(camera) {
         super();
 
@@ -15,12 +17,20 @@ export default class LoadingGroup extends THREE.Group {
             fragmentShader,
             depthTest: false,
             uniforms: {
-                aspect: { value: window.innerWidth / window.innerHeight }
+                aspect: { value: window.innerWidth / window.innerHeight },
+                rotation: this.rotation,
             }
         });
 
         this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), this.material);
         this.mesh.renderOrder = 1000;
         this.add(this.mesh);
+
+        this.initDebug()
+    }
+
+    initDebug() {
+        const folder = debugGui.addFolder("Loading");
+        folder.add(this.rotation, "value", 0, Math.PI / 2).name("Rotation");
     }
 }

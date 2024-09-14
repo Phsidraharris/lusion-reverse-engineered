@@ -28,3 +28,20 @@ float roundedCornerMask(vec2 uv, float borderRadius, float aspect, float taper) 
 float roundedCornerMask(vec2 uv, float borderRadius, float aspect) {
     return roundedCornerMask(uv, borderRadius, aspect, 0.0);
 }
+
+vec2 rotate(vec2 pos, float radians) {
+    float cosTheta = cos(radians);
+    float sinTheta = sin(radians);
+    mat2 rotMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
+
+    pos.xy = rotMat * pos.xy;
+    return pos;
+}
+
+vec2 rotateAroundAnchor(vec2 pos, vec2 anchor, float radians) {
+    vec2 newPos = pos - anchor;
+    newPos = rotate(newPos, radians);
+    newPos += anchor;
+
+    return newPos;
+}

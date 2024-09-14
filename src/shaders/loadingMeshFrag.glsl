@@ -1,6 +1,7 @@
 #include "./common.glsl"
 
 uniform float aspect;
+uniform float rotation;
 
 varying vec2 vUv;
 
@@ -31,8 +32,12 @@ void main() {
     vec2 lHorizontalBl = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y - letterThickness);
     vec2 lHorizontalTr = vec2(lHorizontalBl.x + letterLength, lVerticalBl.y);
 
+    vec2 rotateAnchor = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y);
+    vec2 verticalUv = ndcUv;
+    verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, rotation);
+
     // remove everything outside the defined rectangle
-    float vertical = calculateRect(lVerticalBl, lVerticalTr, ndcUv);
+    float vertical = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
     float horizontal = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
     float combined = step(1., vertical) + step(1., horizontal);
 

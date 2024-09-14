@@ -1,19 +1,12 @@
 #define PI 3.14159265358979
 
+#include "./common.glsl"
+
 uniform float animateProgress;
 uniform vec4 startRect;
 uniform vec4 endRect;
 
 varying vec2 vUv;
-
-vec2 rotate(vec2 pos, float radians) {
-    float cosTheta = cos(radians);
-    float sinTheta = sin(radians);
-    mat2 rotMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
-
-    pos.xy = rotMat * pos.xy;
-    return pos;
-}
 
 // Takes VideoPanelShader rect (see VideoPanelShader.rectToVec4) and creates a position based on percentage a
 vec2 getRectPos(vec4 rect, vec2 uv) {
@@ -40,6 +33,6 @@ void main() {
     pos.xy = rotate(pos.xy, rotateCurve * mask);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-    
+
     vUv = uv;
 }
