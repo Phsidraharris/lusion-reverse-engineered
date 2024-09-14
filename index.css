@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 :root {
@@ -21,6 +22,10 @@ body {
     opacity: 1;
     transition: opacity 0.1s;
     overscroll-behavior-y: none;
+
+    &.no-scroll {
+        overflow: hidden;
+    }
 
     .fade-out {
         opacity: 0;
@@ -49,6 +54,22 @@ a {
     text-decoration: none;
 }
 
+#loading-content {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-end;
+    background-color: #000000c2;
+
+    p {
+        color: #fff;
+        font-size: 6rem;
+        font-family: monospace, monospace;
+    }
+}
+
 #canvas {
     position: fixed;
     width: 100vw;
@@ -68,7 +89,6 @@ a {
 section {
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
     padding: 0 4vw;
     width: 100vw;
     min-height: 100vh;
