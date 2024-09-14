@@ -8,6 +8,7 @@ import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils/utils";
 import VideoPanelShader from "./videoPanelShader";
 import hdr from "../assets/hdri/quarry_01_1k.hdr";
+import LoadingGroup from './loadingGroup';
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -68,6 +69,9 @@ class HomeScene {
 
         this.projectTiles = new ProjectTiles(this);
         this.scene.add(this.projectTiles);
+
+        this.loadingGroup = new LoadingGroup(this.camera);
+        this.scene.add(this.loadingGroup);
     }
 
     onScroll = () => {
