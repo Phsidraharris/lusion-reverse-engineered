@@ -61,11 +61,28 @@ a {
     padding: 1rem;
     display: flex;
     align-items: flex-end;
+    background-color: black;
 
     p {
         color: #fff;
         font-size: 6rem;
         font-family: monospace, monospace;
+    }
+
+    #loading-bar-track {
+        height: 50px;
+        width: 200px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #282828;
+
+        #loading-bar {
+            background-color: white;
+            height: 100%;
+            width: 1%;
+        }
     }
 }
 

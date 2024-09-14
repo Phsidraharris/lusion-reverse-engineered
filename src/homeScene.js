@@ -70,8 +70,8 @@ class HomeScene {
         this.projectTiles = new ProjectTiles(this);
         this.scene.add(this.projectTiles);
 
-        this.loadingGroup = new LoadingGroup(this.camera);
-        this.scene.add(this.loadingGroup);
+        // this.loadingGroup = new LoadingGroup(this.camera);
+        // this.scene.add(this.loadingGroup);
     }
 
     onScroll = () => {

@@ -19,7 +19,6 @@ void main() {
     // Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
     vec2 lVerticalBl = vec2(0.4, 0.5);
     vec2 lVerticalTr = vec2(0.5, 0.7);
-
     vec2 lHorizontalBl = vec2(0.5, 0.4);
     vec2 lHorizontalTr = vec2(0.7, 0.5);
 
