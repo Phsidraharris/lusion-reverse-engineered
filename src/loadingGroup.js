@@ -57,11 +57,14 @@ export default class LoadingGroup extends THREE.Group {
     }
 
     update = (dt) => {
-        this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10);
+        this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10) + 0.000001;
+        this.loadingProgress.value = Math.min(this.loadingProgress.value, 1);
 
-        const isApproximately100 = 1.0 - this.loadingProgress.value < 0.0001;
-        if (isApproximately100 && !this.hasTriggeredSequence) {
-            this.hasTriggeredSequence = true;
+        if (this.loadingProgress.value >= 1) {
+            // this.loadingProgress
+            console.log("2sd")
+            this.postLoadSequenceProgress.value += dt;
+            this.postLoadSequenceProgress.value = Math.min(this.postLoadSequenceProgress.value, 1);
         }
     }
 }

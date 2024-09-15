@@ -1,13 +1,13 @@
 #include "./common.glsl"
 
 #define EPSILON 0.000001
+#define PI 3.14159265358979
 #define LOADING_TRACK_COLOUR vec3(0.12, 0.12, 0.12)
 #define LOADING_PROGRESS_COLOUR vec3(1.0, 1.0, 1.0)
 #define LETTER_LENGTH 0.3
 #define LETTER_THICKNESS 0.1
 
 uniform float aspect;
-uniform float letterRotation;
 uniform float letterScale;
 uniform float backgroundAlpha;
 uniform float loadingProgress;
@@ -52,6 +52,13 @@ float calculateRectPercent(vec2 bl, vec2 tr, vec2 uv, float percent) {
 }
 
 void main() {
+    float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
+    float showPostLoadSequence = step(EPSILON, postLoadSequenceProgress);
+
+    float letterRotationCurve = smoothstep(0., 0.3, postLoadSequenceProgress);
+
+    float letterRotation = mix(0.0, -PI * 0.5, letterRotationCurve);
+
     // Scale uv so they cater for different aspects
     vec2 ndcUv = getNdcUV(vUv);
     ndcUv.x *= aspect;
@@ -68,13 +75,10 @@ void main() {
     float l2Rect = calculateRect(Letter2Bl, Letter2Tr, ndcUv);
     float l1l2Rect = step(1., l1Rect) + step(1., l2Rect);
 
-    float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
-    float showPostLoadSequence = step(EPSILON, postLoadSequenceProgress);
-
     vec3 trackColour = loadingTrackRect * LOADING_TRACK_COLOUR * showLoadingBar;
     vec3 progressColour = loadingTrackRect * loadingProgressRect * LOADING_PROGRESS_COLOUR * showLoadingBar;
 
-    vec3 l1l2Colour = vec3(l1l2Rect) * showPostLoadSequence;
+    vec3 l1l2Colour = vec3(1.0, postLoadSequenceProgress, 0.) * l1l2Rect * showPostLoadSequence;
 
     gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, backgroundAlpha);
 }
