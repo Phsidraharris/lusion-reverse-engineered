@@ -39,7 +39,7 @@ export default class LoadingGroup extends THREE.Group {
 
     initDebug() {
         const folder = debugGui.addFolder("Loading");
-        folder.add(this.letterRotation, "value", 0, Math.PI / 2).name("Letter rotation");
+        folder.add(this.letterRotation, "value", -Math.PI / 2, 0).name("Letter rotation");
         folder.add(this.letterScale, "value", 1, 10).name("Letter scale");
         folder.add(this.backgroundAlpha, "value", 0, 1).name("Background alpha");
         folder.add(this.loadingProgress, "value", 0, 1).name("Loading progress");

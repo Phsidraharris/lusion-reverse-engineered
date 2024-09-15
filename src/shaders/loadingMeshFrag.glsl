@@ -50,12 +50,13 @@ void main() {
 
     // the start and end points of the rect that make up the vertical
     // Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
-    vec2 lVerticalBl = vec2(-0.3, 0.);
-    vec2 lVerticalTr = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y + letterLength);
-    vec2 lHorizontalBl = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y - letterThickness);
-    vec2 lHorizontalTr = vec2(lHorizontalBl.x + letterLength, lVerticalBl.y);
+    vec2 lVerticalBl = vec2(-letterLength, -letterThickness * 0.5);
+    vec2 lVerticalTr = vec2(0.0, letterThickness * 0.5);
 
-    vec2 rotateAnchor = vec2(lVerticalBl.x + letterThickness, lVerticalBl.y);
+    vec2 lHorizontalBl = vec2(0.0, -letterThickness * 0.5);
+    vec2 lHorizontalTr = vec2(letterLength, letterThickness * 0.5);
+
+    vec2 rotateAnchor = vec2(0.0, letterThickness * 0.5);
     vec2 verticalUv = ndcUv;
     verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
 
@@ -67,7 +68,7 @@ void main() {
     float horizontal = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
     float combined = step(1., vertical) + step(1., horizontal);
 
-    if(combined > 0.0) {
+    if(loadingProgress >= 1.0 && combined > 0.0) {
         discard;
     }
 
