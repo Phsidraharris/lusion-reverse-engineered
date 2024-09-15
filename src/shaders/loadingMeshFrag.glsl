@@ -1,8 +1,10 @@
 #include "./common.glsl"
 
+#define EPSILON 0.000001
 #define LOADING_TRACK_COLOUR vec3(0.12, 0.12, 0.12)
 #define LOADING_PROGRESS_COLOUR vec3(1.0, 1.0, 1.0)
-#define EPSILON 0.000001
+#define LETTER_LENGTH 0.3
+#define LETTER_THICKNESS 0.1
 
 uniform float aspect;
 uniform float letterRotation;
@@ -12,6 +14,19 @@ uniform float loadingProgress;
 uniform float postLoadSequenceProgress;
 
 varying vec2 vUv;
+
+const vec2 LoadingBarBl = vec2(-LETTER_LENGTH, -LETTER_THICKNESS * 0.5);
+const vec2 LoadingBarTr = vec2(LETTER_LENGTH, LETTER_THICKNESS * 0.5);
+
+// the start and end points of the rect that make up the vertical
+// Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
+const vec2 Letter1Bl = vec2(-LETTER_LENGTH, -LETTER_THICKNESS * 0.5);
+const vec2 Letter1Tr = vec2(0.0, LETTER_THICKNESS * 0.5);
+
+const vec2 Letter2Bl = vec2(0.0, -LETTER_THICKNESS * 0.5);
+const vec2 Letter2Tr = vec2(LETTER_LENGTH, LETTER_THICKNESS * 0.5);
+
+const vec2 Letter1RotateAnchor = vec2(0.0, LETTER_THICKNESS * 0.5);
 
 float calculateRect(vec2 bl, vec2 tr, vec2 uv) {
     float rect = 1.0;
@@ -37,37 +52,20 @@ float calculateRectPercent(vec2 bl, vec2 tr, vec2 uv, float percent) {
 }
 
 void main() {
-    vec4 col = vec4(0., 0., 0., 1.0);
-
     // Scale uv so they cater for different aspects
     vec2 ndcUv = getNdcUV(vUv);
     ndcUv.x *= aspect;
     ndcUv /= letterScale;
 
-    float letterThickness = 0.1;
-    float letterLength = 0.3;
-
-    vec2 loadingBarBl = vec2(-letterLength, -letterThickness * 0.5);
-    vec2 loadingBarTr = vec2(letterLength, letterThickness * 0.5);
-
-    // the start and end points of the rect that make up the vertical
-    // Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
-    vec2 lVerticalBl = vec2(-letterLength, -letterThickness * 0.5);
-    vec2 lVerticalTr = vec2(0.0, letterThickness * 0.5);
-
-    vec2 lHorizontalBl = vec2(0.0, -letterThickness * 0.5);
-    vec2 lHorizontalTr = vec2(letterLength, letterThickness * 0.5);
-
-    vec2 rotateAnchor = vec2(0.0, letterThickness * 0.5);
     vec2 verticalUv = ndcUv;
-    verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
+    verticalUv = rotateAroundAnchor(verticalUv, Letter1RotateAnchor, letterRotation);
 
     // remove everything outside the defined rectangle
-    float loadingTrackRect = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
-    float loadingProgressRect = calculateRectPercent(loadingBarBl, loadingBarTr, ndcUv, loadingProgress);
+    float loadingTrackRect = calculateRect(LoadingBarBl, LoadingBarTr, ndcUv);
+    float loadingProgressRect = calculateRectPercent(LoadingBarBl, LoadingBarTr, ndcUv, loadingProgress);
 
-    float l1Rect = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
-    float l2Rect = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
+    float l1Rect = calculateRect(Letter1Bl, Letter1Tr, verticalUv);
+    float l2Rect = calculateRect(Letter2Bl, Letter2Tr, ndcUv);
     float l1l2Rect = step(1., l1Rect) + step(1., l2Rect);
 
     float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
