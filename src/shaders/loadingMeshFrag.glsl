@@ -78,7 +78,10 @@ void main() {
     vec3 trackColour = loadingTrackRect * LOADING_TRACK_COLOUR * showLoadingBar;
     vec3 progressColour = loadingTrackRect * loadingProgressRect * LOADING_PROGRESS_COLOUR * showLoadingBar;
 
-    vec3 l1l2Colour = vec3(1.0, postLoadSequenceProgress, 0.) * l1l2Rect * showPostLoadSequence;
+    vec3 l1l2Colour = vec3(1.15 - postLoadSequenceProgress) * l1l2Rect * showPostLoadSequence;
+    if(postLoadSequenceProgress >= 1. && l1l2Rect > 0.0) {
+        discard;
+    }
 
     gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, backgroundAlpha);
 }
