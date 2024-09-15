@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { pagePixelsToWorldUnit } from './utils/utils';
-import vertexShader from "./shaders/loadingMeshVert.glsl";
-import fragmentShader from "./shaders/loadingMeshFrag.glsl";
 import { debugGui } from './debugGui';
+import fragmentShader from "./shaders/loadingMeshFrag.glsl";
+import vertexShader from "./shaders/loadingMeshVert.glsl";
+import { pagePixelsToWorldUnit, pageToWorldCoords } from './utils/utils';
 
 export default class LoadingGroup extends THREE.Group {
     letterRotation = { value: 0 };
@@ -21,6 +21,7 @@ export default class LoadingGroup extends THREE.Group {
 
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => this.loadingProgress.target = itemsLoaded / itemsTotal;
 
+        const pos = pageToWorldCoords(window.innerWidth * 0.5, window.innerHeight * 0.5, camera);
         const width = pagePixelsToWorldUnit(window.innerWidth, camera);
         const height = pagePixelsToWorldUnit(window.innerHeight, camera);
 
@@ -41,6 +42,7 @@ export default class LoadingGroup extends THREE.Group {
 
         this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), this.material);
         this.mesh.renderOrder = 1000;
+        this.mesh.position.copy(pos);
         this.add(this.mesh);
 
         this.initDebug()

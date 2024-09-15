@@ -17,12 +17,6 @@ class HomeScene {
     constructor() {
         this.initThree();
 
-        this.loadingGroup = new LoadingGroup(this.camera, () => {
-            this.scene.remove(this.loadingGroup);
-            this.loadingGroup = undefined;
-        });
-        this.scene.add(this.loadingGroup);
-
         setTimeout(() => {
             this.initScene();
         }, 1);
@@ -65,6 +59,12 @@ class HomeScene {
     }
 
     initScene = () => {
+        this.loadingGroup = new LoadingGroup(this.camera, () => {
+            this.scene.remove(this.loadingGroup);
+            this.loadingGroup = undefined;
+        });
+        this.scene.add(this.loadingGroup);
+
         this.physicsSandbox = new PhysicsSandbox(this.camera);
         this.scene.add(this.physicsSandbox);
 
