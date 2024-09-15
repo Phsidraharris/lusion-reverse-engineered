@@ -58,7 +58,7 @@ void main() {
     float letterRotationCurve = smoothstep(0., 0.1, postLoadSequenceProgress);
     float letterDiscardCurve = smoothstep(0.0, 0.5, postLoadSequenceProgress);
     float scaleAndRotateCurve = smoothstep(0.6, 1.0, postLoadSequenceProgress);
-    float backgroundAlphaCurve = smoothstep(0.9, 1.0, postLoadSequenceProgress);
+    float backgroundAlphaCurve = smoothstep(0.8, 1.0, postLoadSequenceProgress);
 
     float letterRotation = mix(0.0, -PI * 0.5, letterRotationCurve);
 
@@ -67,6 +67,7 @@ void main() {
     ndcUv.x *= aspect;
     ndcUv /= mix(1.0, 10.0, scaleAndRotateCurve);
     ndcUv = rotateAroundAnchor(ndcUv, vec2(0.0), mix(0.0, PI / 16., scaleAndRotateCurve));
+    ndcUv += mix(vec2(0.), vec2(0., 0.1), scaleAndRotateCurve);
 
     vec2 verticalUv = ndcUv;
     verticalUv = rotateAroundAnchor(verticalUv, Letter1RotateAnchor, letterRotation);
