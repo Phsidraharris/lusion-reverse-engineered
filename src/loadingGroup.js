@@ -15,6 +15,8 @@ export default class LoadingGroup extends THREE.Group {
     constructor(camera, onDoneLoadSequence) {
         super();
 
+        document.body.classList.add("no-scroll");
+
         this.onDoneLoadSequence = onDoneLoadSequence;
 
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => this.loadingProgress.target = itemsLoaded / itemsTotal;
@@ -67,6 +69,9 @@ export default class LoadingGroup extends THREE.Group {
 
             if (this.postLoadSequenceProgress.value == 1) {
                 this.isSequenceFinished = true;
+
+                document.body.classList.remove("no-scroll");
+
                 this.onDoneLoadSequence?.();
             }
         }
