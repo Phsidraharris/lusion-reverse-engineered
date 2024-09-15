@@ -55,9 +55,9 @@ void main() {
     float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
     float showPostLoadSequence = step(EPSILON, postLoadSequenceProgress);
 
-    float letterRotationCurve = smoothstep(0., 0.3, postLoadSequenceProgress);
-    float letterDiscardCurve = smoothstep(0.0, 0.7, postLoadSequenceProgress);
-    float scaleAndRotateCurve = smoothstep(0.7, 1.0, postLoadSequenceProgress);
+    float letterRotationCurve = smoothstep(0., 0.1, postLoadSequenceProgress);
+    float letterDiscardCurve = smoothstep(0.0, 0.5, postLoadSequenceProgress);
+    float scaleAndRotateCurve = smoothstep(0.6, 1.0, postLoadSequenceProgress);
     float backgroundAlphaCurve = smoothstep(0.9, 1.0, postLoadSequenceProgress);
 
     float letterRotation = mix(0.0, -PI * 0.5, letterRotationCurve);

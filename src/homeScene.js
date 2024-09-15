@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import Stats from "three/addons/libs/stats.module.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import hdr from "../assets/hdri/quarry_01_1k.hdr";
 import { AnimatedTube } from "./animatedTube";
 import { debugGui } from "./debugGui";
+import LoadingGroup from './loadingGroup';
 import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils/utils";
 import VideoPanelShader from "./videoPanelShader";
-import hdr from "../assets/hdri/quarry_01_1k.hdr";
-import LoadingGroup from './loadingGroup';
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -16,6 +16,12 @@ class HomeScene {
 
     constructor() {
         this.initThree();
+
+        this.loadingGroup = new LoadingGroup(this.camera, () => {
+            this.scene.remove(this.loadingGroup);
+            this.loadingGroup = undefined;
+        });
+        this.scene.add(this.loadingGroup);
 
         setTimeout(() => {
             this.initScene();
@@ -70,9 +76,6 @@ class HomeScene {
 
         this.projectTiles = new ProjectTiles(this);
         this.scene.add(this.projectTiles);
-
-        // this.loadingGroup = new LoadingGroup(this.camera);
-        // this.scene.add(this.loadingGroup);
     }
 
     onScroll = () => {
@@ -98,6 +101,7 @@ class HomeScene {
     animate = () => {
         const dt = this.clock.getDelta();
 
+        this.loadingGroup && this.loadingGroup.update(dt);
         this.physicsSandbox && this.physicsSandbox.update(dt);
         this.animatedTube && this.animatedTube.update(dt);
         this.videoPanel && this.videoPanel.update(dt);

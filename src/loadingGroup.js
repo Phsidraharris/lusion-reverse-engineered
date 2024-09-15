@@ -62,7 +62,7 @@ export default class LoadingGroup extends THREE.Group {
         this.loadingProgress.value = Math.min(this.loadingProgress.value, 1);
 
         if (this.loadingProgress.value >= 1) {
-            this.postLoadSequenceProgress.value += dt * 0.4;
+            this.postLoadSequenceProgress.value += dt * 0.6;
             this.postLoadSequenceProgress.value = Math.min(this.postLoadSequenceProgress.value, 1);
 
             if (this.postLoadSequenceProgress.value == 1) {

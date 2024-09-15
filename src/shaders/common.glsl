@@ -45,3 +45,9 @@ vec2 rotateAroundAnchor(vec2 pos, vec2 anchor, float radians) {
 
     return newPos;
 }
+
+vec2 scaleAroundAnchor(vec2 pos, vec2 anchor, float scale) {
+    vec2 newPos = pos - anchor;
+    newPos /= scale;
+    return newPos;
+}
