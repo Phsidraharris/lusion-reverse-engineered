@@ -56,13 +56,17 @@ void main() {
     float showPostLoadSequence = step(EPSILON, postLoadSequenceProgress);
 
     float letterRotationCurve = smoothstep(0., 0.3, postLoadSequenceProgress);
+    float letterDiscardCurve = smoothstep(0.0, 0.7, postLoadSequenceProgress);
+    float scaleAndRotateCurve = smoothstep(0.7, 1.0, postLoadSequenceProgress);
+    float backgroundAlphaCurve = smoothstep(0.9, 1.0, postLoadSequenceProgress);
 
     float letterRotation = mix(0.0, -PI * 0.5, letterRotationCurve);
 
     // Scale uv so they cater for different aspects
     vec2 ndcUv = getNdcUV(vUv);
     ndcUv.x *= aspect;
-    ndcUv /= letterScale;
+    ndcUv /= mix(1.0, 10.0, scaleAndRotateCurve);
+    ndcUv = rotateAroundAnchor(ndcUv, vec2(0.0), mix(0.0, PI / 16., scaleAndRotateCurve));
 
     vec2 verticalUv = ndcUv;
     verticalUv = rotateAroundAnchor(verticalUv, Letter1RotateAnchor, letterRotation);
@@ -79,9 +83,9 @@ void main() {
     vec3 progressColour = loadingTrackRect * loadingProgressRect * LOADING_PROGRESS_COLOUR * showLoadingBar;
 
     vec3 l1l2Colour = vec3(1.15 - postLoadSequenceProgress) * l1l2Rect * showPostLoadSequence;
-    if(postLoadSequenceProgress >= 1. && l1l2Rect > 0.0) {
+    if(letterDiscardCurve >= 1. && l1l2Rect > 0.0) {
         discard;
     }
 
-    gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, backgroundAlpha);
+    gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, 1.0 - backgroundAlphaCurve);
 }

@@ -10,10 +10,12 @@ export default class LoadingGroup extends THREE.Group {
     backgroundAlpha = { value: 1 };
     loadingProgress = { value: 0, target: 0 };
     postLoadSequenceProgress = { value: 0 };
-    hasTriggeredSequence = false;
+    isSequenceFinished = false;
 
-    constructor(camera) {
+    constructor(camera, onDoneLoadSequence) {
         super();
+
+        this.onDoneLoadSequence = onDoneLoadSequence;
 
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => this.loadingProgress.target = itemsLoaded / itemsTotal;
 
@@ -51,20 +53,22 @@ export default class LoadingGroup extends THREE.Group {
         folder.add(this.postLoadSequenceProgress, "value", 0, 1).name("Post load sequence");
     }
 
-    startSequence() {
-        // Hide the loading bar
-        // Rotate the "L"
-    }
-
     update = (dt) => {
+        if (this.isSequenceFinished) {
+            return;
+        }
+
         this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10) + 0.000001;
         this.loadingProgress.value = Math.min(this.loadingProgress.value, 1);
 
         if (this.loadingProgress.value >= 1) {
-            // this.loadingProgress
-            console.log("2sd")
-            this.postLoadSequenceProgress.value += dt;
+            this.postLoadSequenceProgress.value += dt * 0.4;
             this.postLoadSequenceProgress.value = Math.min(this.postLoadSequenceProgress.value, 1);
+
+            if (this.postLoadSequenceProgress.value == 1) {
+                this.isSequenceFinished = true;
+                this.onDoneLoadSequence?.();
+            }
         }
     }
 }
