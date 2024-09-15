@@ -1,6 +1,6 @@
 #include "./common.glsl"
 
-#define LOADING_TRACK_COLOUR vec3(0.76, 0.76, 0.76)
+#define LOADING_TRACK_COLOUR vec3(0.12, 0.12, 0.12)
 #define LOADING_PROGRESS_COLOUR vec3(1.0, 1.0, 1.0)
 
 uniform float aspect;
@@ -16,6 +16,18 @@ float calculateRect(vec2 bl, vec2 tr, vec2 uv) {
 
     rect -= step(uv.x, bl.x);
     rect -= step(tr.x, uv.x);
+    rect -= step(uv.y, bl.y);
+    rect -= step(tr.y, uv.y);
+
+    return clamp(rect, 0.0, 1.0);
+}
+
+float calculateRectPercent(vec2 bl, vec2 tr, vec2 uv, float percent) {
+    float rect = 1.0;
+    float width = tr.x - bl.x;
+
+    rect -= step(uv.x, bl.x);
+    rect -= step(bl.x + width * percent, uv.x);
     rect -= step(uv.y, bl.y);
     rect -= step(tr.y, uv.y);
 
@@ -48,17 +60,19 @@ void main() {
     verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
 
     // remove everything outside the defined rectangle
-    float loadingBar = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
+    float loadingBarTrack = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
+    float loadingBarProgress = calculateRectPercent(loadingBarBl, loadingBarTr, ndcUv, loadingProgress);
 
     float vertical = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
     float horizontal = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
     float combined = step(1., vertical) + step(1., horizontal);
 
-    // if(combined > 0.0) {
-    //     discard;
-    // }
+    if(combined > 0.0) {
+        discard;
+    }
 
-    vec3 trackColour = loadingBar * LOADING_TRACK_COLOUR;
+    vec3 trackColour = loadingBarTrack * LOADING_TRACK_COLOUR;
+    vec3 progressColour = loadingBarProgress * LOADING_PROGRESS_COLOUR;
 
-    gl_FragColor = vec4(trackColour, backgroundAlpha);
+    gl_FragColor = vec4(trackColour + progressColour, backgroundAlpha);
 }
