@@ -2,12 +2,14 @@
 
 #define LOADING_TRACK_COLOUR vec3(0.12, 0.12, 0.12)
 #define LOADING_PROGRESS_COLOUR vec3(1.0, 1.0, 1.0)
+#define EPSILON 0.000001
 
 uniform float aspect;
 uniform float letterRotation;
 uniform float letterScale;
 uniform float backgroundAlpha;
 uniform float loadingProgress;
+uniform float postLoadSequenceProgress;
 
 varying vec2 vUv;
 
@@ -61,19 +63,20 @@ void main() {
     verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
 
     // remove everything outside the defined rectangle
-    float loadingBarTrack = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
-    float loadingBarProgress = calculateRectPercent(loadingBarBl, loadingBarTr, ndcUv, loadingProgress);
+    float loadingTrackRect = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
+    float loadingProgressRect = calculateRectPercent(loadingBarBl, loadingBarTr, ndcUv, loadingProgress);
 
-    float vertical = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
-    float horizontal = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
-    float combined = step(1., vertical) + step(1., horizontal);
+    float l1Rect = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
+    float l2Rect = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
+    float l1l2Rect = step(1., l1Rect) + step(1., l2Rect);
 
-    if(loadingProgress >= 1.0 && combined > 0.0) {
-        discard;
-    }
+    float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
+    float showPostLoadSequence = step(EPSILON, postLoadSequenceProgress);
 
-    vec3 trackColour = loadingBarTrack * LOADING_TRACK_COLOUR;
-    vec3 progressColour = loadingBarProgress * LOADING_PROGRESS_COLOUR;
+    vec3 trackColour = loadingTrackRect * LOADING_TRACK_COLOUR * showLoadingBar;
+    vec3 progressColour = loadingTrackRect * loadingProgressRect * LOADING_PROGRESS_COLOUR * showLoadingBar;
 
-    gl_FragColor = vec4(trackColour + progressColour, backgroundAlpha);
+    vec3 l1l2Colour = vec3(l1l2Rect) * showPostLoadSequence;
+
+    gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, backgroundAlpha);
 }
