@@ -8,7 +8,7 @@ export default class LoadingGroup extends THREE.Group {
     letterRotation = { value: 0 };
     letterScale = { value: 1 };
     backgroundAlpha = { value: 1 };
-    loadingProgress = { value: 0 };
+    loadingProgress = { value: 0, target: 0 };
 
     constructor(camera) {
         super();
@@ -16,7 +16,7 @@ export default class LoadingGroup extends THREE.Group {
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
             console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
 
-            this.loadingProgress.value = itemsLoaded / itemsTotal;
+            this.loadingProgress.target = itemsLoaded / itemsTotal;
         };
 
         const width = pagePixelsToWorldUnit(window.innerWidth, camera);
@@ -49,5 +49,9 @@ export default class LoadingGroup extends THREE.Group {
         folder.add(this.letterScale, "value", 1, 10).name("Letter scale");
         folder.add(this.backgroundAlpha, "value", 0, 1).name("Background alpha");
         folder.add(this.loadingProgress, "value", 0, 1).name("Loading progress");
+    }
+
+    update = (dt) => {
+        this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10);
     }
 }
