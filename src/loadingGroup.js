@@ -9,6 +9,7 @@ export default class LoadingGroup extends THREE.Group {
     letterScale = { value: 1 };
     backgroundAlpha = { value: 1 };
     loadingProgress = { value: 0, target: 0 };
+    hasTriggeredSequence = false;
 
     constructor(camera) {
         super();
@@ -53,5 +54,10 @@ export default class LoadingGroup extends THREE.Group {
 
     update = (dt) => {
         this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10);
+
+        const isApproximately100 = 1.0 - this.loadingProgress.value < 0.0001;
+        if (isApproximately100 && !this.hasTriggeredSequence) {
+            this.hasTriggeredSequence = true;
+        }
     }
 }
