@@ -25,8 +25,11 @@ void main() {
     ndcUv.x *= aspect;
     ndcUv /= letterScale;
 
-    float letterThickness = 0.12;
+    float letterThickness = 0.1;
     float letterLength = 0.3;
+
+    vec2 loadingBarBl = vec2(-letterLength, -letterThickness * 0.5);
+    vec2 loadingBarTr = vec2(letterLength, letterThickness * 0.5);
 
     // the start and end points of the rect that make up the vertical
     // Because UVs are defined from bottom left to bottom right, that how we'll define our rect corners
@@ -40,13 +43,15 @@ void main() {
     verticalUv = rotateAroundAnchor(verticalUv, rotateAnchor, letterRotation);
 
     // remove everything outside the defined rectangle
+    float loadingBar = calculateRect(loadingBarBl, loadingBarTr, ndcUv);
+
     float vertical = calculateRect(lVerticalBl, lVerticalTr, verticalUv);
     float horizontal = calculateRect(lHorizontalBl, lHorizontalTr, ndcUv);
     float combined = step(1., vertical) + step(1., horizontal);
 
-    if(combined > 0.0) {
-        discard;
-    }
+    // if(combined > 0.0) {
+    //     discard;
+    // }
 
-    gl_FragColor = vec4(vec3(combined), backgroundAlpha);
+    gl_FragColor = vec4(vec3(step(1., loadingBar)), backgroundAlpha);
 }
