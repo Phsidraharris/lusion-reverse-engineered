@@ -1,20 +1,25 @@
 #include "./common.glsl"
 
+#define LOADING_TRACK_COLOUR vec3(0.76, 0.76, 0.76)
+#define LOADING_PROGRESS_COLOUR vec3(1.0, 1.0, 1.0)
+
 uniform float aspect;
 uniform float letterRotation;
 uniform float letterScale;
 uniform float backgroundAlpha;
+uniform float loadingProgress;
 
 varying vec2 vUv;
 
 float calculateRect(vec2 bl, vec2 tr, vec2 uv) {
     float rect = 1.0;
+
     rect -= step(uv.x, bl.x);
     rect -= step(tr.x, uv.x);
     rect -= step(uv.y, bl.y);
     rect -= step(tr.y, uv.y);
 
-    return rect;
+    return clamp(rect, 0.0, 1.0);
 }
 
 void main() {
@@ -53,5 +58,7 @@ void main() {
     //     discard;
     // }
 
-    gl_FragColor = vec4(vec3(step(1., loadingBar)), backgroundAlpha);
+    vec3 trackColour = loadingBar * LOADING_TRACK_COLOUR;
+
+    gl_FragColor = vec4(trackColour, backgroundAlpha);
 }
