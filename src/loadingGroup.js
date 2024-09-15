@@ -13,6 +13,12 @@ export default class LoadingGroup extends THREE.Group {
     constructor(camera) {
         super();
 
+        THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+
+            this.loadingProgress.value = itemsLoaded / itemsTotal;
+        };
+
         const width = pagePixelsToWorldUnit(window.innerWidth, camera);
         const height = pagePixelsToWorldUnit(window.innerHeight, camera);
 
