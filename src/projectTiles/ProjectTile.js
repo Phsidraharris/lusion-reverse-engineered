@@ -177,7 +177,6 @@ export default class ProjectTile extends THREE.Group {
         addCssClass(true);
         await waitAsync(1000);
         await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1, true);
-        await waitAsync(500);
         document.getElementById("home-content").style.visibility = "hidden"
         document.getElementById("project-tile-modal").classList.add("show");
 
