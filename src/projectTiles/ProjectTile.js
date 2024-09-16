@@ -121,9 +121,11 @@ export default class ProjectTile extends THREE.Group {
         function addCssClass(isForward) {
             const homeContent = document.getElementById("home-content");
             if (isForward) {
+                document.body.classList.add("no-scroll");
                 homeContent.classList.add("fade-out");
             }
             else {
+                document.body.classList.remove("no-scroll");
                 homeContent.classList.remove("fade-out");
             }
         }
@@ -161,11 +163,10 @@ export default class ProjectTile extends THREE.Group {
 
         const onBack = async (e) => {
             e.preventDefault();
-            document.getElementById("project-tile-1").classList.remove("show");
+            document.getElementById("project-tile-modal").classList.remove("show");
             await waitAsync(1000);
             await zoomSequence(portalCamStartZoom, pageCamStartFrustumSize, pageCamStartPosition, pageCamStartRotationZ, false);
             addCssClass(false);
-            document.body.style.overflow = 'auto';
             document.getElementById("home-content").style.visibility = "visible"
 
             for (let button of buttons) {
@@ -173,13 +174,12 @@ export default class ProjectTile extends THREE.Group {
             }
         }
 
-        document.body.style.overflow = 'hidden';
         addCssClass(true);
         await waitAsync(1000);
         await zoomSequence(3, this.calculatePageCamTargetFrustum(), this.tileMesh.position.clone(), randomSign() * 0.1, true);
         await waitAsync(500);
         document.getElementById("home-content").style.visibility = "hidden"
-        document.getElementById("project-tile-1").classList.add("show");
+        document.getElementById("project-tile-modal").classList.add("show");
 
         const buttons = document.getElementsByClassName("project-tile-back-button");
         for (let button of buttons) {
