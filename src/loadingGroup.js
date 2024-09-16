@@ -3,6 +3,9 @@ import { debugGui } from './debugGui';
 import fragmentShader from "./shaders/loadingMeshFrag.glsl";
 import vertexShader from "./shaders/loadingMeshVert.glsl";
 import { pagePixelsToWorldUnit, pageToWorldCoords } from './utils/utils';
+import { CountUp } from 'countup.js';
+
+const LOADING_CONTENT_ID = "loading-content";
 
 export default class LoadingGroup extends THREE.Group {
     letterRotation = { value: 0 };
@@ -11,6 +14,7 @@ export default class LoadingGroup extends THREE.Group {
     loadingProgress = { value: 0, target: 0 };
     postLoadSequenceProgress = { value: 0 };
     isSequenceFinished = false;
+    loadingContentEl = document.getElementById(LOADING_CONTENT_ID);
 
     constructor(camera, onDoneLoadSequence) {
         super();
@@ -19,8 +23,25 @@ export default class LoadingGroup extends THREE.Group {
 
         this.onDoneLoadSequence = onDoneLoadSequence;
 
-        THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => this.loadingProgress.target = itemsLoaded / itemsTotal;
+        THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            const percent = itemsLoaded / itemsTotal;
+            this.countUp.update(Math.round(percent * 100));
+            this.loadingProgress.target = percent;
+        }
 
+        this.initOdometer();
+        this.initMesh(camera);
+        this.initDebug()
+    }
+
+    initOdometer = () => {
+        this.countUp = new CountUp(this.loadingContentEl, 100, {
+            // plugin: new Odometer({ duration: 2.3, lastDigitDelay: 0 }),
+            formattingFn: (n) => n.toString().padStart(3, '0')
+        });
+    }
+
+    initMesh = (camera) => {
         const pos = pageToWorldCoords(window.innerWidth * 0.5, window.innerHeight * 0.5, camera);
         const width = pagePixelsToWorldUnit(window.innerWidth, camera);
         const height = pagePixelsToWorldUnit(window.innerHeight, camera);
@@ -44,8 +65,6 @@ export default class LoadingGroup extends THREE.Group {
         this.mesh.renderOrder = 1000;
         this.mesh.position.copy(pos);
         this.add(this.mesh);
-
-        this.initDebug()
     }
 
     initDebug() {
@@ -62,7 +81,7 @@ export default class LoadingGroup extends THREE.Group {
             return;
         }
 
-        this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10) + 0.000001;
+        this.loadingProgress.value = THREE.MathUtils.lerp(this.loadingProgress.value, this.loadingProgress.target, dt * 10) + 0.0000000001;
         this.loadingProgress.value = Math.min(this.loadingProgress.value, 1);
 
         if (this.loadingProgress.value >= 1) {
@@ -73,7 +92,7 @@ export default class LoadingGroup extends THREE.Group {
                 this.isSequenceFinished = true;
 
                 document.body.classList.remove("no-scroll");
-
+                this.loadingContentEl.remove();
                 this.onDoneLoadSequence?.();
             }
         }

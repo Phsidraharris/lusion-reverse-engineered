@@ -21,7 +21,7 @@ body {
     color: #1c1d21;
     opacity: 1;
     transition: opacity 0.1s;
-    overscroll-behavior-y: none;
+    /* overscroll-behavior-y: none; */
 
     &.no-scroll {
         overflow: hidden;
@@ -59,6 +59,16 @@ a {
     width: 100vw;
     height: 100vh;
     z-index: -1;
+}
+
+#loading-content {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    color: #fff;
+    font-size: 6rem;
+    font-family: monospace, monospace;
 }
 
 #home-content {

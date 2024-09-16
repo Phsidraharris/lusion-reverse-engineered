@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",
+    "countup.js": "^2.8.0",
     "three": "^0.166.1",
     "vite-plugin-wasm": "^3.3.0",
     "wiggle": "^0.0.17"
