@@ -1,11 +1,12 @@
+import { CountUp } from 'countup.js';
 import * as THREE from 'three';
 import { debugGui } from './debugGui';
 import fragmentShader from "./shaders/loadingMeshFrag.glsl";
 import vertexShader from "./shaders/loadingMeshVert.glsl";
 import { pagePixelsToWorldUnit, pageToWorldCoords } from './utils/utils';
-import { CountUp } from 'countup.js';
 
 const LOADING_CONTENT_ID = "loading-content";
+const HOME_CONTENT_ID = "home-content";
 
 export default class LoadingGroup extends THREE.Group {
     letterRotation = { value: 0 };
@@ -15,6 +16,7 @@ export default class LoadingGroup extends THREE.Group {
     postLoadSequenceProgress = { value: 0 };
     isSequenceFinished = false;
     loadingContentEl = document.getElementById(LOADING_CONTENT_ID);
+    homeContentEl = document.getElementById(HOME_CONTENT_ID);
 
     constructor(camera, onDoneLoadSequence) {
         super();
@@ -92,6 +94,7 @@ export default class LoadingGroup extends THREE.Group {
 
                 document.body.classList.remove("no-scroll");
                 this.loadingContentEl.remove();
+                this.homeContentEl.classList.remove("fade-out");
                 this.onDoneLoadSequence?.();
             }
         }
