@@ -21,14 +21,10 @@ body {
     color: #1c1d21;
     opacity: 1;
     transition: opacity 0.1s;
-    /* overscroll-behavior-y: none; */
+    overscroll-behavior-y: none;
 
     &.no-scroll {
         overflow: hidden;
-    }
-
-    .fade-out {
-        opacity: 0;
     }
 }
 
