@@ -73,7 +73,7 @@ function init() {
         if (!SNAPPING_ENABLED) {
             return;
         }
-    
+
         const timeSinceLastScroll = Date.now() - lastScrollTime;
 
         if (timeSinceLastScroll > lastScrollCooldown) {

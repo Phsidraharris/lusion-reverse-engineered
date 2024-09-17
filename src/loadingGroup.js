@@ -36,7 +36,6 @@ export default class LoadingGroup extends THREE.Group {
 
     initOdometer = () => {
         this.countUp = new CountUp(this.loadingContentEl, 100, {
-            // plugin: new Odometer({ duration: 2.3, lastDigitDelay: 0 }),
             formattingFn: (n) => n.toString().padStart(3, '0')
         });
     }
