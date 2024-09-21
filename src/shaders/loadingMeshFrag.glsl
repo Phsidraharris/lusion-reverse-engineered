@@ -85,7 +85,7 @@ void main() {
 
     vec3 l1l2Colour = vec3(1.15 - postLoadSequenceProgress) * l1l2Rect * showPostLoadSequence;
     float alpha = 1.0;
-    alpha -= step(EPSILON, l1l2Rect) * letterDiscardCurve;
+    alpha -= l1l2Rect * letterDiscardCurve;
     alpha -= backgroundAlphaCurve;
 
     gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, alpha);
