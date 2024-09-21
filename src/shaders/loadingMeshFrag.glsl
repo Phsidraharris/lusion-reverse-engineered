@@ -53,7 +53,7 @@ float calculateRectPercent(vec2 bl, vec2 tr, vec2 uv, float percent) {
 
 void main() {
     float showLoadingBar = step(loadingProgress, 1.0 - EPSILON);
-    float showPostLoadSequence = step(1.0 -EPSILON, loadingProgress);
+    float showPostLoadSequence = step(1.0 - EPSILON, loadingProgress);
 
     float letterRotationCurve = smoothstep(0., 0.1, postLoadSequenceProgress);
     float letterDiscardCurve = smoothstep(0.0, 0.5, postLoadSequenceProgress);
@@ -85,9 +85,7 @@ void main() {
 
     vec3 l1l2Colour = vec3(1.15 - postLoadSequenceProgress) * l1l2Rect * showPostLoadSequence;
     float alpha = 1.0;
-    if(letterDiscardCurve >= 1. && l1l2Rect > 0.0) {
-        alpha = 0.0;
-    }
+    alpha -= step(EPSILON, l1l2Rect) * letterDiscardCurve;
     alpha -= backgroundAlphaCurve;
 
     gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, alpha);
