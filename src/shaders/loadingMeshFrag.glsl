@@ -78,7 +78,7 @@ void main() {
 
     float l1Rect = calculateRect(Letter1Bl, Letter1Tr, verticalUv);
     float l2Rect = calculateRect(Letter2Bl, Letter2Tr, ndcUv);
-    float l1l2Rect = step(1., l1Rect) + step(1., l2Rect);
+    float l1l2Rect = l1Rect + l2Rect;
 
     vec3 trackColour = loadingTrackRect * LOADING_TRACK_COLOUR * showLoadingBar;
     vec3 progressColour = loadingTrackRect * loadingProgressRect * LOADING_PROGRESS_COLOUR * showLoadingBar;
