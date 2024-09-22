@@ -87,6 +87,7 @@ void main() {
     float alpha = 1.0;
     alpha -= l1l2Rect * letterDiscardCurve;
     alpha -= backgroundAlphaCurve;
+    alpha = clamp(alpha, 0.0, 1.0);
 
     gl_FragColor = vec4(trackColour + progressColour + l1l2Colour, alpha);
 }
