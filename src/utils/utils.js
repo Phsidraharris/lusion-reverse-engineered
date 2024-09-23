@@ -23,10 +23,10 @@ export function pageToWorldCoords(pageX, pageY, camera) {
  * @param {THREE.OrthographicCamera} camera 
  */
 export function pagePixelsToWorldUnit(pagePixels, camera) {
-    const camWidth = camera.right - camera.left;
-    const ratio = camWidth / window.innerWidth;
+    const camViewHeight = camera.top - camera.bottom;
+    const worldUnitsPerPixel = camViewHeight / window.innerHeight;
 
-    return pagePixels * ratio;
+    return pagePixels * worldUnitsPerPixel;
 }
 
 export function updateCameraIntrisics(cameraRef, frustum) {
