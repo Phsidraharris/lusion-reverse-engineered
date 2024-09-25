@@ -108,37 +108,35 @@ export class AnimatedTube extends THREE.Group {
                 shader.uniforms.curveTexture = this.uniforms.curveTexture;
                 shader.uniforms.stretchRatio = this.uniforms.stretchRatio;
                 shader.vertexShader = `
-uniform sampler2D curveTexture;
-uniform float stretchRatio;
-
-${shader.vertexShader}
+                    uniform sampler2D curveTexture;
+                    uniform float stretchRatio;
+                    ${shader.vertexShader}
 `.replace(
                     `#include <beginnormal_vertex>`,
                     `#include <beginnormal_vertex>
 
-    vec3 pos = position;
-    
-    vec3 cpos = vec3(0.);
-    vec3 ctan = vec3(0.);
-    
-    float a = clamp(pos.z + 0.5, 0., 1.) * stretchRatio;
-    if(pos.z < -0.5){
-    cpos = vec3(texture(curveTexture, vec2(0., 0.25)));
-    ctan = vec3(texture(curveTexture, vec2(0., 0.75)));
-    pos.z += 0.5;
-    } else if(pos.z >= -0.5){
-    cpos = vec3(texture(curveTexture, vec2(a, 0.25)));
-    ctan = vec3(texture(curveTexture, vec2(a, 0.75)));
-    pos.z = (pos.z > 0.5) ? (pos.z - 0.5) : 0.;
-    }
+                    vec3 pos = position;
+
+                    vec3 cpos = vec3(0.);
+                    vec3 ctan = vec3(0.);
+
+                    float a = clamp(pos.z + 0.5, 0., 1.) * stretchRatio;
+                    if(pos.z < -0.5) {
+                        cpos = vec3(texture(curveTexture, vec2(0., 0.25)));
+                        ctan = vec3(texture(curveTexture, vec2(0., 0.75)));
+                        pos.z += 0.5;
+                    } 
+                    else if(pos.z >= -0.5) {
+                        cpos = vec3(texture(curveTexture, vec2(a, 0.25)));
+                        ctan = vec3(texture(curveTexture, vec2(a, 0.75)));
+                        pos.z = (pos.z > 0.5) ? (pos.z - 0.5) : 0.;
+                    }
 `).replace(
                         `#include <begin_vertex>`,
-                        `#include <begin_vertex>    
-
-    transformed =  pos;
-    transformed += cpos;
-`
-                    );
+                        `#include <begin_vertex> 
+                    transformed =  pos;
+                    transformed += cpos;
+`);
             }
         });
         const mesh = new THREE.Mesh(tubeGeometry.clone(), tubeMaterial);
