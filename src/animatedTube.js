@@ -111,15 +111,6 @@ export class AnimatedTube extends THREE.Group {
 uniform sampler2D curveTexture;
 uniform float stretchRatio;
 
-// https://github.com/glslify/glsl-look-at
-mat3 calcLookAtMatrix(vec3 origin, vec3 target, float roll) {
-    vec3 rr = vec3(sin(roll), cos(roll), 0.0);
-    vec3 ww = normalize(target - origin);
-    vec3 uu = normalize(cross(ww, rr));
-    vec3 vv = normalize(cross(uu, ww));
-
-    return -mat3(uu, vv, ww);
-}
 ${shader.vertexShader}
 `.replace(
                     `#include <beginnormal_vertex>`,
@@ -140,10 +131,6 @@ ${shader.vertexShader}
     ctan = vec3(texture(curveTexture, vec2(a, 0.75)));
     pos.z = (pos.z > 0.5) ? (pos.z - 0.5) : 0.;
     }
-    
-    // mat3 rot = calcLookAtMatrix(vec3(0), -ctan, 0.);
-    
-    // objectNormal = normalize(rot * objectNormal);
 `).replace(
                         `#include <begin_vertex>`,
                         `#include <begin_vertex>    
