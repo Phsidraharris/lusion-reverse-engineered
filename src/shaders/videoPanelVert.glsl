@@ -21,7 +21,7 @@ void main() {
 
     float rotateStepEdgeCurve = 1.0 - sin(animateProgress * PI) * 2.0;    // multiply by 3 so that when animateProgress = 1, step edge contains more of the uv
     float startEndCurve = smoothstep(0.2, 1.0, animateProgress);
-    float rotateCurve = PI * 0.125 * sin(animateProgress * PI);     // rotate by 1/8th of PI (i.e 16th turn of a circle), that peaks at animateProgress = 0.5
+    float rotateCurve = (smoothstep(0.1, 0.4, animateProgress) - smoothstep(0.6, 0.9, animateProgress)) * 0.4;
     float translateCurve = smoothstep(0.0, 0.2, animateProgress) - smoothstep(0.2, 0.8, animateProgress);
 
     vec2 videoPanelStartPos = getRectPos(startRect, uv);
@@ -35,7 +35,7 @@ void main() {
 
     pos.xy = mix(videoPanelStartPos, videoPanelEndPos, startEndCurve);
     pos.xy = rotate(pos.xy, rotateCurve * rotateMask);
-    pos.x *= 1.0 + 0.4 * translateCurve * translateMask;
+    pos.x *= 1.0 + 0.3 * translateCurve * translateMask;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
