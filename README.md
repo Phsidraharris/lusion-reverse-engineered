@@ -4,7 +4,7 @@ Hey! 👋
 
 I recreated https://lusion.co with the purpose of learning how to make 3D immersive websites. 
 
-[LIVE DEMO 🚀](https://canxerian.com/lusion-reverse-engineered)
+[LIVE DEMO 🚀](https://mark-n.co/lusion-reverse-engineered)
 
 ## Setup
 
