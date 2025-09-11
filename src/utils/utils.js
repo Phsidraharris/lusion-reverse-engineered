@@ -93,6 +93,9 @@ export function createBevelledPlane(width, height, radius) {
  */
 export function getElementPageCoords(elementId, anchor = { x: 0.5, y: 0.5 }) {
     const element = document.getElementById(elementId);
+    if (!element) {
+        throw new Error(`getElementPageCoords: Element with id "${elementId}" not found in DOM.`);
+    }
     const rect = element.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -149,11 +152,20 @@ export function elementToLocalRectPoints(elementId, parent, camera) {
 }
 
 export function createVideoTexture(src) {
-    const video = document.createElement('video');
-    video.src = src;
+   const video = document.createElement('video');
+    video.src = '/assets/pexels-2519660-uhd_3840_2160_24fps.mp4'; // Try with leading slash
     video.loop = true;
     video.muted = true;
-    video.play();
+    video.playsInline = true;
+    video.autoplay = true;
+
+    video.onerror = (e) => {
+        console.error("Video failed to load", e, video.src);
+    };
+
+    video.play().catch(err => {
+        console.warn("Video play() failed:", err);
+    });
 
     const texture = new THREE.VideoTexture(video);
     texture.colorSpace = THREE.SRGBColorSpace;

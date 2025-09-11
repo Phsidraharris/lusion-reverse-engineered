@@ -1,3 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Stardos+Stencil&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Stardos+Stencil&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3D Section Styles */
+:root {
+    --h1-font-size: 9vw;
+}
+
+html {
+    scroll-behavior: smooth;
+    font: 14px Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    scrollbar-width: none;
+    background-color: #F0F1FA;
+    -ms-overflow-style: none;
+    color: #1c1d21;
+    opacity: 1;
+    transition: opacity 0.1s;
+    overscroll-behavior-y: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+
+
 * {
     margin: 0;
     padding: 0;
@@ -80,7 +123,6 @@ section {
     display: flex;
     flex-direction: column;
     width: 100vw;
-    min-height: 100vh;
 
     header {
         padding: 3vw 0;

@@ -172,10 +172,19 @@ export default class VideoPanelBones extends THREE.Group {
 
     createVideoTexture() {
         const video = document.createElement('video');
-        video.src = 'assets/pexels-2519660-uhd_3840_2160_24fps.mp4';
+        video.src = '/assets/pexels-2519660-uhd_3840_2160_24fps.mp4'; // Try with leading slash
         video.loop = true;
         video.muted = true;
-        video.play();
+        video.playsInline = true;
+        video.autoplay = true;
+
+        video.onerror = (e) => {
+            console.error("Video failed to load", e, video.src);
+        };
+
+        video.play().catch(err => {
+            console.warn("Video play() failed:", err);
+        });
 
         const texture = new THREE.VideoTexture(video);
         texture.colorSpace = THREE.SRGBColorSpace;

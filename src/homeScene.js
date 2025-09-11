@@ -9,6 +9,7 @@ import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
 import { updateCameraIntrisics } from "./utils/utils";
 import VideoPanelShader from "./videoPanelShader";
+import { HDRLoader } from 'three/examples/jsm/Addons.js';
 
 class HomeScene {
     frustumSize = 10;    // value of 1 results in 1 world space unit equating to height of viewport
@@ -25,7 +26,6 @@ class HomeScene {
         window.addEventListener("resize", this.onWindowResized);
 
         if (import.meta.env.DEV) {
-            this.initDebug();
             this.stats = new Stats();
             document.body.appendChild(this.stats.dom);
         }
@@ -33,7 +33,9 @@ class HomeScene {
 
     initThree = () => {
         const canvas = document.getElementById("canvas");
-
+        if (!canvas) {
+            throw new Error("Canvas element with id 'canvas' not found. Make sure your HTML contains <canvas id='canvas'></canvas> and scripts run after DOMContentLoaded.");
+        }
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -52,7 +54,7 @@ class HomeScene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(window.getComputedStyle(document.body).backgroundColor);
 
-        new RGBELoader().load(hdr, (texture) => {
+        new HDRLoader().load(hdr, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;
         });

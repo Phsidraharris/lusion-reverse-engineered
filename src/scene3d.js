@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import { HDRLoader, OrbitControls } from 'three/examples/jsm/Addons.js';
 import { AnimatedTube } from './animatedTube';
 import { debugGui } from './debugGui';
 import PhysicsSandbox from './physicsSandbox';
@@ -25,7 +25,9 @@ function init() {
     window.addEventListener('resize', onWindowResized);
 
     const canvas = document.getElementById("canvas");
-
+    if (!canvas) {
+        throw new Error("Canvas element with id 'canvas' not found. Make sure your HTML contains <canvas id='canvas'></canvas> and scripts run after DOMContentLoaded.");
+    }
     renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -45,7 +47,7 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(bgColor);
 
-    new RGBELoader().setPath('assets/').load('quarry_01_1k.hdr', function (texture) {
+    new HDRLoader().setPath('assets/').load('quarry_01_1k.hdr', function (texture) {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         scene.environment = texture;
         scene.backgroundIntensity = 0;

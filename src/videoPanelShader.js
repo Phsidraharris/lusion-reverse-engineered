@@ -25,7 +25,7 @@ export default class VideoPanelShader extends THREE.Group {
         const startWorldRect = elementToWorldRect(PANEL_START_ID, camera);
         this.position.copy(startWorldRect.position);
 
-        const videoTexture = createVideoTexture(mp4);
+        const videoTexture = createVideoTexture();
         const startRectLocal = elementToLocalRect(PANEL_START_ID, this, camera);
         const endRectLocal = elementToLocalRect(PANEL_END_ID, this, camera);
 

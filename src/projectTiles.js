@@ -18,8 +18,7 @@ export default class ProjectTiles extends THREE.Group {
     constructor(homeScene) {
         super();
 
-        this.homeScene = homeScene;
-        this.initTiles();
+ 
     }
 
     initTiles = async () => {

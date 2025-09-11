@@ -32,23 +32,51 @@ export default class AnimatedLine extends THREE.Group {
         const positions = [];
         const colors = [];
 
-        const nurbsPoints = nurbsJson[0].points.map(p => new THREE.Vector3(p.x, p.y, p.z, p.weight));
-        const nurbsCurvePoints = createNurbsCurve(nurbsPoints).getSpacedPoints(100);
-        const nurbsCurvePointsCut = nurbsCurvePoints.slice(0, Math.floor(this.lineProgress * nurbsCurvePoints.length));
-        const spline = createNurbsCurve(nurbsCurvePointsCut);
+        // Define the 8 corners of a cube
+        const size = 10;
+        const half = size / 2;
+        const cubeVertices = [
+            new THREE.Vector3(-half, -half, -half),
+            new THREE.Vector3(half, -half, -half),
+            new THREE.Vector3(half, half, -half),
+            new THREE.Vector3(-half, half, -half),
+            new THREE.Vector3(-half, -half, -half), // close bottom face
 
-        const divisions = Math.round(12 * nurbsCurvePoints.length);
-        const point = new THREE.Vector3();
+            new THREE.Vector3(-half, -half, half),
+            new THREE.Vector3(half, -half, half),
+            new THREE.Vector3(half, half, half),
+            new THREE.Vector3(-half, half, half),
+            new THREE.Vector3(-half, -half, half), // close top face
+
+            // Connect verticals
+            new THREE.Vector3(-half, -half, -half),
+            new THREE.Vector3(-half, -half, half),
+
+            new THREE.Vector3(half, -half, -half),
+            new THREE.Vector3(half, -half, half),
+
+            new THREE.Vector3(half, half, -half),
+            new THREE.Vector3(half, half, half),
+
+            new THREE.Vector3(-half, half, -half),
+            new THREE.Vector3(-half, half, half),
+        ];
+
+        // Animate the drawing of the cube edges based on lineProgress (0..1)
+        const totalSegments = cubeVertices.length - 1;
+        const visibleSegments = Math.floor(this.lineProgress * totalSegments);
+
         const color = new THREE.Color();
+        for (let i = 0; i < visibleSegments; i++) {
+            const v1 = cubeVertices[i];
+            const v2 = cubeVertices[i + 1];
 
-        for (let i = 0, l = divisions; i < l; i++) {
+            positions.push(v1.x, v1.y, v1.z);
+            positions.push(v2.x, v2.y, v2.z);
 
-            const t = i / l;
-
-            spline.getPoint(t, point);
-            positions.push(point.x, point.y, point.z);
-
-            color.setHSL(t, 1.0, 0.5, THREE.SRGBColorSpace);
+            // Color can be animated or fixed
+            color.setHSL(i / totalSegments, 1.0, 0.5, THREE.SRGBColorSpace);
+            colors.push(color.r, color.g, color.b);
             colors.push(color.r, color.g, color.b);
         }
 
@@ -57,14 +85,11 @@ export default class AnimatedLine extends THREE.Group {
         geometry.setColors(colors);
 
         this.lineMat = new LineMaterial({
-
             color: 0xffffff,
-            linewidth: this.lineWidth, // in world units with size attenuation, pixels otherwise
+            linewidth: this.lineWidth,
             vertexColors: true,
-
             dashed: false,
             alphaToCoverage: true,
-
         });
 
         this.line = new Line2(geometry, this.lineMat);

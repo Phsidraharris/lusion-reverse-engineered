@@ -21,19 +21,36 @@ export default class LoadingGroup extends THREE.Group {
     constructor(camera, onDoneLoadSequence) {
         super();
 
-        document.body.classList.add("no-scroll");
+        // Wait for DOM elements to exist before proceeding
+        if (!document.getElementById(LOADING_CONTENT_ID) || !document.getElementById(HOME_CONTENT_ID)) {
+            window.addEventListener("DOMContentLoaded", () => {
+                this._init(camera, onDoneLoadSequence);
+            });
+        } else {
+            this._init(camera, onDoneLoadSequence);
+        }
+    }
 
+    _init(camera, onDoneLoadSequence) {
+        this.loadingContentEl = document.getElementById(LOADING_CONTENT_ID);
+        this.homeContentEl = document.getElementById(HOME_CONTENT_ID);
+
+        if (!this.loadingContentEl || !this.homeContentEl) {
+            throw new Error("LoadingGroup: Required DOM elements not found.");
+        }
+
+        document.body.classList.add("no-scroll");
         this.onDoneLoadSequence = onDoneLoadSequence;
 
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
             const percent = itemsLoaded / itemsTotal;
             this.countUp.update(Math.round(percent * 100));
             this.loadingProgress.target = percent;
-        }
+        };
 
         this.initOdometer();
         this.initMesh(camera);
-        this.initDebug()
+        this.initDebug();
     }
 
     initOdometer = () => {
