@@ -19,6 +19,7 @@ class HomeScene {
 
         setTimeout(() => {
             this.initScene();
+            this.initVideoPanelAnimations();
         }, 1);
 
         window.addEventListener("scroll", this.onScroll);
@@ -114,6 +115,26 @@ class HomeScene {
 
     initDebug = () => {
     // GUI removed: using default animation parameters
+    }
+
+    initVideoPanelAnimations() {
+        const section = document.getElementById('video-panel-section');
+        if (!section) return;
+        const topline = document.getElementById('h1-topline');
+        const tagline = document.getElementById('h1-tagline');
+        if (!topline || !tagline) return;
+        // If already animated (e.g., from previous view), skip.
+        if (topline.classList.contains('animate')) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    topline.classList.add('animate');
+                    tagline.classList.add('animate');
+                    observer.disconnect();
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(section);
     }
 }
 

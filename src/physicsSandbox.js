@@ -18,24 +18,119 @@ export default class PhysicsSandbox extends THREE.Group {
     maskWidth = 0;
     maskHeight = 0;
 
-    constructor(camera) {
+    constructor(camera, { debug = false, lazy = true } = {}) {
         super();
-
+        this._debug = !!debug || import.meta.env.DEV;
         this.camera = camera;
+        this._initialized = false;
+        this._lazy = lazy;
+        this._pendingDeferredInit = false;
+        this._log('ctor:start');
+
         this.initViewMask();
         this.initBallMaterial();
-
-        // Use a single textureLoader instance for all textures
         this.textureLoader = new THREE.TextureLoader();
         this.initReflectingPlane();
 
-        // Defer heavy async work to next event loop to avoid blocking UI
-        setTimeout(() => {
-            this.initPhysics().then(() => {
-                this.initStencil();
-                window.addEventListener('mousemove', this.onMouseMove, false);
+        this._attachDomObservers();
+        if (this._lazy) {
+            this._installIntersectionStart();
+        } else {
+            this._deferredInit();
+        }
+
+        // Expose test harness
+        if (typeof window !== 'undefined') {
+            window.__PHYSICS_SANDBOX__ = {
+                getState: () => ({
+                    maskWidth: this.maskWidth,
+                    maskHeight: this.maskHeight,
+                    hasWorld: !!this.world,
+                    bodies: this.meshBodyLookup.size,
+                    fallback: this._usedFallback,
+                    initialized: this._initialized,
+                }),
+                forceInit: () => this._deferredInit(true),
+                resize: () => this.resize(),
+            };
+        }
+    }
+
+    _log(...args) { if (this._debug) console.log('[PhysicsSandbox]', ...args); }
+
+    _ensureTestBall() {
+        if (!this.world) return;
+        // Add a single dynamic ball so update loop has something to iterate / animate.
+        if (this.meshBodyLookup.size === 0) {
+            const maskPos = this.physicsMaskMesh?.position || new THREE.Vector3();
+            const dynamic = this.createBall(0.25, { x: maskPos.x, y: maskPos.y, z: maskPos.z + 1 }, false, 0.6);
+            this.add(dynamic.mesh);
+            this.addToWorld(dynamic.mesh, dynamic.rigidbody);
+            this._log('added dynamic test ball');
+        }
+    }
+
+    _attachDomObservers() {
+        if (this.physicsMaskMesh && !this._usedFallback) return; // already have proper element
+        // Watch for #physics-sandbox-div appearing later
+        const observer = new MutationObserver(() => {
+            const el = document.getElementById('physics-sandbox-div');
+            if (el) {
+                this._log('mask element now present, rebuilding');
+                observer.disconnect();
+                this._rebuildMaskFromElement();
+            }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        this._mutationObserver = observer;
+    }
+
+    _rebuildMaskFromElement() {
+        if (this._usedFallback) {
+            // Remove fallback mesh
+            if (this.physicsMaskMesh) {
+                this.remove(this.physicsMaskMesh);
+                this.physicsMaskMesh.geometry.dispose();
+            }
+            this.physicsMaskMesh = null;
+        }
+        this.initViewMask();
+        this.initReflectingPlane();
+        // Physics/world may already exist; a resize will rebuild cleanly
+        this.resize();
+    }
+
+    _installIntersectionStart() {
+        const target = document.getElementById('physics-sandbox-div') || document.body;
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting && !this._initialized && !this._pendingDeferredInit) {
+                    this._log('intersection -> begin deferred init');
+                    io.disconnect();
+                    this._deferredInit();
+                }
             });
-        }, 0);
+        }, { threshold: 0.1 });
+        io.observe(target);
+        this._intersectionObserver = io;
+    }
+
+    async _deferredInit(force = false) {
+        if (this._initialized && !force) return;
+        this._pendingDeferredInit = true;
+        try {
+            await this.initPhysics();
+            this.initStencil();
+            this._ensureTestBall();
+            window.addEventListener('mousemove', this.onMouseMove, false);
+            this._initialized = true;
+            this._log('physics-ready');
+            try { document.body?.setAttribute('data-physics-ready', 'true'); } catch(_) {}
+        } catch (e) {
+            console.error('[PhysicsSandbox] deferred init failed', e);
+        } finally {
+            this._pendingDeferredInit = false;
+        }
     }
 
     // Helper: compute full viewport width in world units at a given Z
@@ -56,16 +151,28 @@ export default class PhysicsSandbox extends THREE.Group {
 
     initViewMask = () => {
         const targetEl = document.getElementById("physics-sandbox-div");
-        if (!targetEl) return;
+        if (!targetEl) {
+            // Fallback: use window dimensions (ensures sandbox still initializes on Pages without element timing)
+            this._log('fallback initViewMask - element missing');
+            const fallbackWidth = this.getViewportWidthAtZ(0);
+            const fallbackHeight = this.getViewportWidthAtZ(0) * 0.5; // arbitrary ratio for placeholder
+            this.maskWidth = fallbackWidth;
+            this.maskHeight = fallbackHeight;
+            const geometry = createBevelledPlane(this.maskWidth, this.maskHeight, 0.1);
+            const dummyMat = new THREE.MeshBasicMaterial({ visible: false });
+            this.physicsMaskMesh = new THREE.Mesh(geometry, dummyMat);
+            this.physicsMaskMesh.position.set(0, 0, 0);
+            this.add(this.physicsMaskMesh);
+            this.attractionPos.set(0, 0, 0);
+            this._usedFallback = true;
+            return;
+        }
+        this._usedFallback = false;
 
-        // Keep element-derived height (so it matches hero section height)
         const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
         const elementHeightWorld = Math.abs(divWorldRect.height);
         const position = divWorldRect.position;
-
-        // Force FULL viewport width at the plane's Z depth
         const fullViewportWidth = this.getViewportWidthAtZ(position.z);
-
         this.maskWidth = fullViewportWidth;
         this.maskHeight = elementHeightWorld;
 
@@ -257,6 +364,14 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     resize = async () => {
+        // Debounce rapid resize calls
+        clearTimeout(this._resizeT);
+        this._resizeT = setTimeout(async () => {
+            await this._doResize();
+        }, 120);
+    }
+
+    async _doResize() {
         if (this.physicsMaskMesh) {
             this.remove(this.physicsMaskMesh);
             this.physicsMaskMesh.geometry.dispose();
@@ -279,26 +394,29 @@ export default class PhysicsSandbox extends THREE.Group {
         this.meshBodyLookup.clear();
         this.world = null;
 
-        this.initViewMask();          // now uses full viewport width
-        await this.initPhysics();
-        this.initStencil();
-        this.initReflectingPlane();
+        this.initViewMask();
+        if (this.world) { // if physics already exists, rebuild dependent visuals
+            await this.initPhysics();
+            this.initStencil();
+            this.initReflectingPlane();
+        } else if (this._initialized) {
+            await this.initPhysics();
+            this.initStencil();
+            this.initReflectingPlane();
+        }
     }
     update(dt) {
         if (!this.world) return;
-
-        // Only update if objects are present
-        if (this.meshBodyLookup.size === 0) return;
-
-        // Step physics world only if needed (uncomment if you want physics simulation)
-        // this.world.step();
-
-        // Use for...of for better performance over forEach
-        for (const [rigidbody, mesh] of this.meshBodyLookup.entries()) {
+        if (this.meshBodyLookup.size === 0) {
+            // Try once to inject a test ball (in case init order differed)
+            this._ensureTestBall();
+            return;
+        }
+        // this.world.step(); // enable if physics simulation desired.
+        for (const [mesh, rigidbody] of this.meshBodyLookup.entries()) {
             const dirToCenter = this.attractionPos.clone().sub(mesh.position).setLength(ATTRACTION_FORCE);
             rigidbody.resetForces(true);
             rigidbody.addForce(dirToCenter);
-
             mesh.position.copy(rigidbody.translation());
             mesh.quaternion.copy(rigidbody.rotation());
         }
