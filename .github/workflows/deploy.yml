@@ -2,9 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["main", "optimize-animations"]
-  pull_request:
-    branches: ["main"]
+    branches: ["optimize-animations"]
   workflow_dispatch:
 
 permissions:
