@@ -1,11 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const SplitText = ({ children, ...rest }) => {
-  let words = children.split(' ');
+const SplitText = ({ children, text, ...rest }) => {
+  const textToSplit = text || children;
+  if (!textToSplit) return null;
+  
+  let words = textToSplit.split(' ');
   return words.map((word, i) => (
     <div
-      key={children + i}
+      key={(textToSplit) + i}
       style={{ display: 'inline-block', overflow: 'hidden' }}
     >
       <motion.div
