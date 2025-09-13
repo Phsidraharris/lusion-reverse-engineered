@@ -4,7 +4,6 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { HDRLoader, OrbitControls } from 'three/examples/jsm/Addons.js';
 import { AnimatedTube } from './animatedTube';
-import { debugGui } from './debugGui';
 import PhysicsSandbox from './physicsSandbox';
 import { VideoPanel } from './videoPanel';
 
@@ -79,18 +78,7 @@ function init() {
     physicsSandbox = new PhysicsSandbox(camera);
     scene.add(physicsSandbox);
 
-    const debug = {
-        cameraControls: false,
-    };
-    const folder = debugGui.addFolder("Scene");
-    folder.add(debug, 'cameraControls').onChange(v => {
-        if (v) {
-            controls = new OrbitControls(camera, canvas);
-        }
-        else {
-            controls = undefined;
-        }
-    })
+    // Debug GUI removed. Set cameraControls directly in code if needed.
 }
 
 function createVideoTexture() {

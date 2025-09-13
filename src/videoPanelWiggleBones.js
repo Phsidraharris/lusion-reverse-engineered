@@ -3,7 +3,6 @@ import { MeshStandardMaterial } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { WiggleBone } from "wiggle";
 import { WiggleRigHelper } from "wiggle/helper";
-import { debugGui } from "./debugGui";
 import { createVideoTexture, elementToLocalRectPoints } from "./utils/utils";
 
 const SPRING_STIFFNESS = 4000;
@@ -72,8 +71,7 @@ export default class VideoPanelWiggleBones extends THREE.Group {
   }
 
   initDebug = () => {
-    const folder = debugGui.addFolder("Wiggle Bones");
-    folder.add(this, "animationPercent", 0, 1)
+    // GUI removed
   }
 
   update = (dt) => {

@@ -3,7 +3,6 @@ import Stats from "three/addons/libs/stats.module.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import hdr from "../assets/hdri/quarry_01_1k.hdr";
 import { AnimatedTube } from "./animatedTube";
-import { debugGui } from "./debugGui";
 import LoadingGroup from './loadingGroup';
 import PhysicsSandbox from "./physicsSandbox";
 import ProjectTiles from "./projectTiles";
@@ -114,8 +113,7 @@ class HomeScene {
     }
 
     initDebug = () => {
-        const folder = debugGui.addFolder("Scene");
-        folder.add(this, "frustumSize", 0, 100).onChange(this.setCameraFrustumSize);
+    // GUI removed: using default animation parameters
     }
 }
 

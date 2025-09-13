@@ -14,7 +14,6 @@ import {
 } from 'three';
 
 import { CCDIKHelper, CCDIKSolver } from 'three/addons/animation/CCDIKSolver.js';
-import { debugGui } from "./debugGui";
 
 let gui, scene, camera, renderer, orbit, mesh, bones, skeletonHelper, ikSolver;
 export default class IKTest extends THREE.Group {
@@ -65,14 +64,7 @@ export default class IKTest extends THREE.Group {
             .filter((bone) => bone.name === 'target')
             .forEach(function (bone) {
 
-                const folder = debugGui.addFolder(bone.name);
-
-                const delta = 20;
-                folder.add(bone.position, 'x', - delta + bone.position.x, delta + bone.position.x);
-                folder.add(bone.position, 'y', - bone.position.y, bone.position.y);
-                folder.add(bone.position, 'z', - delta + bone.position.z, delta + bone.position.z);
-
-                folder.add(scale, "value", 0, 10).onChange(v => bone.scale.setScalar(v));
+                // GUI removed; optional interactive controls omitted
 
             });
 

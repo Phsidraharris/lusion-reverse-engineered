@@ -6,6 +6,8 @@
 
 :root {
     --h1-font-size: 9vw;
+    /* Brand color will be dynamically updated via JS (see brandColor.js). */
+    --brand-color: #141622; /* fallback */
 }
 
 html {
@@ -16,7 +18,7 @@ html {
 body {
     margin: 0;
     scrollbar-width: none;
-    background-color: #F0F1FA;
+    background-color: var(--brand-color);
     -ms-overflow-style: none;
     color: #1c1d21;
     opacity: 1;
@@ -59,12 +61,19 @@ a {
 
 #loading-content {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
-    padding: 1rem;
-    color: #fff;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(34, 35, 46, 0.98); /* or your preferred color */
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 6rem;
     font-family: monospace, monospace;
+    color: #fff;
+    pointer-events: all;
 }
 
 #home-content {

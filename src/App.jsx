@@ -13,9 +13,8 @@ function App() {
   return (
     <Top3DSection>
       <div className="main-container">
-        <Home />
         <Header />
-        <LogoCarousel />
+        <Home />
         <Service />
         <RetrievalModels />
         <DeploymentOption />

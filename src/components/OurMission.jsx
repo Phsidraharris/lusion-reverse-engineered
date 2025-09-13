@@ -13,7 +13,7 @@ function OurMission() {
   return (
     <section
       className="2xl:px-40 lg:px-22 px-6 bg-cover bg-center py-10"
-      // style={{ backgroundImage: `url(${mbanner})` }}
+      style={{ backgroundColor: "azure" }}
     >
       <div className="w-full relative py-12 lg:py-16 2xl:py-26 max-w-full-screen mx-auto px-5 md:px-5 lg:px-12">
         <div className="relative flex justify-between items-center">

@@ -1,6 +1,5 @@
 import { CountUp } from 'countup.js';
 import * as THREE from 'three';
-import { debugGui } from './debugGui';
 import fragmentShader from "./shaders/loadingMeshFrag.glsl";
 import vertexShader from "./shaders/loadingMeshVert.glsl";
 import { pagePixelsToWorldUnit, pageToWorldCoords } from './utils/utils';
@@ -86,12 +85,7 @@ export default class LoadingGroup extends THREE.Group {
     }
 
     initDebug() {
-        const folder = debugGui.addFolder("Loading");
-        folder.add(this.letterRotation, "value", -Math.PI / 2, 0).name("Letter rotation");
-        folder.add(this.letterScale, "value", 1, 10).name("Letter scale");
-        folder.add(this.backgroundAlpha, "value", 0, 1).name("Background alpha");
-        folder.add(this.loadingProgress, "value", 0, 1).name("Loading progress");
-        folder.add(this.postLoadSequenceProgress, "value", 0, 1).name("Post load sequence");
+        // GUI removed - using internal defaults
     }
 
     update = (dt) => {

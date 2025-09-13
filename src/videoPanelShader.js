@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Vector4 } from "three";
-import { debugGui } from "./debugGui";
 import videoPanelVFrag from "./shaders/videoPanelFrag.glsl";
 import videoPanelVert from "./shaders/videoPanelVert.glsl";
 import { createVideoTexture, elementToLocalRect, elementToWorldRect, getElementPageCoords, pagePixelsToWorldUnit } from "./utils/utils";
@@ -72,10 +71,7 @@ export default class VideoPanelShader extends THREE.Group {
     }
 
     initDebug = () => {
-        const folder = debugGui.addFolder("Video Panel Shader");
-        folder.add(this.animateProgress, "value", 0, 1).name("Mask progress");
-        folder.add(this.borderRadius, "value", 0, 1).name("Border radius");
-        folder.addColor(this.tintColour, "value").name("Tint colour");
+        // GUI removed
     }
 
     /**

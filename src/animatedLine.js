@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Line2, LineGeometry, LineMaterial } from "three/examples/jsm/Addons.js";
 import nurbsJson from "../assets/nurbs-canxerian.json";
-import { debugGui } from "./debugGui";
 import { createNurbsCurve } from "./utils/nurbsUtils";
 
 export default class AnimatedLine extends THREE.Group {
@@ -17,11 +16,7 @@ export default class AnimatedLine extends THREE.Group {
 
         this.createLine();
 
-        const folder = debugGui.addFolder("AnimatedLine");
-        folder.add(this, "lineWidth", 1, 100).onChange(v => this.lineMat.linewidth = v);
-        folder.add(this, "lineProgress", 0.01, 1).onChange(v => {
-            this.createLine();
-        });
+        // GUI removed: defaults retained; adjust uniforms directly here if needed
     }
 
     createLine() {

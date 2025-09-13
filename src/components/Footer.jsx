@@ -1,7 +1,9 @@
 
+import logoMain from "../assets/RODIAX_logo_161x161.png";
+
 function Footer() {
   return (
-    <footer className="bg-[#232323] 2xl:px-40 lg:px-22 px-6 bg-cover bg-center">
+  <footer className="2xl:px-40 lg:px-22 px-6 bg-cover bg-center text-brand-fg" style={{ backgroundColor: "black" }}>
       <div className="w-full relative py-12 lg:py-16 max-w-full-screen mx-auto uppercase">
         {/* <div className="flex flex-col gap-2">
           <div className="mb-4 text-[#BDBDBD] text-[13px] font-serif">
@@ -45,10 +47,10 @@ function Footer() {
         </div> */}
         <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-8 my-10">
           <div>
-            <div className="mb-6">
-              <span className="text-[#BDBDBD] text-[14px]">Products</span>
+            <div className="mb-4">
+              <span className="text-brand-fg text-sm tracking-wide font-medium">Products</span>
             </div>
-            <ul className="text-white flex flex-col gap-2 text-[15px]">
+            <ul className="text-white flex flex-col gap-2 text-sm">
               <li>
                 <a href="">Command</a>
               </li>
@@ -70,10 +72,10 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="mb-6">
-              <span className="text-[#BDBDBD] text-[14px]">Developers</span>
+            <div className="mb-4">
+              <span className="text-brand-fg text-sm tracking-wide font-medium">Developers</span>
             </div>
-            <ul className="text-white flex flex-col gap-2 text-[15px]">
+            <ul className="text-white flex flex-col gap-2 text-sm">
               <li>
                 <a href="">Playground</a>
               </li>
@@ -101,10 +103,10 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="mb-6">
-              <span className="text-[#BDBDBD] text-[14px]">Company</span>
+            <div className="mb-4">
+              <span className="text-brand-fg text-sm tracking-wide font-medium">Company</span>
             </div>
-            <ul className="text-white flex flex-col gap-2  text-[15px]">
+            <ul className="text-white flex flex-col gap-2 text-sm">
               <li>
                 <a href="">About</a>
               </li>
@@ -126,10 +128,10 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="mb-6">
-              <span className="text-[#BDBDBD] text-[14px]">Trust Center</span>
+            <div className="mb-4">
+              <span className="text-brand-fg text-sm tracking-wide font-medium">Trust Center</span>
             </div>
-            <ul className="text-white flex flex-col gap-2 text-[15px]">
+            <ul className="text-white flex flex-col gap-2 text-sm">
               <li>
                 <a href="">Privacy</a>
               </li>
@@ -157,10 +159,10 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="mb-6">
-              <span className="text-[#BDBDBD] text-[14px]">Contact</span>
+            <div className="mb-4">
+              <span className="text-brand-fg text-sm tracking-wide font-medium">Contact</span>
             </div>
-            <ul className="text-white flex flex-col gap-2 text-[15px]">
+            <ul className="text-white flex flex-col gap-2 text-sm">
               <li>
                 <a href="">Twitter</a>
               </li>
@@ -176,15 +178,13 @@ function Footer() {
             </ul>
           </div>
         </div>
-        <div className="pt-20 py-6 border-[#bdbdbd2c] border-solid border-b-[1px]">
-          <img
-            src="https://cdn.sanity.io/images/rjtqmwfu/production/28e74135f57d785599b3f36e024230911600c965-1320x225.svg"
-            alt=""
-          />
+        <div className="pt-20 py-6 border-white/10 border-solid border-b flex items-center gap-4">
+          <img src={logoMain} alt="Rodiax Logo" className="h-10 w-auto object-contain select-none" />
+          <span className="text-brand-fg tracking-wide text-xs uppercase">Rodiax Platform</span>
         </div>
         <div className="flex justify-between items-center gap-y-6 my-6 flex-wrap md:flex-nowrap">
           <div>
-            <ul className="text-white flex gap-x-6 text-[14px]">
+            <ul className="text-white flex gap-x-6 text-xs font-medium">
               <li>
                 <a href="">Twitter</a>
               </li>
@@ -200,7 +200,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <ul className="text-[#BDBDBD] flex gap-x-6 text-[13px]">
+            <ul className="text-brand-fg/80 flex gap-x-6 text-[11px] tracking-wide">
               <li>
                 <a href="">Privacy</a>
               </li>

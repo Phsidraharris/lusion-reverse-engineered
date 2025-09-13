@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { debugGui } from "./debugGui";
 import { createBevelledPlane, elementToLocalRectPoints, elementToWorldRect } from "./utils/utils";
 
 const TINT_COLOUR_START = new THREE.Color("#94e0e6");
@@ -135,11 +134,7 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     initDebug = () => {
-        const folder = debugGui.addFolder("VideoPanel");
-        folder.add(this, "animPlaybackPercent", 0, 1).onChange(v => this.playAnimation(v));
-        folder.add(this, "debugCurvesEnabled").onChange(v => {
-            this.setDebugCurvedEnabled(v);
-        });
+        // GUI removed; manual animation control via code only
     }
 
     playAnimation() {

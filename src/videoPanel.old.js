@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { debugGui } from "./debugGui";
 import { elementToWorldRect, pageToWorldCoords } from "./utils/utils";
 
 const TINT_COLOUR_START = new THREE.Color("#5b1473");
@@ -76,8 +75,7 @@ export class VideoPanelOld extends THREE.Group {
     }
 
     initDebug() {
-        const folder = debugGui.addFolder("VideoPanel");
-        folder.add(this, "animPlaybackPercent", 0, 1).onChange(v => this.playAnimation(v));
+        // GUI removed
     }
 
     playAnimation(percent) {

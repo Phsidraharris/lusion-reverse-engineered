@@ -15,6 +15,8 @@ export default class PhysicsSandbox extends THREE.Group {
     meshBodyLookup = new Map();
     attractionPos = new THREE.Vector3(0, 0, 0);
     lastMousePos = new THREE.Vector3();
+    maskWidth = 0;
+    maskHeight = 0;
 
     constructor(camera) {
         super();
@@ -36,14 +38,43 @@ export default class PhysicsSandbox extends THREE.Group {
         }, 0);
     }
 
+    // Helper: compute full viewport width in world units at a given Z
+    getViewportWidthAtZ(z) {
+        const cam = this.camera;
+        if (cam.isPerspectiveCamera) {
+            const dist = Math.abs(cam.position.z - z);
+            const vFov = THREE.MathUtils.degToRad(cam.fov);              // vertical FOV in radians
+            const viewportHeightAtZ = 2 * Math.tan(vFov / 2) * dist;
+            const viewportWidthAtZ = viewportHeightAtZ * cam.aspect;
+            return viewportWidthAtZ;
+        } else if (cam.isOrthographicCamera) {
+            return (cam.right - cam.left);
+        }
+        // Fallback
+        return window.innerWidth / 100;
+    }
+
     initViewMask = () => {
-        // Use utility to get world rect for the container
+        const targetEl = document.getElementById("physics-sandbox-div");
+        if (!targetEl) return;
+
+        // Keep element-derived height (so it matches hero section height)
         const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
-        const width = Math.abs(divWorldRect.width);
-        const height = Math.abs(divWorldRect.height);
+        const elementHeightWorld = Math.abs(divWorldRect.height);
         const position = divWorldRect.position;
 
-        // Use a metallic, reflective material
+        // Force FULL viewport width at the plane's Z depth
+        const fullViewportWidth = this.getViewportWidthAtZ(position.z);
+
+        this.maskWidth = fullViewportWidth;
+        this.maskHeight = elementHeightWorld;
+
+        if (this.physicsMaskMesh) {
+            this.remove(this.physicsMaskMesh);
+            this.physicsMaskMesh.geometry.dispose();
+        }
+
+        const geometry = createBevelledPlane(this.maskWidth, this.maskHeight, 0.1);
         const stencilMat = new THREE.MeshPhysicalMaterial({
             color: new THREE.Color(0, 0, 0),
             metalness: 1.0,
@@ -59,15 +90,11 @@ export default class PhysicsSandbox extends THREE.Group {
             stencilZPass: THREE.ReplaceStencilOp
         });
 
-        const geometry = createBevelledPlane(width, height, 0.1);
         this.physicsMaskMesh = new THREE.Mesh(geometry, stencilMat);
         this.physicsMaskMesh.position.copy(position);
         this.add(this.physicsMaskMesh);
-
         this.attractionPos.copy(position);
     }
-
-
 
     initBallMaterial() {
         this.ballMaterial = new THREE.MeshStandardMaterial({
@@ -81,55 +108,35 @@ export default class PhysicsSandbox extends THREE.Group {
     }
     async initPhysics() {
         await RAPIER.init();
-
         this.world = new RAPIER.World({ x: 0, y: 0, z: 0 });
 
-        // Get mask dimensions and position
-        let width = this.physicsMaskMesh.geometry.parameters.width || 1;
-        let height = this.physicsMaskMesh.geometry.parameters.height || 2;
-        width = Math.max(width, 10);
-        height = Math.max(height, 10);
+        const width = this.maskWidth;
+        const height = this.maskHeight;
         const thickness = 2;
         const maskPos = this.physicsMaskMesh.position;
         const wallZ = maskPos.z;
-        // Add boundary walls (left, right, top, bottom) at mask position
+
         const boundaries = [
-            // Left wall
             { x: maskPos.x - width/2 - thickness/2, y: maskPos.y, z: wallZ, w: thickness, h: height+thickness },
-            // Right wall
             { x: maskPos.x + width/2 + thickness/2, y: maskPos.y, z: wallZ, w: thickness, h: height+thickness },
-            // Top wall
             { x: maskPos.x, y: maskPos.y + height/2 + thickness/2, z: wallZ, w: width+thickness, h: thickness },
-            // Bottom wall
             { x: maskPos.x, y: maskPos.y - height/2 - thickness/2, z: wallZ, w: width+thickness, h: thickness },
         ];
 
         boundaries.forEach(b => {
-            const wallDesc = RAPIER.RigidBodyDesc.fixed();
-            wallDesc.setTranslation(b.x, b.y, b.z);
-            const wallShape = RAPIER.ColliderDesc.cuboid(b.w/2, b.h/2, thickness/2);
-            this.world.createRigidBody(wallDesc);
-            this.world.createCollider(wallShape, wallDesc);
+            const rb = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(b.x, b.y, b.z));
+            this.world.createCollider(RAPIER.ColliderDesc.cuboid(b.w/2, b.h/2, thickness/2), rb);
         });
 
-        // Create balls inside mask bounds
-        for (let i = 0; i < OBJECT_COUNT; i++) {
-            const x = Math.max(maskPos.x - width/2 + 6, Math.min(maskPos.x + width/2 - 6, maskPos.x));
-            const y = Math.max(maskPos.y - height/2 + 6, Math.min(maskPos.y + height/2 - 6, maskPos.y));
-            // Create a plane instead of a ball, using the same color and material
-            const planeGeometry = new THREE.PlaneGeometry(20, 20); // Size can be adjusted as needed
-            const planeMaterial = this.ballMaterial.clone();
-            const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-            planeMesh.position.set(x, y, maskPos.z - 10);
-            planeMesh.receiveShadow = true;
-            planeMesh.castShadow = true;
-            planeMesh.renderOrder = 3;
-            this.add(planeMesh);
-            // Optionally, add to meshBodyLookup if you want physics interaction
-        }
+        // Clear previous plane objects (optional if you rebuild)
+        // Create single plane or other objects centered
+        const planeGeometry = new THREE.PlaneGeometry(20, 20);
+        const planeMaterial = this.ballMaterial.clone();
+        const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        planeMesh.position.set(maskPos.x, maskPos.y, maskPos.z - 10);
+        planeMesh.renderOrder = 3;
+        this.add(planeMesh);
 
-        // Mouse ball (kinematic), clamped to mask area
-        // Mouse ball (kinematic), clamped to mask area
         this.mouseBall = this.createBall(0.1, { x: maskPos.x, y: maskPos.y, z: maskPos.z + 1 }, true);
         this.mouseBall.mesh.add(new THREE.PointLight(new THREE.Color(1, 1, 1), MOUSE_LIGHT_INTENSITY));
         this.add(this.mouseBall.mesh);
@@ -164,59 +171,50 @@ export default class PhysicsSandbox extends THREE.Group {
     }
 
     onMouseMove = (event) => {
-        if (!this.world) return;
-
+        if (!this.world || !this.physicsMaskMesh) return;
         const maskPos = this.physicsMaskMesh.position;
-        const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
-        const width = Math.abs(divWorldRect.width);
-        const height = Math.abs(divWorldRect.height);
 
-        // Use the actual mouse ball radius for clamping
+        const width = this.maskWidth;
+        const height = this.maskHeight;
         const ballRadius = this.mouseBall?.mesh.geometry.parameters?.radius || 0.6;
 
-        const minX = maskPos.x - width / 2 + ballRadius;
-        const maxX = maskPos.x + width / 2 - ballRadius;
-        const minY = maskPos.y - height / 2 + ballRadius;
-        const maxY = maskPos.y + height / 2 - ballRadius;
+        const minX = maskPos.x - width/2 + ballRadius;
+        const maxX = maskPos.x + width/2 - ballRadius;
+        const minY = maskPos.y - height/2 + ballRadius;
+        const maxY = maskPos.y + height/2 - ballRadius;
 
         let worldCords = pageToWorldCoords(event.x, event.y, this.camera);
-
-        // Clamp mouse ball position to mask bounds
         worldCords.x = Math.max(minX, Math.min(maxX, worldCords.x));
         worldCords.y = Math.max(minY, Math.min(maxY, worldCords.y));
 
         const { x, y, z } = worldCords;
-
         this.mouseBall.rigidbody.setTranslation({ x, y, z });
         this.mouseBall.mesh.position.set(x, y, z);
-
         this.lastMousePos.copy(this.mouseBall.mesh.position);
-
-
     }
 
     addToWorld(mesh, rigidbody) {
         this.meshBodyLookup.set(mesh, rigidbody);
     }
 
- 
-
     initStencil() {
         const TEXTURE_PATH = "https://i.postimg.cc/L6FL5RHK/black-with-transparent-grid.png";
-
-        // Use cached loader, but wait for texture to load before creating the mesh
         this.textureLoader.load(
             TEXTURE_PATH,
             (gridTexture) => {
-                const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
-                const width = Math.abs(divWorldRect.width);
-                const height = Math.abs(divWorldRect.height);
+                if (!this.physicsMaskMesh) return;
 
-                const geometry = new THREE.PlaneGeometry(width, height, 8, 8);
+                const width = this.maskWidth || this.physicsMaskMesh.geometry.parameters?.width;
+                const height = this.maskHeight || this.physicsMaskMesh.geometry.parameters?.height;
 
+                if (this.honeybeeStencilMesh) {
+                    this.remove(this.honeybeeStencilMesh);
+                    this.honeybeeStencilMesh.geometry.dispose();
+                }
+
+                const geometry = new THREE.PlaneGeometry(width, height, 4, 4);
                 const material = new THREE.MeshBasicMaterial({
                     map: gridTexture,
-                    color: 0xff00ff,
                     transparent: true,
                     opacity: 1,
                     depthWrite: true,
@@ -230,17 +228,18 @@ export default class PhysicsSandbox extends THREE.Group {
                 this.honeybeeStencilMesh = plane;
             },
             undefined,
-            (err) => {
-                console.error("Failed to load stencil texture:", err);
-            }
+            (err) => console.error("Failed to load stencil texture:", err)
         );
     }
 
-      initReflectingPlane() {
-        let width = this.physicsMaskMesh.geometry.parameters.width || 1;
-        let height = this.physicsMaskMesh.geometry.parameters.height || 2;
-        width = Math.max(width, 10);
-        height = Math.max(height, 10);
+    initReflectingPlane() {
+        if (this.reflectingPlane) {
+            this.remove(this.reflectingPlane);
+            this.reflectingPlane.geometry.dispose();
+        }
+        const width = this.maskWidth || this.physicsMaskMesh?.geometry.parameters?.width || 10;
+        const height = this.maskHeight || this.physicsMaskMesh?.geometry.parameters?.height || 10;
+
         const geometry = new THREE.PlaneGeometry(width, height);
         const reflector = new Reflector(geometry, {
             color: 0x888888,
@@ -250,34 +249,41 @@ export default class PhysicsSandbox extends THREE.Group {
             recursion: 1,
         });
         reflector.position.copy(this.physicsMaskMesh.position);
-        reflector.position.z -= 2; // Place below balls
+        reflector.position.z -= 2;
         reflector.rotation.x = -Math.PI / 2;
         reflector.renderOrder = 1;
         this.add(reflector);
         this.reflectingPlane = reflector;
     }
+
     resize = async () => {
-        // Remove old mask mesh
-        if (this.physicsMaskMesh) this.remove(this.physicsMaskMesh);
-
-        // Remove old stencil mesh
-        if (this.honeybeeStencilMesh) this.remove(this.honeybeeStencilMesh);
-
-        // Remove old mouse ball
+        if (this.physicsMaskMesh) {
+            this.remove(this.physicsMaskMesh);
+            this.physicsMaskMesh.geometry.dispose();
+            this.physicsMaskMesh = null;
+        }
+        if (this.honeybeeStencilMesh) {
+            this.remove(this.honeybeeStencilMesh);
+            this.honeybeeStencilMesh.geometry.dispose();
+            this.honeybeeStencilMesh = null;
+        }
+        if (this.reflectingPlane) {
+            this.remove(this.reflectingPlane);
+            this.reflectingPlane.geometry.dispose();
+            this.reflectingPlane = null;
+        }
         if (this.mouseBall && this.mouseBall.mesh) {
             this.remove(this.mouseBall.mesh);
             this.mouseBall = null;
         }
+        this.meshBodyLookup.clear();
+        this.world = null;
 
-        // Optionally clear meshBodyLookup and world
-        if (this.meshBodyLookup) this.meshBodyLookup.clear();
-        if (this.world) this.world = null;
-
-        this.initViewMask();
+        this.initViewMask();          // now uses full viewport width
         await this.initPhysics();
-        this.initStencil(); 
+        this.initStencil();
+        this.initReflectingPlane();
     }
-
     update(dt) {
         if (!this.world) return;
 

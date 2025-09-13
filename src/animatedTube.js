@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 import nurbsJson from "../assets/nurbs-canxerian.json";
-import { debugGui } from "./debugGui";
 
 const DEBUG_NURB_LINE = false;
 
@@ -36,13 +35,7 @@ export class AnimatedTube extends THREE.Group {
         this.mesh = this.createTubeMesh();
         this.add(this.mesh);
 
-        const folder = debugGui.addFolder("AnimatedTube");
-        folder.add(this, 'drawStartPercent', 0, 1).onChange(value => {
-            this.uniforms.stretchRatio.value = value;
-        });
-        folder.add(this, 'radius', 0, 1).onChange(value => {
-            this.setRadius(value);
-        });
+        // GUI removed
 
         this.position.y = -3;
         this.position.z = -1;

@@ -6,6 +6,7 @@ import { easing } from 'maath';
 import { useMemo, useReducer, useRef } from 'react';
 import * as THREE from 'three';
 import Button from "./Button";
+import LogoCarousel from './LogoCarousel';
 
 const accents = ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00']
 const shuffle = (accent = 0) => [
@@ -41,7 +42,7 @@ function Scene(props) {
   const connectors = useMemo(() => shuffle(accent), [accent])
   return (
     <Canvas onClick={click} shadows dpr={[1, 1.5]} gl={{ antialias: false }} camera={{ position: [0, 0, 15], fov: 17.5, near: 1, far: 20 }} {...props}>
-      <color attach="background" args={['#141622']} />
+      <color attach="background" args={[getComputedStyle(document.documentElement).getPropertyValue('--brand-color') || '#141622']} />
       <ambientLight intensity={0.4} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
       <Physics /*debug*/ gravity={[0, 0, 0]}>
@@ -115,47 +116,28 @@ function Model({ children, color = 'white', roughness = 0, ...props }) {
 function Home() {
   return (
     <div className="w-full relative">
-      {/* Canvas for Three.js - positioned to be in the background */}
-      <canvas id="canvas" className="absolute top-0 left-0 w-full h-full z-0" />
+      {/* Single shared canvas (kept) */}
+      <canvas id="canvas" className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none" />
 
-      {/* All other content goes here, with a higher z-index */}
       <div className="relative z-10">
-        <div id="home-content" className="fade-out">
-          <section style={{ height: '100vh' }} className="relative flex flex-col justify-center items-center text-center px-4 lg:px-0">
-            {/* This div is likely used for positioning calculations, so we keep it, but it shouldn't contain visible content itself if the canvas is the background. */}
-            <div id="physics-sandbox-div"></div>
-          </section>
-          <section id="video-panel-section">
-            <div className="about-headers">
-              <div className="animated-h1-container">
-                <h1 id="h1-topline">BEYOND VISIONS</h1>
-              </div>
-              <div className="animated-h1-container">
-                <h1 id="h1-tagline">WITHIN REACH</h1>
-              </div>
-            </div>
-            <div className="about-paragraphs">
-              <p>
-                Lorem ipsum odor amet, consectetuer adipiscing elit. Neque senectus sapien cras pharetra orci lorem quam arcu senectus.
-              </p>
-              <p>
-                Aliquam at risus; odio curabitur justo commodo aliquam tristique aenean. Aptent orci aliquam auctor eu metus. Ridiculus risus luctus varius elementum elementum. Nulla massa magnis urna malesuada orci parturient.
-              </p>
-              <p>
-                Nisi finibus magna pellentesque sapien conubia ante consequat morbi at.
-                Ante turpis auctor posuere aptent nostra.
-              </p>
-            </div>
-            <div id="video-panel-start"></div>
-            <div id="video-panel-end-parent">
-              <div id="video-panel-end"></div>
-            </div>
-          </section>
-        </div>
-        <div className="w-full relative py-6 lg:py-16 2xl:py-26 max-w-screen-xl mx-auto pt-28 lg:pt-36">
-          <div className="flex flex-col justify-between lg:gap-y-12 gap-y-6 pb-10">
+
+
+        {/* HERO BLOCK WITH PHYSICS BACKGROUND */}
+        <div
+          id="hero-with-physics"
+          className="relative w-full py-6 lg:py-16 2xl:py-26 max-w-screen-xl mx-auto pt-28 lg:pt-36"
+        >
+          {/* Physics target (background layer) */}
+            {/* This div defines the area PhysicsSandbox will size to.
+                Absolutely positioned, behind the text. */}
+          <div
+            id="physics-sandbox-div"
+            className="absolute inset-0 -z-10 pointer-events-none"
+          />
+
+          <div className="flex flex-col justify-between lg:gap-y-12 gap-y-6 pb-10 relative">
             <div className="lg:mb-0 md:mb-4">
-              <h1 className="2xl:text-7xl text-5xl" style={{ fontFamily: 'Nanum Myeongjo, serif' }}>
+              <h1 className="2xl:text-7xl text-5xl font-[serif]">
                 <span>The Leading</span>
                 <br /> <span>Enterprise AI Platform</span>
               </h1>
@@ -165,7 +147,7 @@ function Home() {
                 Built on the language of business
               </p>
             </div>
-            <div className="lg:mb-0 mb-4">
+            <div className="lg:mb-0 md:mb-4">
               <p className="2xl:text-2xl text-[18px] font-starcil font-extrabold">
                 <span> Optimized for enterprise generative AI,</span> <br />
                 <span>search and discovery, and advanced retrieval.</span>
@@ -185,14 +167,22 @@ function Home() {
                   className="sm:w-auto w-full text-white px-16 py-2 text-left border-black border-[1px] rounded-lg cursor-pointer"
                   type="text"
                   aria-label="search"
+                  readOnly
                 />
               </div>
             </div>
           </div>
         </div>
+        <LogoCarousel />
+        
+        <div id="home-content" className="fade-out">
+
+  
+        </div>
+        {/* REMOVE the old separate <section style={{ height: '100vh' }}> that only contained physics-sandbox-div */}
+        {/* ...rest of your content... */}
       </div>
     </div>
   );
 }
-
 export default Home;

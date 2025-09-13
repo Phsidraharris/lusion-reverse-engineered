@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import { debugGui } from "../debugGui";
 import projectTileFrag from "../shaders/projectTileFrag.glsl";
 import projectTileVert from "../shaders/projectTileVert.glsl";
 import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
@@ -196,9 +195,7 @@ export default class ProjectTile extends THREE.Group {
     }
 
     initDebug = () => {
-        const folder = debugGui.addFolder("Project Tile");
-        folder.add(this.maskAmount, "value", -1, 1).name("Mask amount");
-        folder.add(this.stretchAmount, "value", -1, 1).name("Stretch amount");
+        // GUI removed
     }
 
     resize = () => {
