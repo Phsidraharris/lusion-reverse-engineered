@@ -31,13 +31,12 @@ body {
     overscroll-behavior-y: none;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
+/* Canvas fade-in once physics is ready */
+body:not([data-physics-ready]) #canvas { opacity: 0; transition: opacity .6s ease; }
+body[data-physics-ready] #canvas { opacity: 1; }
 
-::-webkit-scrollbar-button {
-    display: none;
-}
+::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar-button { display: none; }
 
 
 
