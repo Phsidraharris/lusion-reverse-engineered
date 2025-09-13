@@ -42,14 +42,30 @@ export default class LoadingGroup extends THREE.Group {
         this.onDoneLoadSequence = onDoneLoadSequence;
 
         THREE.DefaultLoadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            if (itemsTotal === 0) return; // avoid NaN
             const percent = itemsLoaded / itemsTotal;
             this.countUp.update(Math.round(percent * 100));
             this.loadingProgress.target = percent;
+            this._lastProgressTs = performance.now();
         };
 
         this.initOdometer();
+        this.countUp.start?.();
         this.initMesh(camera);
         this.initDebug();
+        // Fallback: force-complete if progress stalls (e.g., assets cached or never triggering)
+        this._fallbackInterval = setInterval(() => {
+            const now = performance.now();
+            if (!this._lastProgressTs) this._lastProgressTs = now;
+            // If no progress events for 3s, assume loaded.
+            if (now - this._lastProgressTs > 3000 && this.loadingProgress.target < 1) {
+                this.loadingProgress.target = 1;
+            }
+            // Cleanup interval when finished
+            if (this.isSequenceFinished) {
+                clearInterval(this._fallbackInterval);
+            }
+        }, 1000);
     }
 
     initOdometer = () => {
