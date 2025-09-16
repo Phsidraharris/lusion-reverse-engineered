@@ -8,6 +8,7 @@ import OurMission from "./components/OurMission";
 import RetrievalModels from "./components/RetrievalModels";
 import Service from "./components/Service";
 import Top3DSection from "./components/Top3DSection";
+import BuildInfo from "./components/BuildInfo";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <DeveloperResources />
         <OurMission />
         <Footer />
+        <BuildInfo />
       </div>
     </Top3DSection>
   
