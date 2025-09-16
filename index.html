@@ -13,9 +13,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <title>Rodiax - Physics Sandbox Test</title>
+  <title>Rodiax - Physics Sandbox Test</title>
 </head>
 
 <body class="font-sans">
+  <!-- The React app will render into this div (unused in this test) -->
+<body>
   <!-- The React app will render into this div (unused in this test) -->
   <div id="root"></div>
 
@@ -27,6 +30,17 @@
 
   <!-- We only need the homeScene script for this test -->
   <script type="module" src="./src/homeScene.js" defer></script>
+
+  <!-- The physics sandbox will use this div as its boundary -->
+  <div id="physics-sandbox-div" style="position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; pointer-events: none;"></div>
+
+  <!-- The Three.js scene will render into this canvas -->
+  <canvas data-canvas style="position: fixed; top: 0; left: 0; z-index: -1;"></canvas>
+
+  <!-- We only need the homeScene script for this test -->
+  <script type="module" src="src/homeScene.js" defer></script>
+
+  <script type="module" src="/src/main.jsx"></script>
 
   <script type="module" src="./src/main.jsx"></script>
 
