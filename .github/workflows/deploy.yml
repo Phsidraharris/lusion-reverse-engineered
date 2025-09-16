@@ -2,6 +2,8 @@ name: Build and Deploy
 
 on:
   push:
+    branches: ["main", "optimize-animations"]
+  pull_request:
     branches: ["main"]
   workflow_dispatch:
 
@@ -17,6 +19,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      artifact-path: dist
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,15 +29,81 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Export build metadata
+        id: meta
+        run: |
+          echo "VITE_APP_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "VITE_APP_BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "VITE_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+          if [ -n "${{ secrets.VITALS_ENDPOINT }}" ]; then
+            echo "VITE_VITALS_ENDPOINT=${{ secrets.VITALS_ENDPOINT }}" >> $GITHUB_ENV
+          fi
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build
-      - name: Upload artifact
+      - name: Generate build-info.json & sitemap
+        run: |
+          COMMIT=${VITE_APP_COMMIT}
+          BRANCH=${VITE_APP_BRANCH}
+          TIME=${VITE_BUILD_TIME}
+          mkdir -p dist
+          # Build info JSON
+          echo "{\n  \"commit\": \"$COMMIT\",\n  \"branch\": \"$BRANCH\",\n  \"builtAt\": \"$TIME\"\n}" > dist/build-info.json
+          # Simple sitemap (root only for now)
+          BASE_URL="https://canxerian.github.io/lusion-reverse-engineered" \
+          && echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url><loc>${BASE_URL}/</loc></url>\n</urlset>" > dist/sitemap.xml
+      - name: Bundle size check
+        run: |
+          # Find largest JS bundle (raw size in KB)
+          MAX_KB=${MAX_BUNDLE_KB:-6000}
+          LARGEST=$(ls -1 dist/assets/*.js | xargs -I{} stat -c "%s %n" {} | sort -nr | head -1 | awk '{print $1}')
+          KB=$((LARGEST/1024))
+            echo "Largest JS file: ${KB} KB (limit ${MAX_KB} KB)"
+          if [ "$KB" -gt "$MAX_KB" ]; then
+            echo "::error ::Bundle too large (${KB} KB > ${MAX_KB} KB)" && exit 1
+          fi
+      - name: Gzip size check
+        run: |
+          set -e
+          MAX_GZIP_KB=${MAX_GZIP_KB:-1500}
+          TMP_FILE=$(mktemp)
+          # Take largest raw file then gzip to approximate transfer size
+          TARGET=$(ls -1 dist/assets/*.js | xargs -I{} stat -c "%s %n" {} | sort -nr | head -1 | awk '{print $2}')
+          gzip -c "$TARGET" > "$TMP_FILE"
+          GZ_SIZE=$(stat -c "%s" "$TMP_FILE")
+          GZ_KB=$((GZ_SIZE/1024))
+          echo "Largest gzipped JS: ${GZ_KB} KB (limit ${MAX_GZIP_KB} KB) from $(basename "$TARGET")"
+          if [ "$GZ_KB" -gt "$MAX_GZIP_KB" ]; then
+            echo "::error ::Gzipped bundle too large (${GZ_KB} KB > ${MAX_GZIP_KB} KB)" && exit 1
+          fi
+          rm "$TMP_FILE"
+      - name: Upload artifact (for pages or preview)
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  preview:
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: dist
+      - name: List artifact contents
+        run: ls -R dist | head -100
+      - name: Upload zipped preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-preview-dist
+          path: dist
+          retention-days: 7
+
   deploy:
+    if: ${{ github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'optimize-animations') }}
     needs: build
     runs-on: ubuntu-latest
     environment:

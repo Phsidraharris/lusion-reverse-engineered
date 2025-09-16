@@ -11,7 +11,8 @@ function Service() {
       <div className="relative flex items-center justify-between flex-wrap gap-y-6 md:flex-nowrap w-full py-12 font-starcil">
         <div className="sm:w-full md:w-3/4 xl:w-[50%] lg:w-[70%]">
         
-          <div className="flex gap-3 mb-3">
+          <div  className="flex gap-3 mb-3"
+          >
     
             
              <section id="video-panel-section">
