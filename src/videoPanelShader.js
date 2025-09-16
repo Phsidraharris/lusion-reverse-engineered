@@ -15,44 +15,75 @@ export default class VideoPanelShader extends THREE.Group {
     animateProgress = { value: 0 };
     borderRadius = { value: 0.085 };
     tintColour = { value: new THREE.Color(0.6, 0.6, 1.0) };
+    _built = false;
 
     constructor(camera) {
         super();
-
         this.camera = camera;
-
-        const startWorldRect = elementToWorldRect(PANEL_START_ID, camera);
-        this.position.copy(startWorldRect.position);
-
-        const videoTexture = createVideoTexture();
-        const startRectLocal = elementToLocalRect(PANEL_START_ID, this, camera);
-        const endRectLocal = elementToLocalRect(PANEL_END_ID, this, camera);
-
-        this.material = new THREE.ShaderMaterial({
-            uniforms: {
-                startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
-                endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
-                animateProgress: this.animateProgress,
-                borderRadius: this.borderRadius,
-                tintColour: this.tintColour,
-                map: { value: videoTexture }
-            },
-            vertexShader: videoPanelVert,
-            fragmentShader: videoPanelVFrag,
-            transparent: true,
-        });
-        this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE, SUBDIVISIONS, SUBDIVISIONS), this.material);
-        this.mesh.frustumCulled = false;
-        this.add(this.mesh);
-
-        this.calculateElementValues();
-
-        window.addEventListener("scroll", this.onScroll);
-
+        // Build lazily when required DOM markers are present
+        this._lazyBuildIfReady();
         this.initDebug();
     }
 
+    _lazyBuildIfReady() {
+        const start = document.getElementById(PANEL_START_ID);
+        const end = document.getElementById(PANEL_END_ID);
+        const endParent = document.getElementById(PANEL_END_PARENT_ID);
+        if (start && end && endParent) {
+            this._build();
+            return;
+        }
+        // Wait for DOM to contain required markers
+        const mo = new MutationObserver(() => {
+            const s = document.getElementById(PANEL_START_ID);
+            const e = document.getElementById(PANEL_END_ID);
+            const p = document.getElementById(PANEL_END_PARENT_ID);
+            if (s && e && p) {
+                mo.disconnect();
+                this._build();
+            }
+        });
+        mo.observe(document.documentElement, { childList: true, subtree: true });
+        this._mo = mo;
+    }
+
+    _build() {
+        if (this._built) return;
+        try {
+            const startWorldRect = elementToWorldRect(PANEL_START_ID, this.camera);
+            this.position.copy(startWorldRect.position);
+
+            const videoTexture = createVideoTexture();
+            const startRectLocal = elementToLocalRect(PANEL_START_ID, this, this.camera);
+            const endRectLocal = elementToLocalRect(PANEL_END_ID, this, this.camera);
+
+            this.material = new THREE.ShaderMaterial({
+                uniforms: {
+                    startRect: { value: VideoPanelShader.rectToVec4(startRectLocal) },
+                    endRect: { value: VideoPanelShader.rectToVec4(endRectLocal) },
+                    animateProgress: this.animateProgress,
+                    borderRadius: this.borderRadius,
+                    tintColour: this.tintColour,
+                    map: { value: videoTexture }
+                },
+                vertexShader: videoPanelVert,
+                fragmentShader: videoPanelVFrag,
+                transparent: true,
+            });
+            this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE, SUBDIVISIONS, SUBDIVISIONS), this.material);
+            this.mesh.frustumCulled = false;
+            this.add(this.mesh);
+
+            this.calculateElementValues();
+            window.addEventListener("scroll", this.onScroll);
+            this._built = true;
+        } catch (e) {
+            console.error('[VideoPanelShader] build failed:', e);
+        }
+    }
+
     calculateElementValues() {
+        if (!this._built) return;
         this.scrollPositionAnimStart = getElementPageCoords(PANEL_START_ID).y + window.scrollY - window.innerHeight * 0.5;
         this.scrollPositionAnimEnd = getElementPageCoords(PANEL_END_ID).y + window.scrollY - window.innerHeight * 0.5;
         this.scrollPositionAnimFollowEnd = getElementPageCoords(PANEL_END_PARENT_ID).y + window.scrollY - window.innerHeight * 0.5;
@@ -60,6 +91,7 @@ export default class VideoPanelShader extends THREE.Group {
     }
 
     onScroll = (e) => {
+        if (!this._built) return;
         this.animateProgress.value = THREE.MathUtils.inverseLerp(this.scrollPositionAnimStart, this.scrollPositionAnimEnd, window.scrollY);
         this.animateProgress.value = THREE.MathUtils.clamp(this.animateProgress.value, 0, 1);
 
@@ -89,6 +121,7 @@ export default class VideoPanelShader extends THREE.Group {
     }
 
     resize = () => {
+        if (!this._built) return;
         this.calculateElementValues();
 
         const startRectLocal = elementToLocalRect(PANEL_START_ID, this, this.camera);

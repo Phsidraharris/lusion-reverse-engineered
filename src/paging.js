@@ -4,15 +4,28 @@ const lastScrollCooldown = 350;
 let lastScrollTime = 0;
 let prevTimestep = 0;
 
-init();
+// Wait for scrollbar elements to exist before initializing
+function waitForElements() {
+    return new Promise((resolve) => {
+        const checkElements = () => {
+            const scrollbar = document.getElementById("scrollbar");
+            const scrollbarHandle = document.getElementById("scrollbar-handle");
+            if (scrollbar && scrollbarHandle) {
+                resolve({ scrollbar, scrollbarHandle });
+            } else {
+                // Check again on next animation frame
+                requestAnimationFrame(checkElements);
+            }
+        };
+        checkElements();
+    });
+}
 
-function init() {
-    window.addEventListener('wheel', onWheel);
-    window.addEventListener('scroll', onScroll);
-    window.requestAnimationFrame(update)
-
-    const scrollbar = document.getElementById("scrollbar");
-    const scrollbarHandle = document.getElementById("scrollbar-handle");
+// Initialize after elements are ready
+async function init() {
+    const elements = await waitForElements();
+    const scrollbar = elements.scrollbar;
+    const scrollbarHandle = elements.scrollbarHandle;
     const h1Topline = document.getElementById("h1-topline");
     const h1Tagline = document.getElementById("h1-tagline");
 
@@ -50,8 +63,8 @@ function init() {
                 element.classList.remove("animate");
             }
         }
-        isElementOnScreen(h1Topline).then(isOnScreen => isElementOnScreenCallback(h1Topline, isOnScreen));
-        isElementOnScreen(h1Tagline).then(isOnScreen => isElementOnScreenCallback(h1Tagline, isOnScreen));
+        if (h1Topline) isElementOnScreen(h1Topline).then(isOnScreen => isElementOnScreenCallback(h1Topline, isOnScreen));
+        if (h1Tagline) isElementOnScreen(h1Tagline).then(isOnScreen => isElementOnScreenCallback(h1Tagline, isOnScreen));
     }
 
     function onWheel(e) {
@@ -93,7 +106,12 @@ function init() {
     }
 
     function updateScrollbar() {
-        // Height as a function of the viewport. This tells us how tall our total scrollable content using the 
+        // Add null checks to prevent errors
+        if (!scrollbar || !scrollbarHandle) {
+            return;
+        }
+
+        // Height as a function of the viewport. This tells us how tall our total scrollable content using the
         // viewport's height as the unit of measurement.
         const heightPerViewport = document.body.clientHeight / window.innerHeight;
         scrollbarHandle.style.height = `${scrollbar.clientHeight / heightPerViewport}px`;
@@ -101,4 +119,11 @@ function init() {
         const scrollProgress = window.scrollY / (document.body.clientHeight);
         scrollbarHandle.style.top = `${scrollProgress * 100}%`;
     }
+
+    window.addEventListener('wheel', onWheel);
+    window.addEventListener('scroll', onScroll);
+    window.requestAnimationFrame(update);
 }
+
+// Start the initialization process
+init();
