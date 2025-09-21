@@ -1,220 +1,126 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import logoMain from '../assets/RODIAX_logo_161x161.png';
 
-import logoMain from "../assets/RODIAX_logo_161x161.png";
+const footerSections = [
+  {
+    title: 'Products',
+    links: ['Command', 'Embed', 'Rerank', 'Fine-tuning', 'Pricing'],
+  },
+  {
+    title: 'Developers',
+    links: [
+      'Playground',
+      'LLM University',
+      'Documentation',
+      'API Reference',
+      'Responsible Use',
+    ],
+  },
+  {
+    title: 'Company',
+    links: ['About', 'Blog', 'Research', 'Careers', 'Newsroom'],
+  },
+  {
+    title: 'Contact',
+    links: ['Twitter', 'LinkedIn', 'Discord', 'Support'],
+  },
+];
 
 function Footer() {
   return (
-  <footer className="2xl:px-40 lg:px-22 px-6 bg-cover bg-center text-brand-fg" style={{ backgroundColor: "black" }}>
-      <div className="w-full relative py-12 lg:py-16 max-w-full-screen mx-auto uppercase">
-        {/* <div className="flex flex-col gap-2">
-          <div className="mb-4 text-[#BDBDBD] text-[13px] font-serif">
-            SIGN UP FOR OUR NEWSLETTERS
-          </div>
-          <div>
-            <input
-              className="px-2 pr-10 py-2 bg-[#424242] text-[#BDBDBD] border-[1px] border-white rounded-lg text-[18px] outline-none"
-              type="email"
-              placeholder="Enter Email*"
+    <motion.footer 
+      className="bg-brand-background border-t border-brand-text/10 text-brand-text"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
+      <div className="max-w-screen-lg mx-auto px-6 py-16">
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
+          {footerSections.map((section, sectionIndex) => (
+            <motion.div 
+              key={section.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: sectionIndex * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="font-semibold mb-4">{section.title}</h3>
+              <ul className="space-y-2">
+                {section.links.map((link, linkIndex) => (
+                  <motion.li 
+                    key={link}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: (sectionIndex * 0.1) + (linkIndex * 0.05) }}
+                    viewport={{ once: true }}
+                  >
+                    <motion.a
+                      href="#"
+                      className="text-sm text-brand-text/80 hover:text-brand-accent transition-colors"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {link}
+                    </motion.a>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div 
+          className="mt-16 pt-8 border-t border-brand-text/10 flex flex-col md:flex-row justify-between items-center gap-6"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <motion.div 
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.img
+              src={logoMain}
+              alt="Rodiax Logo"
+              className="h-8 w-auto object-contain"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.6 }}
             />
-          </div>
-          <div className="flex gap-x-5 items-center">
-            <div>
-              <input
-                className="h-7 w-7 bg-white border border-transparent rounded-md checked:bg-orange-500 checked:border-orange-500 focus:outline-none focus:ring-0"
-                type="checkbox"
-              />
-            </div>
-            <div>
-              <span className="text-[#BDBDBD] text-[14px]">
-                I consent to receiving email communications from <br />
-                <a href="" className="underline">
-                  Rodiax
-                </a>
-              </span>
-            </div>
-          </div>
-          <div>
-            <span className="text-[#BDBDBD] text-[13px]">
-              By submitting this form, you agree to our{" "}
-              <a href="" className="underline">
-                terms of use
-              </a>{" "}
-              and{" "}
-              <a href="" className="underline">
-                privacy policy
-              </a>
+            <span className="text-sm text-brand-text/80">
+              &copy; {new Date().getFullYear()} Rodiax. All rights reserved.
             </span>
+          </motion.div>
+          <div className="flex gap-6 text-sm text-brand-text/80">
+            <motion.a 
+              href="#" 
+              className="hover:text-brand-accent"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.2 }}
+            >
+              Privacy
+            </motion.a>
+            <motion.a 
+              href="#" 
+              className="hover:text-brand-accent"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.2 }}
+            >
+              Terms of Use
+            </motion.a>
           </div>
-        </div> */}
-        <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-8 my-10">
-          <div>
-            <div className="mb-4">
-              <span className="text-brand-fg text-sm tracking-wide font-medium">Products</span>
-            </div>
-            <ul className="text-white flex flex-col gap-2 text-sm">
-              <li>
-                <a href="">Command</a>
-              </li>
-              <li>
-                <a href="">Embed</a>
-              </li>
-              <li>
-                <a href="">Rerank</a>
-              </li>
-              <li>
-                <a href="">Fine-tuning</a>
-              </li>
-              <li>
-                <a href="">Pricing</a>
-              </li>
-              <li>
-                <a href="">Rodiax in Slack</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div className="mb-4">
-              <span className="text-brand-fg text-sm tracking-wide font-medium">Developers</span>
-            </div>
-            <ul className="text-white flex flex-col gap-2 text-sm">
-              <li>
-                <a href="">Playground</a>
-              </li>
-              <li>
-                <a href="">LLM University</a>
-              </li>
-              <li>
-                <a href="">Documentation</a>
-              </li>
-              <li>
-                <a href="">Release Notes</a>
-              </li>
-              <li>
-                <a href="">API Reference</a>
-              </li>
-              <li>
-                <a href="">Toolkit</a>
-              </li>
-              <li>
-                <a href="">App Integrations</a>
-              </li>
-              <li>
-                <a href="">Responsible Use</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div className="mb-4">
-              <span className="text-brand-fg text-sm tracking-wide font-medium">Company</span>
-            </div>
-            <ul className="text-white flex flex-col gap-2 text-sm">
-              <li>
-                <a href="">About</a>
-              </li>
-              <li>
-                <a href="">Blog</a>
-              </li>
-              <li>
-                <a href="">Research</a>
-              </li>
-              <li>
-                <a href="">Careers</a>
-              </li>
-              <li>
-                <a href="">Events</a>
-              </li>
-              <li>
-                <a href="">Newsroom</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div className="mb-4">
-              <span className="text-brand-fg text-sm tracking-wide font-medium">Trust Center</span>
-            </div>
-            <ul className="text-white flex flex-col gap-2 text-sm">
-              <li>
-                <a href="">Privacy</a>
-              </li>
-              <li>
-                <a href="">Terms of Use</a>
-              </li>
-              <li>
-                <a href="">SaaS Agreement</a>
-              </li>
-              <li>
-                <a href="">SLO Agreement</a>
-              </li>
-              <li>
-                <a href="">Responsibility</a>
-              </li>
-              <li>
-                <a href="">Security</a>
-              </li>
-              <li>
-                <a href="">Enterprise Data Commitments</a>
-              </li>
-              <li>
-                <a href="">C4AI CC-BY-NC License</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div className="mb-4">
-              <span className="text-brand-fg text-sm tracking-wide font-medium">Contact</span>
-            </div>
-            <ul className="text-white flex flex-col gap-2 text-sm">
-              <li>
-                <a href="">Twitter</a>
-              </li>
-              <li>
-                <a href="">LinkedIn</a>
-              </li>
-              <li>
-                <a href="">Discord</a>
-              </li>
-              <li>
-                <a href="">Support</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="pt-20 py-6 border-white/10 border-solid border-b flex items-center gap-4">
-          <img src={logoMain} alt="Rodiax Logo" className="h-10 w-auto object-contain select-none" />
-          <span className="text-brand-fg tracking-wide text-xs uppercase">Rodiax Platform</span>
-        </div>
-        <div className="flex justify-between items-center gap-y-6 my-6 flex-wrap md:flex-nowrap">
-          <div>
-            <ul className="text-white flex gap-x-6 text-xs font-medium">
-              <li>
-                <a href="">Twitter</a>
-              </li>
-              <li>
-                <a href="">LinkedIn</a>
-              </li>
-              <li>
-                <a href="">Discord</a>
-              </li>
-              <li>
-                <a href="">Support</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <ul className="text-brand-fg/80 flex gap-x-6 text-[11px] tracking-wide">
-              <li>
-                <a href="">Privacy</a>
-              </li>
-              <li>
-                <a href="">Terms of Use</a>
-              </li>
-              <li>
-                <a href="">©Rodiax | Colon 2024</a>
-              </li>
-            </ul>
-          </div>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }
 

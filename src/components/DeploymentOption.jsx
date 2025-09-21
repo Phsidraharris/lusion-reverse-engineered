@@ -1,4 +1,8 @@
+import React from "react";
+import { motion } from "framer-motion";
 import Button from "./Button";
+import SplitText from "./SplitText";
+import ShuffleText from "./ShuffleText";
 
 function DeploymentOption() {
   const deploymentOptions = [
@@ -12,31 +16,72 @@ function DeploymentOption() {
   return (
     <section>
       <div className="bg-[#E6E3DB] relative flex justify-between items-center lg:gap-x-36 md:gap-x-10 gap-y-10 flex-wrap md:flex-nowrap py-16 2xl:px-44 lg:px-24 px-5">
-        <div className="md:w-[40%] w-full flex flex-col gap-y-8">
+        <motion.div 
+          className="md:w-[40%] w-full flex flex-col gap-y-8"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
           <div>
-            <div className="mb-3">DEPLOYMENT OPTIONS</div>
+            <motion.div 
+              className="mb-3"
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <ShuffleText text="DEPLOYMENT OPTIONS" />
+            </motion.div>
             <div className="lg:text-4xl md:text-3xl text-2xl">
-              Enterprise-grade AI deployment on any cloud or on-premises
+              <SplitText text="Enterprise-grade AI deployment on any cloud or on-premises" />
             </div>
           </div>
-          <div className="text-[17px] mb-10 text-justify">
+          <motion.div 
+            className="text-[17px] mb-10 text-justify"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
             Only Rodiax provides flexible and secure deployment options. Bring
             our models to your data.
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            viewport={{ once: true }}
+          >
             <Button
               bgColor="bg-black"
               textColor="text-white"
               textSize="text-[14px]"
               title="TRY THE PLAYGROUND"
             />
-          </div>
-        </div>
-        <div className="w-full grid md:grid-cols-3 grid-cols-2 md:gap-5 gap-y-5 gap-x-5">
+          </motion.div>
+        </motion.div>
+        <motion.div 
+          className="w-full grid md:grid-cols-3 grid-cols-2 md:gap-5 gap-y-5 gap-x-5"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
           {deploymentOptions.map((option, index) => (
-            <img key={index} className="w-full" src={option} alt="" />
+            <motion.img 
+              key={index} 
+              className="w-full" 
+              src={option} 
+              alt=""
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              viewport={{ once: true }}
+            />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
