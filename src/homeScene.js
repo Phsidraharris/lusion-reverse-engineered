@@ -130,7 +130,6 @@ const scene = new THREE.Scene()
         }, { threshold: 0.3 });
         observer.observe(section);
     }
-}
 
 const sizes = {
   width: window.innerWidth,
