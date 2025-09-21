@@ -5,16 +5,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: 'var(--brand-color)',
-          fg: 'var(--brand-text-color)'
+          background: '#F9F9F9', // Light grey background
+          text: '#2A2A2A',       // Soft black text
+          accent: '#3A506B',      // Muted blue accent
+          'accent-hover': '#2E4057', // Darker blue for hover
         }
       },
       fontFamily: {
-        staread: ["Nanum Myeongjo"],
-        starcil: ["Nanum Myeongjo"],
-        serif: ["Nanum Myeongjo"],
-        body: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
+        // Unify all fonts to Inter
         sans: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
+        serif: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
+        body: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
       },
       keyframes: {
         scroll: {
