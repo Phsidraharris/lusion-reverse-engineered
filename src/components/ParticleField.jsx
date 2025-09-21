@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const ParticleField = React.memo(({ 
+const ParticleField = ({ 
   particleCount = 100, 
   particleColor = 'rgba(255, 255, 255, 0.5)',
   particleSize = 2,
@@ -11,149 +11,95 @@ const ParticleField = React.memo(({
   const animationRef = useRef(null);
   const particlesRef = useRef([]);
 
-  // Debounced resize handler to improve performance
-  const debounceResize = useCallback((func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
-    };
-  }, []);
-
-  // Memoize particle configuration to prevent recreation
-  const particleConfig = useMemo(() => ({
-    count: particleCount,
-    color: particleColor,
-    size: particleSize,
-    speed: animationSpeed
-  }), [particleCount, particleColor, particleSize, animationSpeed]);
-
-  // Extract base color from particleColor for performance
-  const baseColor = useMemo(() => {
-    const match = particleColor.match(/rgba?\(([^)]+)\)/);
-    return match ? match[1].split(',').slice(0, 3).join(',') : '255, 255, 255';
-  }, [particleColor]);
-
-  // Optimized canvas resize handler
-  const resizeCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }, []);
-
-  // Debounced resize for better performance
-  const debouncedResize = useMemo(() => 
-    debounceResize(resizeCanvas, 100), [debounceResize, resizeCanvas]
-  );
-
-  // Optimized particle initialization
-  const initParticles = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const particles = particlesRef.current;
-    particles.length = 0;
-    
-    for (let i = 0; i < particleConfig.count; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * particleConfig.speed,
-        vy: (Math.random() - 0.5) * particleConfig.speed,
-        alpha: Math.random() * 0.5 + 0.2,
-        size: Math.random() * particleConfig.size + 1,
-      });
-    }
-  }, [particleConfig]);
-
-  // Optimized animation loop
-  const animate = useCallback(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     const particles = particlesRef.current;
 
-    // Clear canvas efficiently
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
 
-    // Pre-calculate connection threshold squared to avoid sqrt
-    const connectionDistanceSquared = 100 * 100;
-
-    // Update and draw particles
-    particles.forEach((particle, index) => {
-      // Update position
-      particle.x += particle.vx;
-      particle.y += particle.vy;
-
-      // Bounce off edges
-      if (particle.x <= 0 || particle.x >= canvas.width) {
-        particle.vx = -particle.vx;
-      }
-      if (particle.y <= 0 || particle.y >= canvas.height) {
-        particle.vy = -particle.vy;
-      }
-
-      // Keep particles in bounds
-      particle.x = Math.max(0, Math.min(canvas.width, particle.x));
-      particle.y = Math.max(0, Math.min(canvas.height, particle.y));
-
-      // Draw particle with optimized method
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${baseColor}, ${particle.alpha})`;
-      ctx.fill();
-
-      // Draw connections (optimized with distance squared comparison)
-      for (let i = index + 1; i < particles.length; i++) {
-        const otherParticle = particles[i];
-        const dx = particle.x - otherParticle.x;
-        const dy = particle.y - otherParticle.y;
-        const distanceSquared = dx * dx + dy * dy;
-
-        if (distanceSquared < connectionDistanceSquared) {
-          const distance = Math.sqrt(distanceSquared);
-          const opacity = (1 - distance / 100) * 0.2;
-          
-          ctx.beginPath();
-          ctx.moveTo(particle.x, particle.y);
-          ctx.lineTo(otherParticle.x, otherParticle.y);
-          ctx.strokeStyle = `rgba(${baseColor}, ${opacity})`;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-      }
-    });
-
-    animationRef.current = requestAnimationFrame(animate);
-  }, [baseColor]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Initial setup
     resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Initialize particles
+    const initParticles = () => {
+      particles.length = 0;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * animationSpeed,
+          vy: (Math.random() - 0.5) * animationSpeed,
+          alpha: Math.random() * 0.5 + 0.2,
+          size: Math.random() * particleSize + 1,
+        });
+      }
+    };
+
     initParticles();
+
+    // Animation loop
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((particle, index) => {
+        // Update position
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        // Bounce off edges
+        if (particle.x <= 0 || particle.x >= canvas.width) {
+          particle.vx = -particle.vx;
+        }
+        if (particle.y <= 0 || particle.y >= canvas.height) {
+          particle.vy = -particle.vy;
+        }
+
+        // Keep particles in bounds
+        particle.x = Math.max(0, Math.min(canvas.width, particle.x));
+        particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = particleColor.replace('0.5', particle.alpha);
+        ctx.fill();
+
+        // Draw connections
+        particles.slice(index + 1).forEach((otherParticle) => {
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 100) {
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = particleColor.replace('0.5', (1 - distance / 100) * 0.2);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        });
+      });
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
     animate();
 
-    // Add resize listener with debouncing
-    window.addEventListener('resize', debouncedResize);
-
     return () => {
-      window.removeEventListener('resize', debouncedResize);
+      window.removeEventListener('resize', resizeCanvas);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [resizeCanvas, initParticles, animate, debouncedResize]);
-
-  // Re-initialize particles when config changes
-  useEffect(() => {
-    initParticles();
-  }, [initParticles]);
+  }, [particleCount, particleColor, particleSize, animationSpeed]);
 
   return (
     <canvas
@@ -162,8 +108,6 @@ const ParticleField = React.memo(({
       style={{ width: '100%', height: '100%' }}
     />
   );
-});
-
-ParticleField.displayName = 'ParticleField';
+};
 
 export default ParticleField;
