@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/lusion-reverse-engineered/assets/RODIAX_logo_161x161-Bsi09jTe.png" />
+  <meta name="theme-color" content="#141622" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Permissions Policy to handle GitHub Pages -->
+  <meta http-equiv="Permissions-Policy" content="browsing-topics=()">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Rodiax - Physics Sandbox Test</title>
+  <script type="module" crossorigin src="/lusion-reverse-engineered/assets/index-D4f9T9V1.js"></script>
+  <link rel="modulepreload" crossorigin href="/lusion-reverse-engineered/assets/threejs-Ru0dEMIG.js">
+  <link rel="modulepreload" crossorigin href="/lusion-reverse-engineered/assets/framer-motion-B8PGm2dx.js">
+  <link rel="modulepreload" crossorigin href="/lusion-reverse-engineered/assets/react-vendor-BGFwo5ZS.js">
+  <link rel="stylesheet" crossorigin href="/lusion-reverse-engineered/assets/index-CwCDGKuL.css">
+</head>
+
+<body class="font-sans">
+  <!-- The React app will render into this div (unused in this test) -->
+  <div id="root"></div>
+
+  <!-- The physics sandbox will use this div as its boundary -->
+  <div id="physics-sandbox-div" style="position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; pointer-events: none;"></div>
+
+  <!-- The Three.js scene will render into this canvas -->
+  <canvas data-canvas style="position: fixed; top: 0; left: 0; z-index: -1;"></canvas>
+
+  <!-- We only need the homeScene script for this test -->
+
+
+</body>
+  
+</html>
