@@ -1,14 +1,18 @@
 import * as THREE from 'three';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 import PhysicsSandbox from "./physicsSandbox.js";
+import LoadingGroup from "./loadingGroup.js";
+import { AnimatedTube } from "./animatedTube.js";
+import VideoPanelShader from "./videoPanelShader.js";
+import ProjectTiles from "./projectTiles.js";
 import { updateCameraIntrisics } from "./utils/utils.js";
 
-const canvas = document.querySelector('[data-canvas]')
-if (!canvas) {
-    throw new Error('Could not find element with data-canvas attribute');
-}
-const scene = new THREE.Scene()
-
+class HomeScene {
     constructor() {
+        this.frustumSize = 10;
+        this.clock = new THREE.Clock();
+        
         this.initThree();
 
         setTimeout(() => {
@@ -31,7 +35,7 @@ const scene = new THREE.Scene()
             throw new Error("Canvas element with id 'canvas' not found. Make sure your HTML contains <canvas id='canvas'></canvas> and scripts run after DOMContentLoaded.");
         }
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setAnimationLoop(this.animate);
         this.renderer.shadowMap.enabled = true;
@@ -46,52 +50,84 @@ const scene = new THREE.Scene()
         this.onScroll();
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(window.getComputedStyle(document.body).backgroundColor);
+        this.scene.background = new THREE.Color('#0f172a'); // Default dark background
 
-        new HDRLoader().load(hdr, (texture) => {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            this.scene.environment = texture;
-        });
+        // Load HDR environment if available
+        try {
+            const loader = new RGBELoader();
+            loader.load('/assets/hdri/studio_small_08_1k.hdr', (texture) => {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                this.scene.environment = texture;
+            });
+        } catch (error) {
+            console.warn('HDR environment loading failed:', error);
+        }
     }
 
     initScene = () => {
-        this.loadingGroup = new LoadingGroup(this.camera, () => {
-            this.scene.remove(this.loadingGroup);
-            this.loadingGroup = undefined;
-        });
-        this.scene.add(this.loadingGroup);
+        try {
+            this.loadingGroup = new LoadingGroup(this.camera, () => {
+                this.scene.remove(this.loadingGroup);
+                this.loadingGroup = undefined;
+            });
+            this.scene.add(this.loadingGroup);
+        } catch (error) {
+            console.warn('LoadingGroup initialization failed:', error);
+        }
 
-        this.physicsSandbox = new PhysicsSandbox(this.camera);
-        this.scene.add(this.physicsSandbox);
+        try {
+            this.physicsSandbox = new PhysicsSandbox(this.camera);
+            this.scene.add(this.physicsSandbox);
+        } catch (error) {
+            console.warn('PhysicsSandbox initialization failed:', error);
+        }
 
-        this.animatedTube = new AnimatedTube(this.camera);
-        this.scene.add(this.animatedTube);
+        try {
+            this.animatedTube = new AnimatedTube(this.camera);
+            this.scene.add(this.animatedTube);
+        } catch (error) {
+            console.warn('AnimatedTube initialization failed:', error);
+        }
 
-        this.videoPanel = new VideoPanelShader(this.camera);
-        this.scene.add(this.videoPanel);
+        try {
+            this.videoPanel = new VideoPanelShader(this.camera);
+            this.scene.add(this.videoPanel);
+        } catch (error) {
+            console.warn('VideoPanelShader initialization failed:', error);
+        }
 
-        this.projectTiles = new ProjectTiles(this);
-        this.scene.add(this.projectTiles);
+        try {
+            this.projectTiles = new ProjectTiles(this);
+            this.scene.add(this.projectTiles);
+        } catch (error) {
+            console.warn('ProjectTiles initialization failed:', error);
+        }
     }
 
     onScroll = () => {
-        // Move the threejs camera"s y position to make it appear to be scrolling with the page.
-        this.camera.position.y = -window.scrollY / window.innerHeight * this.frustumSize;
+        if (this.camera) {
+            // Move the threejs camera's y position to make it appear to be scrolling with the page.
+            this.camera.position.y = -window.scrollY / window.innerHeight * this.frustumSize;
+        }
     }
 
     setCameraFrustumSize = (frustumSize) => {
         this.frustumSize = frustumSize;
-        updateCameraIntrisics(this.camera, this.frustumSize);
+        if (this.camera) {
+            updateCameraIntrisics(this.camera, this.frustumSize);
+        }
     }
 
     onWindowResized = () => {
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        updateCameraIntrisics(this.camera, this.frustumSize);
+        if (this.renderer && this.camera) {
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            updateCameraIntrisics(this.camera, this.frustumSize);
 
-        this.physicsSandbox && this.physicsSandbox.resize();
-        this.animatedTube && this.animatedTube.resize();
-        this.videoPanel && this.videoPanel.resize();
-        this.projectTiles && this.projectTiles.resize();
+            this.physicsSandbox && this.physicsSandbox.resize();
+            this.animatedTube && this.animatedTube.resize();
+            this.videoPanel && this.videoPanel.resize();
+            this.projectTiles && this.projectTiles.resize();
+        }
     }
 
     animate = () => {
@@ -103,12 +139,14 @@ const scene = new THREE.Scene()
         this.videoPanel && this.videoPanel.update(dt);
         this.projectTiles && this.projectTiles.update(dt, this.renderer);
 
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+        }
         this.stats && this.stats.update();
     }
 
     initDebug = () => {
-    // GUI removed: using default animation parameters
+        // GUI removed: using default animation parameters
     }
 
     initVideoPanelAnimations() {
@@ -131,86 +169,37 @@ const scene = new THREE.Scene()
         observer.observe(section);
     }
 
-const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight
+    destroy() {
+        // Cleanup event listeners
+        window.removeEventListener("scroll", this.onScroll);
+        window.removeEventListener("resize", this.onWindowResized);
+        
+        // Cleanup Three.js resources
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+        
+        // Remove stats if present
+        if (this.stats && this.stats.dom && this.stats.dom.parentNode) {
+            this.stats.dom.parentNode.removeChild(this.stats.dom);
+        }
+    }
 }
 
-const frustumSize = 10;
+// Export and create instance
+export default HomeScene;
 
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, stencil: true });
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+// Create instance when DOM is ready
+let homeSceneInstance = null;
 
-// Camera
-const camera = new THREE.OrthographicCamera();
-camera.near = 0;
-camera.far = 1000;
-camera.position.z = 10;
-scene.add(camera);
-updateCameraIntrisics(camera, frustumSize);
-
-
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-
-    // Update camera
-    updateCameraIntrisics(camera, frustumSize);
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
-
-// Material
-const material = new THREE.MeshLambertMaterial({ color: 0xffffff })
-
-// Geometry
-const geometry = new THREE.BoxGeometry(3, 3, 3)
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
-
-// Lighting
-const lightAmbient = new THREE.AmbientLight(0x9eaeff, 0.2)
-scene.add(lightAmbient)
-
-const lightDirectional = new THREE.DirectionalLight(0xffffff, 1)
-scene.add(lightDirectional)
-lightDirectional.position.set(5, 5, 5)
-
-// --- Physics Sandbox Integration ---
-const physicsTarget = document.getElementById('physics-sandbox-div');
-const physicsSandbox = new PhysicsSandbox(camera, { 
-    lazy: false,
-    targetElement: physicsTarget 
-});
-scene.add(physicsSandbox);
-// --- End Integration ---
-
-const clock = new THREE.Clock();
-
-const animate = () => {
-    const dt = clock.getDelta();
-
-    // Update cube rotation
-    mesh.rotation.x += dt * 0.2;
-    mesh.rotation.y += dt * 0.2;
-
-    // Update physics
-    physicsSandbox.update(dt);
-
-    // Render the scene
-    renderer.render(scene, camera);
-
-    // Call animate again on the next frame
-    requestAnimationFrame(animate);
+if (typeof window !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            homeSceneInstance = new HomeScene();
+        });
+    } else {
+        homeSceneInstance = new HomeScene();
+    }
 }
 
-// Start the animation loop
-animate();
+export { homeSceneInstance };

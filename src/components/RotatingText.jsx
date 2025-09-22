@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const RotatingText = ({ 
@@ -9,17 +9,20 @@ const RotatingText = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Memoize texts array to prevent unnecessary re-renders
+  const memoizedTexts = useMemo(() => texts, [texts]);
+
   useEffect(() => {
-    if (texts.length <= 1) return;
+    if (memoizedTexts.length <= 1) return;
 
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % memoizedTexts.length);
     }, interval);
 
     return () => clearInterval(timer);
-  }, [texts.length, interval]);
+  }, [memoizedTexts.length, interval]);
 
-  if (texts.length === 0) return null;
+  if (memoizedTexts.length === 0) return null;
 
   return (
     <div className={`relative inline-block ${className}`} {...props}>
@@ -32,7 +35,7 @@ const RotatingText = ({
           transition={{ duration: 0.5, ease: 'easeInOut' }}
           className="inline-block"
         >
-          {texts[currentIndex]}
+          {memoizedTexts[currentIndex]}
         </motion.span>
       </AnimatePresence>
     </div>

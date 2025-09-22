@@ -107,7 +107,7 @@ a {
     padding: 1rem;
     color: #fff;
     font-size: 6rem;
-    font-family: monospace, monospace;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 #home-content {

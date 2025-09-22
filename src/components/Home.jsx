@@ -1,12 +1,14 @@
 import Button from './Button';
 import { motion } from 'framer-motion';
+import { Suspense, useMemo } from 'react';
 import SplitText from './SplitText';
 import RotatingText from './RotatingText';
-import FloatingElements from './FloatingElements';
 import TypewriterText from './TypewriterText';
+import { LazyFloatingElements } from './LazyComponents';
 
 function Home() {
-  const heroAnimation = {
+  // Memoize animation objects to prevent recreation
+  const heroAnimation = useMemo(() => ({
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -14,9 +16,9 @@ function Home() {
         staggerChildren: 0.1,
       },
     },
-  };
+  }), []);
 
-  const wordAnimation = {
+  const wordAnimation = useMemo(() => ({
     hidden: { y: '100%' },
     visible: {
       y: 0,
@@ -25,14 +27,15 @@ function Home() {
         duration: 0.8,
       },
     },
-  };
+  }), []);
 
-  const rotatingWords = [
+  // Memoize rotating words array
+  const rotatingWords = useMemo(() => [
     'Enterprise AI Platform',
     'Generative AI Solution',
     'Intelligence Platform',
     'AI Development Hub'
-  ];
+  ], []);
 
   return (
     <div className="w-full relative font-sans">
@@ -52,8 +55,10 @@ function Home() {
           className="absolute inset-0 -z-10 pointer-events-none"
         />
         
-        {/* Add floating elements for enhanced visual appeal */}
-        <FloatingElements count={15} />
+        {/* Add floating elements for enhanced visual appeal with lazy loading */}
+        <Suspense fallback={null}>
+          <LazyFloatingElements count={15} />
+        </Suspense>
 
         <div className="flex flex-col justify-center items-start gap-y-8 text-brand-text">
           <motion.h1

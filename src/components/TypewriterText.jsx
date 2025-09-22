@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TypewriterText = ({ 
@@ -14,34 +14,42 @@ const TypewriterText = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCursorState, setShowCursorState] = useState(true);
 
-  useEffect(() => {
-    if (texts.length === 0) return;
+  // Memoize text array to prevent unnecessary re-renders
+  const memoizedTexts = useMemo(() => texts, [texts]);
 
-    const timeout = setTimeout(() => {
-      const fullText = texts[currentTextIndex];
+  const handleTyping = useCallback(() => {
+    if (memoizedTexts.length === 0) return;
 
-      if (!isDeleting) {
-        // Typing
-        if (currentText.length < fullText.length) {
-          setCurrentText(fullText.substring(0, currentText.length + 1));
-        } else {
-          // Finished typing, start deleting after pause
-          setTimeout(() => setIsDeleting(true), pauseDuration);
-        }
+    const fullText = memoizedTexts[currentTextIndex];
+
+    if (!isDeleting) {
+      // Typing
+      if (currentText.length < fullText.length) {
+        setCurrentText(fullText.substring(0, currentText.length + 1));
       } else {
-        // Deleting
-        if (currentText.length > 0) {
-          setCurrentText(fullText.substring(0, currentText.length - 1));
-        } else {
-          // Finished deleting, move to next text
-          setIsDeleting(false);
-          setCurrentTextIndex((prev) => (prev + 1) % texts.length);
-        }
+        // Finished typing, start deleting after pause
+        setTimeout(() => setIsDeleting(true), pauseDuration);
       }
-    }, isDeleting ? deletingSpeed : typingSpeed);
+    } else {
+      // Deleting
+      if (currentText.length > 0) {
+        setCurrentText(fullText.substring(0, currentText.length - 1));
+      } else {
+        // Finished deleting, move to next text
+        setIsDeleting(false);
+        setCurrentTextIndex((prev) => (prev + 1) % memoizedTexts.length);
+      }
+    }
+  }, [currentText, currentTextIndex, isDeleting, memoizedTexts, pauseDuration]);
+
+  useEffect(() => {
+    if (memoizedTexts.length === 0) return;
+
+    const speed = isDeleting ? deletingSpeed : typingSpeed;
+    const timeout = setTimeout(handleTyping, speed);
 
     return () => clearTimeout(timeout);
-  }, [currentText, isDeleting, currentTextIndex, texts, typingSpeed, deletingSpeed, pauseDuration]);
+  }, [currentText, isDeleting, typingSpeed, deletingSpeed, handleTyping, memoizedTexts.length]);
 
   // Cursor blinking effect
   useEffect(() => {

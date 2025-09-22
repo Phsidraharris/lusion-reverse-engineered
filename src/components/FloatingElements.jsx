@@ -1,19 +1,21 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { motion, useAnimationFrame } from 'framer-motion';
 
 const FloatingElements = ({ count = 20, className = '' }) => {
   const containerRef = useRef(null);
 
-  const elements = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    initialX: Math.random() * 100,
-    initialY: Math.random() * 100,
-    speed: Math.random() * 0.5 + 0.1,
-    amplitude: Math.random() * 30 + 10,
-    frequency: Math.random() * 0.02 + 0.01,
-    size: Math.random() * 8 + 4,
-    opacity: Math.random() * 0.3 + 0.1,
-  }));
+  // Memoize elements array to prevent recreation on every render
+  const elements = useMemo(() => 
+    Array.from({ length: count }, (_, i) => ({
+      id: i,
+      initialX: Math.random() * 100,
+      initialY: Math.random() * 100,
+      speed: Math.random() * 0.5 + 0.1,
+      amplitude: Math.random() * 30 + 10,
+      frequency: Math.random() * 0.02 + 0.01,
+      size: Math.random() * 8 + 4,
+      opacity: Math.random() * 0.3 + 0.1,
+    })), [count]);
 
   return (
     <div ref={containerRef} className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>

@@ -1,27 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import logoMain from '../assets/RODIAX_logo_161x161.png';
 import Button from './Button';
 
 const menuItems = [
-  { label: 'Products', href: '#products' },
-  { label: 'Solutions', href: '#solutions' },
-  { label: 'Company', href: '#company' },
+  { label: 'Products', href: '/products' },
+  { label: 'Solutions', href: '/solutions' },
+  { label: 'Company', href: '/company' },
 ];
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 20);
   }, []);
 
-  const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen(prev => !prev);
+  }, []);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   return (
     <motion.header
@@ -35,13 +43,11 @@ const Header = () => {
       <div className="max-w-screen-lg mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <motion.a 
-            href="/" 
-            aria-label="home" 
-            className="flex items-center"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
+          <Link to="/" aria-label="home" className="flex items-center">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
             <motion.img
               src={logoMain}
               alt="Rodiax Logo"
@@ -50,10 +56,11 @@ const Header = () => {
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.6 }}
             />
-            <span className="ml-3 text-xl font-semibold text-brand-text">
-              Rodiax
-            </span>
-          </motion.a>
+              <motion.span className="ml-3 text-xl font-semibold text-brand-text">
+                Rodiax
+              </motion.span>
+            </motion.div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
@@ -70,14 +77,17 @@ const Header = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
                 >
-                  <motion.a
-                    href={item.href}
+                  <Link
+                    to={item.href}
                     className="text-base text-brand-text hover:text-brand-accent transition-colors"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
                   >
-                    {item.label}
-                  </motion.a>
+                    <motion.span
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  </Link>
                 </motion.li>
               ))}
             </motion.ul>
@@ -86,12 +96,14 @@ const Header = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.6 }}
             >
-              <Button
-                title="Contact Us"
-                bgColor="bg-brand-accent hover:bg-brand-accent-hover"
-                textColor="text-white"
-                textSize="text-sm"
-              />
+              <Link to="/contact">
+                <Button
+                  title="Contact Us"
+                  bgColor="bg-brand-accent hover:bg-brand-accent-hover"
+                  textColor="text-white"
+                  textSize="text-sm"
+                />
+              </Link>
             </motion.div>
           </nav>
 
@@ -133,17 +145,20 @@ const Header = () => {
           >
             <nav className="px-6 pt-2 pb-4 flex flex-col gap-4">
               {menuItems.map((item, index) => (
-                <motion.a
+                <Link
                   key={item.label}
-                  href={item.href}
+                  to={item.href}
                   className="block text-base text-brand-text hover:text-brand-accent"
-                  onClick={() => setMobileMenuOpen(false)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  onClick={closeMobileMenu}
                 >
-                  {item.label}
-                </motion.a>
+                  <motion.span
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    {item.label}
+                  </motion.span>
+                </Link>
               ))}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

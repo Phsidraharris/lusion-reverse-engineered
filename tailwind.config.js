@@ -12,10 +12,16 @@ export default {
         }
       },
       fontFamily: {
-        // Unify all fonts to Inter
-        sans: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
-        serif: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
-        body: ["Inter", "system-ui", "Segoe UI", "Arial", "sans-serif"],
+        // Serif fonts for titles and headings (like Perplexity)
+        serif: ["Nanum Myeongjo", "Georgia", "Times New Roman", "serif"],
+        title: ["Nanum Myeongjo", "Georgia", "Times New Roman", "serif"],
+        
+        // Sans-serif fonts for body text and UI (like Perplexity)
+        sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        body: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        
+        // Monospace for code
+        mono: ["JetBrains Mono", "Fira Code", "Consolas", "monospace"],
       },
       keyframes: {
         scroll: {

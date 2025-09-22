@@ -1,41 +1,44 @@
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
+import { LazyGlareCard } from './LazyComponents';
+import { Suspense } from 'react';
 import Button from './Button';
-import GlareCard from './GlareCard';
-
-const productSections = [
-  {
-    title: 'Command',
-    description: 'Powerful command-line interface for seamless AI integration. Execute complex tasks with simple commands.',
-    features: ['Natural language processing', 'Batch operations', 'Custom workflows'],
-    icon: '⚡'
-  },
-  {
-    title: 'Embed',
-    description: 'Embed AI capabilities directly into your applications with our robust embedding API.',
-    features: ['RESTful API', 'SDK libraries', 'Real-time processing'],
-    icon: '🔗'
-  },
-  {
-    title: 'Rerank',
-    description: 'Advanced reranking algorithms to improve search relevance and user experience.',
-    features: ['Machine learning models', 'Custom scoring', 'A/B testing'],
-    icon: '🎯'
-  },
-  {
-    title: 'Fine-tuning',
-    description: 'Customize AI models for your specific use cases with our fine-tuning platform.',
-    features: ['Domain adaptation', 'Transfer learning', 'Performance optimization'],
-    icon: '🔧'
-  },
-  {
-    title: 'Pricing',
-    description: 'Flexible pricing plans designed to scale with your business needs.',
-    features: ['Pay-as-you-go', 'Volume discounts', 'Enterprise plans'],
-    icon: '💰'
-  }
-];
 
 const Products = () => {
+  // Memoize product sections array
+  const productSections = useMemo(() => [
+    {
+      title: 'Command',
+      description: 'Powerful command-line interface for seamless AI integration. Execute complex tasks with simple commands.',
+      features: ['Natural language processing', 'Batch operations', 'Custom workflows'],
+      icon: '⚡'
+    },
+    {
+      title: 'Embed',
+      description: 'Embed AI capabilities directly into your applications with our robust embedding API.',
+      features: ['RESTful API', 'SDK libraries', 'Real-time processing'],
+      icon: '🔗'
+    },
+    {
+      title: 'Rerank',
+      description: 'Advanced reranking algorithms to improve search relevance and user experience.',
+      features: ['Machine learning models', 'Custom scoring', 'A/B testing'],
+      icon: '🎯'
+    },
+    {
+      title: 'Fine-tuning',
+      description: 'Customize AI models for your specific use cases with our fine-tuning platform.',
+      features: ['Domain adaptation', 'Transfer learning', 'Performance optimization'],
+      icon: '🔧'
+    },
+    {
+      title: 'Pricing',
+      description: 'Flexible pricing plans designed to scale with your business needs.',
+      features: ['Pay-as-you-go', 'Volume discounts', 'Enterprise plans'],
+      icon: '💰'
+    }
+  ], []);
+
   return (
     <div className="min-h-screen bg-brand-background pt-20">
       {/* Hero Section */}
@@ -71,32 +74,19 @@ const Products = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {productSections.map((product, index) => (
             <div key={product.title} id={product.title.toLowerCase()}>
-              <GlareCard className="h-full">
-                <div className="p-6 h-full flex flex-col">
-                  <div className="text-4xl mb-4">{product.icon}</div>
-                  <h3 className="text-2xl font-semibold text-brand-text mb-3">
-                    {product.title}
-                  </h3>
-                  <p className="text-brand-text/80 mb-4 flex-grow">
-                    {product.description}
-                  </p>
-                  <ul className="space-y-2 mb-6">
-                    {product.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-brand-text/70">
-                        <span className="w-1.5 h-1.5 bg-brand-accent rounded-full mr-3"></span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    title="Learn More"
-                    bgColor="bg-brand-accent hover:bg-brand-accent-hover"
-                    textColor="text-white"
-                    textSize="text-sm"
-                    className="w-full"
-                  />
-                </div>
-              </GlareCard>
+                            <Suspense fallback={<div className="h-full bg-brand-secondary rounded-lg"></div>}>
+                <LazyGlareCard className="h-full">
+                  <div className="bg-brand-secondary p-8 h-full rounded-lg">
+                    <div className="h-32 bg-gradient-to-br from-brand-accent to-brand-accent-hover rounded-lg mb-6 flex items-center justify-center">
+                      <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-brand-accent rounded"></div>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-4">{product.title}</h3>
+                    <p className="text-brand-text-secondary">{product.description}</p>
+                  </div>
+                </LazyGlareCard>
+              </Suspense>
             </div>
           ))}
         </div>
