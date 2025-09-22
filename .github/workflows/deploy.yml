@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["main", "optimize-animations"]
+    branches: ["main", "optimize-animations", "secondary-pages"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
