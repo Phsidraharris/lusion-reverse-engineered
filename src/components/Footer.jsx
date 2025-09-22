@@ -1,6 +1,30 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import logoMain from '../assets/RODIAX_logo_161x161.png';
+
+// Map footer links to their corresponding routes
+const linkRoutes = {
+  'Command': '/products#command',
+  'Embed': '/products#embed',
+  'Rerank': '/products#rerank',
+  'Fine-tuning': '/products#fine-tuning',
+  'Pricing': '/products#pricing',
+  'Playground': '/developers#playground',
+  'LLM University': '/developers#llm-university',
+  'Documentation': '/developers#documentation',
+  'API Reference': '/developers#api-reference',
+  'Responsible Use': '/developers#responsible-use',
+  'About': '/company#about',
+  'Blog': '/company#blog',
+  'Research': '/company#research',
+  'Careers': '/company#careers',
+  'Newsroom': '/company#newsroom',
+  'Twitter': 'https://twitter.com/rodiax_ai',
+  'LinkedIn': 'https://linkedin.com/company/rodiax-ai',
+  'Discord': 'https://discord.gg/rodiax',
+  'Support': '/contact#support'
+};
 
 const footerSections = [
   {
@@ -62,14 +86,30 @@ function Footer() {
                     transition={{ duration: 0.4, delay: (sectionIndex * 0.1) + (linkIndex * 0.05) }}
                     viewport={{ once: true }}
                   >
-                    <motion.a
-                      href="#"
-                      className="text-sm text-brand-text/80 hover:text-brand-accent transition-colors"
-                      whileHover={{ x: 5 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {link}
-                    </motion.a>
+                    {linkRoutes[link]?.startsWith('http') ? (
+                      <motion.a
+                        href={linkRoutes[link]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-brand-text/80 hover:text-brand-accent transition-colors"
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {link}
+                      </motion.a>
+                    ) : (
+                      <Link
+                        to={linkRoutes[link] || '#'}
+                        className="text-sm text-brand-text/80 hover:text-brand-accent transition-colors"
+                      >
+                        <motion.span
+                          whileHover={{ x: 5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {link}
+                        </motion.span>
+                      </Link>
+                    )}
                   </motion.li>
                 ))}
               </ul>
@@ -101,22 +141,28 @@ function Footer() {
             </span>
           </motion.div>
           <div className="flex gap-6 text-sm text-brand-text/80">
-            <motion.a 
-              href="#" 
+            <Link
+              to="/privacy"
               className="hover:text-brand-accent"
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
             >
-              Privacy
-            </motion.a>
-            <motion.a 
-              href="#" 
+              <motion.span
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                Privacy
+              </motion.span>
+            </Link>
+            <Link
+              to="/terms"
               className="hover:text-brand-accent"
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
             >
-              Terms of Use
-            </motion.a>
+              <motion.span
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                Terms of Use
+              </motion.span>
+            </Link>
           </div>
         </motion.div>
       </div>

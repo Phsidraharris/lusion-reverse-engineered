@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +11,8 @@
 
 html {
     scroll-behavior: smooth;
-    font: 14px "Inter", Arial, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
 }
 
 body {
@@ -45,15 +44,43 @@ body {
     box-sizing: border-box;
 }
 
+/* Heading styles - using serif font like Perplexity */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
 h1 {
     font-size: var(--h1-font-size);
     margin-bottom: 2rem;
-    font-weight: 700; /* Bolder headings */
 }
 
+h2 {
+    font-size: 2.5rem;
+}
+
+h3 {
+    font-size: 2rem;
+}
+
+h4 {
+    font-size: 1.5rem;
+}
+
+h5 {
+    font-size: 1.25rem;
+}
+
+h6 {
+    font-size: 1rem;
+}
+
+/* Body text - using sans-serif like Perplexity */
 p {
     margin-bottom: 1rem;
     line-height: 1.6; /* Improved readability */
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 a {
@@ -81,7 +108,7 @@ a:hover {
     padding: 1rem;
     color: #fff;
     font-size: 6rem;
-    font-family: monospace, monospace;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 #home-content {
@@ -380,6 +407,8 @@ body {
 h1 {
     font-size: var(--h1-font-size);
     margin-bottom: 2rem;
+    font-family: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+    font-weight: 700;
 }
 
 p {

@@ -1,23 +1,37 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 
-const AnimatedBackground = ({ children, className = '' }) => {
+const AnimatedBackground = ({ children, className = '', particleCount = 50 }) => {
   const containerRef = useRef(null);
+
+  // Memoize particle configuration
+  const particleConfig = useMemo(() => ({
+    count: particleCount,
+    className: 'absolute w-1 h-1 bg-white/20 rounded-full animate-pulse',
+    maxAnimationDuration: 3,
+    minAnimationDuration: 2,
+    maxAnimationDelay: 2
+  }), [particleCount]);
+
+  // Memoize particle creation function
+  const createParticle = useCallback((index) => {
+    const particle = document.createElement('div');
+    particle.className = particleConfig.className;
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + '%';
+    particle.style.animationDuration = (Math.random() * particleConfig.maxAnimationDuration + particleConfig.minAnimationDuration) + 's';
+    particle.style.animationDelay = Math.random() * particleConfig.maxAnimationDelay + 's';
+    return particle;
+  }, [particleConfig]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     // Create floating particles
-    const particleCount = 50;
     const particles = [];
 
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'absolute w-1 h-1 bg-white/20 rounded-full animate-pulse';
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.top = Math.random() * 100 + '%';
-      particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
-      particle.style.animationDelay = Math.random() * 2 + 's';
+    for (let i = 0; i < particleConfig.count; i++) {
+      const particle = createParticle(i);
       container.appendChild(particle);
       particles.push(particle);
     }
@@ -37,12 +51,15 @@ const AnimatedBackground = ({ children, className = '' }) => {
     // Cleanup
     return () => {
       particles.forEach(particle => {
-        if (container.contains(particle)) {
-          container.removeChild(particle);
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
         }
       });
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
     };
-  }, []);
+  }, [particleConfig, createParticle]);
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden ${className}`}>

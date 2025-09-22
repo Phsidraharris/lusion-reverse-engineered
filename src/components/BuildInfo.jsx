@@ -26,7 +26,7 @@ export default function BuildInfo() {
         position: 'fixed',
         bottom: 8,
         right: 8,
-        fontFamily: 'monospace',
+        fontFamily: 'JetBrains Mono, Fira Code, Consolas, monospace',
         fontSize: 11,
         lineHeight: 1.3,
         background: 'rgba(0,0,0,0.55)',

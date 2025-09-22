@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { motion } from "framer-motion";
 import { TextAnimation } from "../TextAnimation";
 import Button from "./Button";
 import ShuffleText from "./ShuffleText";
-import MorphingBlob from "./MorphingBlob";
+import { LazyMorphingBlob } from "./LazyComponents";
 
 function OurMission() {
   const textRef = useRef(null);
@@ -18,8 +18,10 @@ function OurMission() {
       className="2xl:px-40 lg:px-22 px-6 bg-cover bg-center py-10 relative overflow-hidden"
       style={{ backgroundColor: "azure" }}
     >
-      {/* Add morphing blob background */}
-      <MorphingBlob colors={['#ffffff', '#f0f8ff', '#e6f3ff']} />
+      {/* Add morphing blob background with lazy loading */}
+      <Suspense fallback={null}>
+        <LazyMorphingBlob colors={['#ffffff', '#f0f8ff', '#e6f3ff']} />
+      </Suspense>
       
       <div className="w-full relative py-12 lg:py-16 2xl:py-26 max-w-full-screen mx-auto px-5 md:px-5 lg:px-12">
         <motion.div 
