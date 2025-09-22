@@ -3,9 +3,11 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/src/assets/RODIAX_logo_161x161.png" />
+  <link rel="icon" type="image/png" href="./src/assets/RODIAX_logo_161x161.png" />
   <meta name="theme-color" content="#141622" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Permissions Policy to handle GitHub Pages -->
+  <meta http-equiv="Permissions-Policy" content="browsing-topics=()">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,12 +26,11 @@
   <canvas data-canvas style="position: fixed; top: 0; left: 0; z-index: -1;"></canvas>
 
   <!-- We only need the homeScene script for this test -->
-  <script type="module" src="src/homeScene.js" defer></script>
+  <script type="module" src="./src/homeScene.js" defer></script>
 
-  <script type="module" src="/src/main.jsx"></script>
+  <script type="module" src="./src/main.jsx"></script>
 
-        <script type="module" src="src/homeScene.js" defer></script>
-        <script type="module" src="src/paging.js"></script>
+  <script type="module" src="./src/paging.js"></script>
 </body>
   
 </html>

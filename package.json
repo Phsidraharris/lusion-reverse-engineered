@@ -1,6 +1,6 @@
 {
   "name": "lusion-reverse-engineered",
-  "homepage": "https://canxerian.github.io/lusion-reverse-engineered",
+  "homepage": "https://phsidraharris.github.io/lusion-reverse-engineered",
   "private": true,
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",
