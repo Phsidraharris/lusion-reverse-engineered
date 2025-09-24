@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createBevelledPlane, elementToLocalRectPoints, elementToWorldRect } from "./utils/utils";
+import adaptiveQuality from './utils/adaptiveQuality.js';
+import { subscribeScroll } from './utils/scrollFrame.js';
 
 const TINT_COLOUR_START = new THREE.Color("#94e0e6");
 const TINT_COLOUR_END = new THREE.Color("#ffffff");
@@ -59,7 +61,7 @@ export default class VideoPanelBones extends THREE.Group {
         this.initPanels(camera);
         this.initDebug();
 
-        window.addEventListener("scroll", this.onScroll);
+    this._unsubscribeScroll = subscribeScroll(() => this.onScroll());
     }
 
     initPanels = async (camera) => {
@@ -219,7 +221,7 @@ export default class VideoPanelBones extends THREE.Group {
     }
 
     update(dt) {
-        if (!AUTOSCROLL_ENABLED) {
+        if (!AUTOSCROLL_ENABLED || adaptiveQuality.tier === 'low') {
             return;
         }
         if (this.animPlaybackPercent > 0.1 && this.animPlaybackPercent < 1) {

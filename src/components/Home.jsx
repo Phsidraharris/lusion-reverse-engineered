@@ -12,10 +12,8 @@ function Home() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
+      transition: { staggerChildren: 0.1 }
+    }
   }), []);
 
   const wordAnimation = useMemo(() => ({
@@ -38,9 +36,14 @@ function Home() {
   ], []);
 
   return (
-    <div 
+    <section
       id="hero-with-physics"
-      className="w-full min-h-screen relative"
+      className="relative w-full min-h-screen overflow-hidden hero-stack"
+      style={{
+        marginInline: 'auto',
+        padding: 0,
+        height: '100vh'
+      }}
     >
       {/* Single shared canvas for 3D background */}
       <canvas
@@ -48,14 +51,15 @@ function Home() {
         className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
       />
       
-      {/* This div defines the area PhysicsSandbox will size to - full width */}
+      {/* Physics background anchor (stretches to viewport width) */}
       <div
         id="physics-sandbox-div"
-        className="absolute inset-0 -z-10 pointer-events-none"
+        className="absolute top-0 left-1/2 -translate-x-1/2 -z-10 pointer-events-none"
+        style={{ width: '100vw', height: '100vh', margin: 0, padding: 0 }}
       />
       
       {/* Content container - centered with max width */}
-      <div className="relative max-w-screen-lg mx-auto px-6 flex flex-col justify-center items-start min-h-screen z-10">
+  <div className="relative max-w-screen-lg mx-auto px-6 flex flex-col justify-center items-start min-h-screen z-10" style={{paddingTop:0,paddingBottom:0,marginTop:0,marginBottom:0}}>
         
         {/* Add floating elements for enhanced visual appeal with lazy loading */}
         <Suspense fallback={null}>
@@ -118,7 +122,7 @@ function Home() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 export default Home;

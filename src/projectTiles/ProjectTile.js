@@ -6,14 +6,16 @@ import { animateAsync, randomSign, waitAsync } from "../utils/animationUtils";
 import { elementToWorldRect } from "../utils/utils";
 import hdr from "../../assets/hdri/studio_small_08_1k.hdr";
 import { HDRLoader } from 'three/examples/jsm/Addons.js';
+import adaptiveQuality from '../utils/adaptiveQuality.js';
 
 const ASPECT = 16 / 9;
 const DEFAULT_BG_COLOUR = "#eee";
 const DEFAULT_CAM_POS = new THREE.Vector3(0, 0, 4);
 const CAMERA_LOOKAT = new THREE.Vector3(0, 0, 0);
 const CAMERA_MOVEMENT_COEF = 0.6;
-const RENDER_TEXTURE_WIDTH = 2048;
-const RENDER_TEXTURE_HEIGHT = RENDER_TEXTURE_WIDTH / ASPECT;
+const BASE_RT_WIDTH = adaptiveQuality.projectTileRTBase; // adapt via adaptive quality
+const RENDER_TEXTURE_WIDTH = BASE_RT_WIDTH;
+const RENDER_TEXTURE_HEIGHT = Math.round(RENDER_TEXTURE_WIDTH / ASPECT);
 const HORIZONTAL_MASK_CLOSED = 0.5;
 const HORIZONTAL_MASK_OPEN = 0;
 
@@ -23,6 +25,8 @@ export default class ProjectTile extends THREE.Group {
     renderTarget = new THREE.WebGLRenderTarget(RENDER_TEXTURE_WIDTH, RENDER_TEXTURE_HEIGHT, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
+        depthBuffer: false,
+        stencilBuffer: false,
     });
     portalCamera = new THREE.PerspectiveCamera(45, ASPECT);
     portalScene = new THREE.Scene();

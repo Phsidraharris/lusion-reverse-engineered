@@ -16,14 +16,24 @@ function init() {
 
     const canvas = document.getElementById("canvas");
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // Adaptive DPR clamp to reduce fill-rate cost (dynamic import without top-level await)
+    const baseDPR = Math.min(window.devicePixelRatio, 1.5);
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(baseDPR);
+    import('./src/utils/perfProfile.js').then(mod => {
+        try {
+            const perfProfile = mod.default;
+            renderer.setPixelRatio(perfProfile.clampDPR(window.devicePixelRatio));
+        } catch(_) {}
+    }).catch(()=>{});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-    stats = new Stats();
-    document.body.appendChild(stats.dom);
+    if (import.meta.env.DEV) {
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+    }
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.z = 75;
@@ -78,7 +88,7 @@ function animate() {
     targetVelocity = Math.max(0, targetVelocity - 0.005);
 
     renderer.render(scene, camera);
-    stats.update();
+    stats && stats.update();
 }
 
 let prevTimestamp = 0;

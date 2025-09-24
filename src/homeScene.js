@@ -6,6 +6,12 @@ import LoadingGroup from "./loadingGroup.js";
 import { AnimatedTube } from "./animatedTube.js";
 import VideoPanelShader from "./videoPanelShader.js";
 import ProjectTiles from "./projectTiles.js";
+import adaptiveQuality from './utils/adaptiveQuality.js';
+import { initDebugOverlay } from './utils/debugOverlay.js';
+import { observeOnce } from './utils/lazyObserve.js';
+import { createDynamicResolution } from './utils/dynamicResolution.js';
+import { registerVisibility } from './utils/visibility.js';
+import { subscribeScroll } from './utils/scrollFrame.js';
 import { updateCameraIntrisics } from "./utils/utils.js";
 
 class HomeScene {
@@ -20,7 +26,8 @@ class HomeScene {
             this.initVideoPanelAnimations();
         }, 1);
 
-        window.addEventListener("scroll", this.onScroll);
+    // Use scroll frame batching
+    this._unsubscribeScroll = subscribeScroll(this.onScroll);
         window.addEventListener("resize", this.onWindowResized);
 
         if (import.meta.env.DEV) {
@@ -34,8 +41,14 @@ class HomeScene {
         if (!canvas) {
             throw new Error("Canvas element with id 'canvas' not found. Make sure your HTML contains <canvas id='canvas'></canvas> and scripts run after DOMContentLoaded.");
         }
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true });
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas, stencil: true, powerPreference: 'high-performance' });
+        this.renderer.setPixelRatio(adaptiveQuality.clampDPR(window.devicePixelRatio));
+        this._dynamicRes = createDynamicResolution(this.renderer, {
+            min: adaptiveQuality.tier === 'low' ? 0.75 : 0.85,
+            max: adaptiveQuality.clampDPR(window.devicePixelRatio),
+            downscaleThreshold: adaptiveQuality.tier === 'ultra' ? 24 : 20,
+            upscaleThreshold: adaptiveQuality.tier === 'low' ? 12 : 14,
+        });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setAnimationLoop(this.animate);
         this.renderer.shadowMap.enabled = true;
@@ -52,15 +65,22 @@ class HomeScene {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color('#0f172a'); // Default dark background
 
-        // Load HDR environment if available
-        try {
-            const loader = new RGBELoader();
-            loader.load('/assets/hdri/studio_small_08_1k.hdr', (texture) => {
-                texture.mapping = THREE.EquirectangularReflectionMapping;
-                this.scene.environment = texture;
-            });
-        } catch (error) {
-            console.warn('HDR environment loading failed:', error);
+        // Defer HDR environment load to idle / after first paint to reduce TTI.
+        const loadHdr = () => {
+            try {
+                const loader = new RGBELoader();
+                loader.load('/assets/hdri/studio_small_08_1k.hdr', (texture) => {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    this.scene.environment = texture;
+                });
+            } catch (error) {
+                console.warn('HDR environment loading failed:', error);
+            }
+        };
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadHdr, { timeout: 2500 });
+        } else {
+            setTimeout(loadHdr, 1500);
         }
     }
 
@@ -75,33 +95,46 @@ class HomeScene {
             console.warn('LoadingGroup initialization failed:', error);
         }
 
-        try {
-            this.physicsSandbox = new PhysicsSandbox(this.camera);
-            this.scene.add(this.physicsSandbox);
-        } catch (error) {
-            console.warn('PhysicsSandbox initialization failed:', error);
+        if (adaptiveQuality.physicsEnabled) {
+            try {
+                this.physicsSandbox = new PhysicsSandbox(this.camera);
+                this.scene.add(this.physicsSandbox);
+            } catch (error) {
+                console.warn('PhysicsSandbox initialization failed:', error);
+            }
         }
 
-        // try {
-        //     this.animatedTube = new AnimatedTube(this.camera);
-        //     this.scene.add(this.animatedTube);
-        // } catch (error) {
-        //     console.warn('AnimatedTube initialization failed:', error);
-        // }
+        try {
+            this.animatedTube = new AnimatedTube(this.camera);
+            this.scene.add(this.animatedTube);
+        } catch (error) {
+            console.warn('AnimatedTube initialization failed:', error);
+        }
 
-        // try {
-        //     this.videoPanel = new VideoPanelShader(this.camera);
-        //     this.scene.add(this.videoPanel);
-        // } catch (error) {
-        //     console.warn('VideoPanelShader initialization failed:', error);
-        // }
+        // Lazy load video panel when section enters viewport
+        if (adaptiveQuality.enableVideoPanel) {
+            observeOnce('video-panel-section', () => {
+                try {
+                    this.videoPanel = new VideoPanelShader(this.camera);
+                    this.scene.add(this.videoPanel);
+                } catch (error) {
+                    console.warn('VideoPanelShader initialization failed:', error);
+                }
+            });
+        }
 
-        // try {
-        //     this.projectTiles = new ProjectTiles(this);
-        //     this.scene.add(this.projectTiles);
-        // } catch (error) {
-        //     console.warn('ProjectTiles initialization failed:', error);
-        // }
+        try {
+            this.projectTiles = new ProjectTiles(this);
+            this.scene.add(this.projectTiles);
+            // Defer expensive GLTF loads until first tile intersects
+            observeOnce('tile-1', () => {
+                this.projectTiles.initTiles?.();
+            });
+        } catch (error) {
+            console.warn('ProjectTiles initialization failed:', error);
+        }
+        // Optional debug overlay (user triggers via ?debugPerf=1)
+        initDebugOverlay();
     }
 
     onScroll = () => {
@@ -131,13 +164,42 @@ class HomeScene {
     }
 
     animate = () => {
+        const frameStart = performance.now();
         const dt = this.clock.getDelta();
+        this._frameIndex = (this._frameIndex || 0) + 1;
+
+        // Visibility gating
+        this._visPhysics = this._visPhysics || registerVisibility('physics-sandbox-div');
+        this._visVideo = this._visVideo || registerVisibility('video-panel-section');
+        this._visTiles = this._visTiles || registerVisibility('tile-1');
 
         this.loadingGroup && this.loadingGroup.update(dt);
-        this.physicsSandbox && this.physicsSandbox.update(dt);
-        this.animatedTube && this.animatedTube.update(dt);
-        this.videoPanel && this.videoPanel.update(dt);
-        this.projectTiles && this.projectTiles.update(dt, this.renderer);
+
+        const tier = adaptiveQuality.tier;
+        const every = (n) => (this._frameIndex % n === 0);
+
+        // Update ordering (cheap -> expensive)
+        if (this.physicsSandbox && (tier !== 'low') && this._visPhysics()) {
+            this.physicsSandbox.update(dt);
+        }
+        if (this.animatedTube) {
+            // mild throttling on low tier
+            if (tier === 'low' ? every(2) : true) this.animatedTube.update(dt);
+        }
+        if (this.videoPanel && this._visVideo()) {
+            if (tier === 'low' ? every(3) : true) this.videoPanel.update(dt);
+        }
+        if (this.projectTiles && this._visTiles()) {
+            if (tier === 'low' ? every(2) : true) this.projectTiles.update(dt, this.renderer);
+        }
+
+        // Dynamic resolution scaling (after potential throttling)
+        const frameMs = performance.now() - frameStart;
+        this._dynamicRes && this._dynamicRes.update(dt, frameMs);
+
+        if (frameMs > 20) {
+            window.__RODIAX_FRAME_SKIPS__ = (window.__RODIAX_FRAME_SKIPS__ || 0) + (frameMs > 32 ? 2 : 1);
+        }
 
         if (this.renderer && this.scene && this.camera) {
             this.renderer.render(this.scene, this.camera);
@@ -171,7 +233,7 @@ class HomeScene {
 
     destroy() {
         // Cleanup event listeners
-        window.removeEventListener("scroll", this.onScroll);
+    this._unsubscribeScroll && this._unsubscribeScroll();
         window.removeEventListener("resize", this.onWindowResized);
         
         // Cleanup Three.js resources

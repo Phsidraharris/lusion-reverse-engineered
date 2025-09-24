@@ -31,6 +31,16 @@ body {
     overscroll-behavior-y: none;
 }
 
+/* Debug outline mode (toggle with Shift+P) */
+body.debug-physics #hero-with-physics { outline: 2px solid #ff0066; }
+body.debug-physics #physics-sandbox-div { outline: 2px dashed #0099ff; }
+body.debug-physics #canvas { outline: 2px dotted #22cc88; }
+
+/* Hero full-height hard reset */
+#hero-with-physics.hero-stack { margin:0; padding:0; min-height:100vh; }
+#hero-with-physics.hero-stack > #physics-sandbox-div { height:100vh !important; }
+
+
 /* Canvas fade-in once physics is ready */
 body:not([data-physics-ready]) #canvas { opacity: 0; transition: opacity .6s ease; }
 body[data-physics-ready] #canvas { opacity: 1; }

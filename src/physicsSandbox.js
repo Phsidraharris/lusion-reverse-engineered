@@ -1,6 +1,7 @@
 import RAPIER, { Ray } from "@dimforge/rapier3d-compat";
 import * as THREE from 'three';
 import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
+import adaptiveQuality from './utils/adaptiveQuality.js';
 import { createBevelledPlane, elementToWorldRect, pageToWorldCoords } from "./utils/utils";
 
 const OBJECT_COUNT = 1;
@@ -37,6 +38,26 @@ export default class PhysicsSandbox extends THREE.Group {
             this._installIntersectionStart();
         } else {
             this._deferredInit();
+        }
+
+        // Post layout stabilization checks (fonts, late style application, fractional DPR rounding)
+        this._installStabilization();
+
+        // Late second-pass resize (handles slow layout / async injected styles)
+        setTimeout(() => {
+            this._log('second-pass timed resize');
+            this.resize();
+        }, 420);
+
+        // Debug helpers (toggle with Shift+P)
+        if (typeof window !== 'undefined' && !window.__PHYSICS_DEBUG_KEY_BOUND__) {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'P' && e.shiftKey) {
+                    document.body.classList.toggle('debug-physics');
+                    this._log('debug outline toggle ->', document.body.classList.contains('debug-physics'));
+                }
+            });
+            window.__PHYSICS_DEBUG_KEY_BOUND__ = true;
         }
 
         // Expose test harness
@@ -98,6 +119,65 @@ export default class PhysicsSandbox extends THREE.Group {
         this.initReflectingPlane();
         // Physics/world may already exist; a resize will rebuild cleanly
         this.resize();
+        this._log('mask rebuilt from element');
+    }
+
+    _installStabilization() {
+        // Re-run measurement after fonts load (fonts changing metrics can shift layout)
+        try {
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => {
+                    this._log('fonts ready -> resize');
+                    this.resize();
+                });
+            }
+        } catch(_) {}
+
+        // ResizeObserver on the target div to catch late layout / container changes
+        const el = () => document.getElementById('physics-sandbox-div');
+        const target = el();
+        if (target && !this._resizeObserver) {
+            try {
+                this._resizeObserver = new ResizeObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.target === target) {
+                            this._log('ResizeObserver -> element size changed');
+                            this.resize();
+                        }
+                    }
+                });
+                this._resizeObserver.observe(target);
+            } catch(err) {
+                this._log('ResizeObserver unavailable', err);
+            }
+        } else if (!target) {
+            // Try again shortly if element not yet in DOM
+            setTimeout(() => this._installStabilization(), 250);
+        }
+
+        // Multi-frame validation: sometimes first layout reports 0 / fractional rounding diff until next frame.
+        this._stabilizeFrame = 0;
+        const MAX_FRAMES = 6;
+        const baseline = { w: this.maskWidth, h: this.maskHeight };
+        const validate = () => {
+            this._stabilizeFrame++;
+            const elRef = el();
+            if (elRef) {
+                const rect = elRef.getBoundingClientRect();
+                // If size changed more than a pixel or 1% relative, rebuild.
+                const dw = Math.abs(rect.width - (baseline.w || rect.width));
+                const dh = Math.abs(rect.height - (baseline.h || rect.height));
+                const relW = dw / (rect.width || 1);
+                const relH = dh / (rect.height || 1);
+                if ((dw > 1 && relW > 0.01) || (dh > 1 && relH > 0.01)) {
+                    this._log('post-frame validation -> size drift detected, rebuilding mask');
+                    this._rebuildMaskFromElement();
+                    return; // new rebuild will schedule its own resize logic
+                }
+            }
+            if (this._stabilizeFrame < MAX_FRAMES) requestAnimationFrame(validate);
+        };
+        requestAnimationFrame(validate);
     }
 
     _installIntersectionStart() {
@@ -149,6 +229,19 @@ export default class PhysicsSandbox extends THREE.Group {
         return window.innerWidth / 100;
     }
 
+    // Helper: compute full viewport height in world units at a given Z (mirrors width helper)
+    getViewportHeightAtZ(z) {
+        const cam = this.camera;
+        if (cam.isPerspectiveCamera) {
+            const dist = Math.abs(cam.position.z - z);
+            const vFov = THREE.MathUtils.degToRad(cam.fov);
+            return 2 * Math.tan(vFov / 2) * dist;
+        } else if (cam.isOrthographicCamera) {
+            return (cam.top - cam.bottom);
+        }
+        return window.innerHeight / 100;
+    }
+
     initViewMask = () => {
         const targetEl = document.getElementById("physics-sandbox-div");
         if (!targetEl) {
@@ -170,11 +263,26 @@ export default class PhysicsSandbox extends THREE.Group {
         this._usedFallback = false;
 
         const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
-        const elementHeightWorld = Math.abs(divWorldRect.height);
-        const elementWidthWorld = Math.abs(divWorldRect.width);
+    const elementHeightWorld = Math.abs(divWorldRect.height);
+    const elementWidthWorld = Math.abs(divWorldRect.width);
         const position = divWorldRect.position;
-        this.maskWidth = elementWidthWorld;
-        this.maskHeight = elementHeightWorld;
+        // Clamp / expand logic: prefer full viewport width at element Z if wider
+    const viewportWidthAtZ = this.getViewportWidthAtZ(position.z);
+    const viewportHeightAtZ = this.getViewportHeightAtZ(position.z);
+    // For height we also ensure at least viewport height (handles min-h-screen vs content shrink)
+    this.maskWidth = Math.max(elementWidthWorld, viewportWidthAtZ);
+    this.maskHeight = Math.max(elementHeightWorld, viewportHeightAtZ);
+
+        this._lastMeasurement = {
+            elementWidthWorld,
+            elementHeightWorld,
+            viewportWidthAtZ,
+            viewportHeightAtZ,
+            chosenWidth: this.maskWidth,
+            chosenHeight: this.maskHeight,
+            ts: performance.now()
+        };
+        this._log('mask measure', this._lastMeasurement);
 
         if (this.physicsMaskMesh) {
             this.remove(this.physicsMaskMesh);
@@ -348,12 +456,16 @@ export default class PhysicsSandbox extends THREE.Group {
         const height = this.maskHeight || this.physicsMaskMesh?.geometry.parameters?.height || 10;
 
         const geometry = new THREE.PlaneGeometry(width, height);
+    const dpr = adaptiveQuality.clampDPR(window.devicePixelRatio || 1);
+    const texScale = adaptiveQuality.tier === 'ultra' ? 1 : adaptiveQuality.tier === 'high' ? 0.75 : adaptiveQuality.tier === 'medium' ? 0.6 : 0.45;
+        const tw = Math.round(window.innerWidth * dpr * texScale);
+        const th = Math.round(window.innerHeight * dpr * texScale);
         const reflector = new Reflector(geometry, {
             color: 0x888888,
-            textureWidth: window.innerWidth,
-            textureHeight: window.innerHeight,
+            textureWidth: tw,
+            textureHeight: th,
             clipBias: 0.003,
-            recursion: 1,
+            recursion: 0, // reduce recursion for perf
         });
         reflector.position.copy(this.physicsMaskMesh.position);
         reflector.position.z -= 2;
@@ -368,6 +480,7 @@ export default class PhysicsSandbox extends THREE.Group {
         clearTimeout(this._resizeT);
         this._resizeT = setTimeout(async () => {
             await this._doResize();
+            this._debug && this.logCamera();
         }, 120);
     }
 
@@ -403,6 +516,32 @@ export default class PhysicsSandbox extends THREE.Group {
             await this.initPhysics();
             this.initStencil();
             this.initReflectingPlane();
+        }
+    }
+
+    logCamera() {
+        const c = this.camera;
+        if (!c) return;
+        if (c.isOrthographicCamera) {
+            this._log('camera frustum', {
+                left: c.left,
+                right: c.right,
+                top: c.top,
+                bottom: c.bottom,
+                near: c.near,
+                far: c.far,
+                width: c.right - c.left,
+                height: c.top - c.bottom,
+                aspect: (c.right - c.left) / (c.top - c.bottom || 1)
+            });
+        } else if (c.isPerspectiveCamera) {
+            this._log('camera perspective', {
+                fov: c.fov,
+                aspect: c.aspect,
+                near: c.near,
+                far: c.far,
+                pos: c.position.toArray()
+            });
         }
     }
     update(dt) {

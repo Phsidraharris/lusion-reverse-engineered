@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { NURBSCurve } from "three/examples/jsm/Addons.js";
 import nurbsJson from "../assets/nurbs-canxerian.json";
+import adaptiveQuality from './utils/adaptiveQuality.js';
 
 const DEBUG_NURB_LINE = false;
 
@@ -87,8 +88,10 @@ export class AnimatedTube extends THREE.Group {
         dataTexture.needsUpdate = true;
         this.uniforms.curveTexture.value = dataTexture;
 
-        let cylinderSegments = 1000;
-        let radialSegments = 100;
+    // Adaptive detail
+    const detail = adaptiveQuality.tubeDetailFactor;
+    let cylinderSegments = Math.max(120, Math.round(1000 * detail));
+    let radialSegments = Math.max(24, Math.round(100 * detail));
         let tubeGeometry = mergeGeometries([
             new THREE.SphereGeometry(this.radius, radialSegments, radialSegments * 0.5, 0, Math.PI * 2, 0, Math.PI * 0.5).translate(0, 0.5, 0),
             new THREE.CylinderGeometry(this.radius, this.radius, 1, radialSegments, cylinderSegments, true),
