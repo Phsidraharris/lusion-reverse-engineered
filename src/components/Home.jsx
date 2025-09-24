@@ -38,22 +38,24 @@ function Home() {
   ], []);
 
   return (
-    <div className="w-full relative font-sans">
+    <div 
+      id="hero-with-physics"
+      className="w-full min-h-screen relative"
+    >
       {/* Single shared canvas for 3D background */}
       <canvas
         id="canvas"
         className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
       />
-
+      
+      {/* This div defines the area PhysicsSandbox will size to - full width */}
       <div
-        id="hero-with-physics"
-        className="relative w-full py-16 lg:py-24 2xl:py-32 max-w-screen-lg mx-auto px-6"
-      >
-        {/* This div defines the area PhysicsSandbox will size to. */}
-        <div
-          id="physics-sandbox-div"
-          className="absolute inset-0 -z-10 pointer-events-none"
-        />
+        id="physics-sandbox-div"
+        className="absolute inset-0 -z-10 pointer-events-none"
+      />
+      
+      {/* Content container - centered with max width */}
+      <div className="relative max-w-screen-lg mx-auto px-6 flex flex-col justify-center items-start min-h-screen z-10">
         
         {/* Add floating elements for enhanced visual appeal with lazy loading */}
         <Suspense fallback={null}>

@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import growth from '../assets/growth.png';
 import model from '../assets/model.png';
 import FeatureSection from './FeatureSection';
 import ShuffleText from './ShuffleText';
 
 function Service() {
+  const [isAnimated, setIsAnimated] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation after component mounts
+    const timer = setTimeout(() => {
+      setIsAnimated(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="2xl:px-40 lg:px-22 px-6 bg-brand-background flex flex-col gap-y-12 py-16 text-brand-text">
       {/* Hero Section */}
@@ -14,12 +25,12 @@ function Service() {
             <section id="video-panel-section">
               <div className="about-headers">
                 <div className="animated-h1-container">
-                  <h1 id="h1-topline" className="text-brand-text">
+                  <h1 id="h1-topline" className={`text-brand-text ${isAnimated ? 'animate' : ''}`}>
                     <ShuffleText text="BEYOND VISIONS" />
                   </h1>
                 </div>
                 <div className="animated-h1-container">
-                  <h1 id="h1-tagline" className="text-brand-text">
+                  <h1 id="h1-tagline" className={`text-brand-text ${isAnimated ? 'animate' : ''}`}>
                     <ShuffleText text="WITHIN REACH" />
                   </h1>
                 </div>

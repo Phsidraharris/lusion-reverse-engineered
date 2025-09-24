@@ -171,9 +171,9 @@ export default class PhysicsSandbox extends THREE.Group {
 
         const divWorldRect = elementToWorldRect("physics-sandbox-div", this.camera);
         const elementHeightWorld = Math.abs(divWorldRect.height);
+        const elementWidthWorld = Math.abs(divWorldRect.width);
         const position = divWorldRect.position;
-        const fullViewportWidth = this.getViewportWidthAtZ(position.z);
-        this.maskWidth = fullViewportWidth;
+        this.maskWidth = elementWidthWorld;
         this.maskHeight = elementHeightWorld;
 
         if (this.physicsMaskMesh) {

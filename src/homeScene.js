@@ -82,26 +82,26 @@ class HomeScene {
             console.warn('PhysicsSandbox initialization failed:', error);
         }
 
-        try {
-            this.animatedTube = new AnimatedTube(this.camera);
-            this.scene.add(this.animatedTube);
-        } catch (error) {
-            console.warn('AnimatedTube initialization failed:', error);
-        }
+        // try {
+        //     this.animatedTube = new AnimatedTube(this.camera);
+        //     this.scene.add(this.animatedTube);
+        // } catch (error) {
+        //     console.warn('AnimatedTube initialization failed:', error);
+        // }
 
-        try {
-            this.videoPanel = new VideoPanelShader(this.camera);
-            this.scene.add(this.videoPanel);
-        } catch (error) {
-            console.warn('VideoPanelShader initialization failed:', error);
-        }
+        // try {
+        //     this.videoPanel = new VideoPanelShader(this.camera);
+        //     this.scene.add(this.videoPanel);
+        // } catch (error) {
+        //     console.warn('VideoPanelShader initialization failed:', error);
+        // }
 
-        try {
-            this.projectTiles = new ProjectTiles(this);
-            this.scene.add(this.projectTiles);
-        } catch (error) {
-            console.warn('ProjectTiles initialization failed:', error);
-        }
+        // try {
+        //     this.projectTiles = new ProjectTiles(this);
+        //     this.scene.add(this.projectTiles);
+        // } catch (error) {
+        //     console.warn('ProjectTiles initialization failed:', error);
+        // }
     }
 
     onScroll = () => {
